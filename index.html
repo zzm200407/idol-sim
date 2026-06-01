@@ -237,9 +237,32 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue'
 .member-info{flex:1}
 .member-name-sm{font-size:13px;font-weight:600}
 .member-role{font-size:10px;opacity:0.5}
+<style>
+.lock-screen{position:absolute;top:0;left:0;right:0;bottom:0;background:#1a1a2e;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px}
+.lock-screen.hide{display:none}
+.lock-icon{font-size:50px;margin-bottom:5px}
+.lock-title{font-size:18px;font-weight:700}
+.lock-sub{font-size:12px;opacity:0.4;margin-top:-14px;margin-bottom:10px}
+.lock-input-wrap{display:flex;gap:8px;align-items:center}
+.lock-input{width:160px;background:#2a2a4a;border:2px solid #3a3a5a;border-radius:10px;padding:10px 14px;color:#fff;font-size:20px;text-align:center;letter-spacing:8px;outline:none}
+.lock-input:focus{border-color:#a29bfe}
+.lock-btn{background:linear-gradient(135deg,#6c5ce7,#a29bfe);border:none;color:#fff;padding:10px 20px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer}
+.lock-error{color:#ff4757;font-size:12px;height:16px;margin-top:-5px}
 </style>
 </head>
 <body>
+<!-- 密码锁 -->
+<div class="lock-screen" id="lockScreen">
+  <div class="lock-icon">🔒</div>
+  <div class="lock-title">爱豆模拟器</div>
+  <div class="lock-sub" id="lockDate"></div>
+  <div class="lock-input-wrap">
+    <input class="lock-input" id="lockInput" type="password" maxlength="6" placeholder="●●●●" onkeypress="if(event.key==='Enter')checkLock()">
+    <button class="lock-btn" onclick="checkLock()">解锁</button>
+  </div>
+  <div class="lock-error" id="lockError"></div>
+</div>
+
 <div class="phone-frame">
   <!-- 状态栏 -->
   <div class="status-bar">
@@ -1671,8 +1694,37 @@ function rand(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-// 启动
-init();
+// ===== 密码锁 =====
+function initLock() {
+  const today = new Date();
+  const mm = String(today.getMonth()+1).padStart(2,'0');
+  const dd = String(today.getDate()).padStart(2,'0');
+  const todayPwd = '0506'; // 今日密码
+  const tomorrowPwd = mm === '06' && today.getDate() === 2 ? '0606' : (()=>{
+    const t = new Date(today); t.setDate(t.getDate()+1);
+    return String(t.getMonth()+1).padStart(2,'0') + String(t.getDate()).padStart(2,'0') + '06'.slice(-2);
+  })();
+  const storedNext = localStorage.getItem('idolNextPwd');
+  const nextPwd = storedNext || tomorrowPwd;
+  document.getElementById('lockDate').textContent = '明日密码提示: ' + nextPwd;
+  window._lockPwd = todayPwd;
+}
+function checkLock() {
+  const val = document.getElementById('lockInput').value.trim();
+  if (val === window._lockPwd) {
+    document.getElementById('lockScreen').classList.add('hide');
+    init();
+  } else {
+    document.getElementById('lockError').textContent = '密码错误，请重试';
+    document.getElementById('lockInput').value = '';
+    document.getElementById('lockInput').focus();
+  }
+}
+// 不自动init，先显示锁屏
+// init();
+// 密码锁启动
+initLock();
+document.getElementById('lockInput').focus();
 </script>
 </body>
 </html>
