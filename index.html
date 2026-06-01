@@ -1,0 +1,1678 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>爱豆模拟器</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue',Helvetica,Arial,sans-serif;background:#1a1a2e;color:#fff;overflow:hidden;height:100vh;width:100vw;display:flex;justify-content:center;align-items:center}
+.phone-frame{width:375px;height:700px;background:#16162a;border-radius:40px;overflow:hidden;display:flex;flex-direction:column;position:relative;box-shadow:0 0 60px rgba(0,0,0,0.8);border:3px solid #2a2a4a}
+
+/* 状态栏 */
+.status-bar{height:44px;background:#0d0d1f;display:flex;justify-content:space-between;align-items:center;padding:0 20px;font-size:12px;font-weight:600;flex-shrink:0;z-index:10}
+.status-left{display:flex;align-items:center;gap:3px;font-size:13px}
+.status-right{display:flex;align-items:center;gap:4px}
+.signal-bar{width:3px;background:#fff;border-radius:1px;margin:0 1px}
+.battery{width:22px;height:10px;border:1.5px solid #fff;border-radius:3px;position:relative;display:flex;align-items:center;justify-content:flex-end;padding:1px}
+.battery::after{content:'';position:absolute;right:-4px;top:2px;width:3px;height:5px;background:#fff;border-radius:0 2px 2px 0}
+
+/* 主内容区 */
+.main-content{flex:1;overflow-y:auto;overflow-x:hidden;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;display:none;padding-bottom:60px}
+.main-content.active{display:block}
+
+/* 首页 */
+.home-screen{padding:12px 14px}
+.player-card{background:linear-gradient(135deg,#6c5ce7,#a29bfe);border-radius:16px;padding:16px;margin-bottom:12px;position:relative;overflow:hidden}
+.player-card::after{content:'';position:absolute;top:-30px;right:-30px;width:100px;height:100px;background:rgba(255,255,255,0.1);border-radius:50%}
+.player-card-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.avatar{width:44px;height:44px;background:linear-gradient(135deg,#fd79a8,#e84393);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:bold;flex-shrink:0}
+.player-name{font-size:16px;font-weight:700;margin-bottom:2px}
+.player-status-label{font-size:11px;opacity:0.8}
+.trainee-badge{display:inline-block;background:rgba(255,255,255,0.2);padding:2px 8px;border-radius:10px;font-size:10px;margin-top:4px}
+.debut-badge{display:inline-block;background:#e84393;padding:2px 8px;border-radius:10px;font-size:10px;margin-top:4px;display:none}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat-item{background:rgba(0,0,0,0.2);border-radius:10px;padding:8px 10px}
+.stat-label{font-size:10px;opacity:0.7;margin-bottom:2px}
+.stat-value{font-size:15px;font-weight:700}
+
+/* 快捷按钮 */
+.quick-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.quick-btn{background:#1f1f3a;border-radius:14px;padding:14px 6px;text-align:center;cursor:pointer;transition:all 0.2s;min-height:75px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border:none;color:#fff}
+.quick-btn:active{transform:scale(0.95);background:#2a2a50}
+.quick-btn .btn-icon{font-size:22px;margin-bottom:2px}
+.quick-btn .btn-label{font-size:12px;font-weight:600}
+.quick-btn .btn-desc{font-size:10px;opacity:0.6}
+.quick-btn.highlight{background:linear-gradient(135deg,#e84393,#fd79a8)}
+
+/* 倒计时卡 */
+.countdown-card{background:#1f1f3a;border-radius:14px;padding:14px;margin-bottom:12px;display:none}
+.countdown-card.show{display:block}
+.countdown-title{font-size:12px;opacity:0.6;margin-bottom:4px}
+.countdown-time{font-size:28px;font-weight:700;color:#fd79a8;margin-bottom:6px}
+.countdown-progress{width:100%;height:6px;background:#2a2a50;border-radius:3px;overflow:hidden;margin-bottom:6px}
+.countdown-progress-bar{height:100%;background:linear-gradient(90deg,#e84393,#fd79a8);border-radius:3px;transition:width 0.5s}
+.countdown-sub{font-size:11px;opacity:0.5}
+
+/* 发现页 */
+.discover-screen{padding:12px 14px}
+.weibo-hot{background:#1f1f3a;border-radius:14px;padding:14px;margin-bottom:12px}
+.section-title{font-size:14px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.hot-item{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer}
+.hot-item:last-child{border:none}
+.hot-rank{font-size:12px;font-weight:700;width:18px;text-align:center;flex-shrink:0}
+.hot-rank.top1{color:#ff4757}
+.hot-rank.top2{color:#ff6b35}
+.hot-rank.top3{color:#ffa502}
+.hot-title{flex:1;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hot-tag{font-size:9px;padding:1px 4px;border-radius:3px;flex-shrink:0}
+.tag-hot{background:#ff4757}
+.tag-new{background:#2ed573}
+.tag-friend{background:#3742fa}
+
+/* 消息页 */
+.messages-screen{padding:12px 14px}
+.msg-tab-bar{display:flex;gap:8px;margin-bottom:12px}
+.msg-tab{padding:6px 14px;background:#1f1f3a;border-radius:20px;font-size:12px;cursor:pointer;border:none;color:#fff;transition:all 0.2s}
+.msg-tab.active{background:linear-gradient(135deg,#6c5ce7,#a29bfe)}
+.msg-list{background:#1f1f3a;border-radius:14px;overflow:hidden}
+.msg-item{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;display:flex;gap:10px;align-items:center}
+.msg-item:last-child{border:none}
+.msg-item:active{background:rgba(255,255,255,0.05)}
+.msg-avatar{width:38px;height:38px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px}
+.msg-info{flex:1;min-width:0}
+.msg-name{font-size:13px;font-weight:600;margin-bottom:2px}
+.msg-preview{font-size:11px;opacity:0.5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.msg-time{font-size:10px;opacity:0.4;flex-shrink:0}
+
+/* 我的页面 */
+.mine-screen{padding:12px 14px}
+.mine-header{background:linear-gradient(135deg,#6c5ce7,#a29bfe);border-radius:16px;padding:20px 16px;margin-bottom:14px;text-align:center;position:relative;overflow:hidden}
+.mine-avatar{width:64px;height:64px;background:linear-gradient(135deg,#fd79a8,#e84393);border-radius:50%;margin:0 auto 10px;font-size:28px;display:flex;align-items:center;justify-content:center}
+.mine-name{font-size:17px;font-weight:700;margin-bottom:2px}
+.mine-id{font-size:11px;opacity:0.6}
+.mine-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.mine-stat{background:rgba(0,0,0,0.15);border-radius:10px;padding:8px}
+.mine-stat-value{font-size:16px;font-weight:700}
+.mine-stat-label{font-size:10px;opacity:0.7}
+.menu-card{background:#1f1f3a;border-radius:14px;overflow:hidden;margin-bottom:12px}
+.menu-item{padding:13px 16px;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px}
+.menu-item:last-child{border:none}
+.menu-item:active{background:rgba(255,255,255,0.05)}
+.menu-icon{font-size:18px;width:24px;text-align:center}
+.menu-arrow{color:#555;font-size:12px;margin-left:auto}
+
+/* Tab栏 */
+.tab-bar{height:60px;background:#0d0d1f;border-top:1px solid #1a1a2e;display:flex;position:absolute;bottom:0;left:0;right:0;z-index:10}
+.tab-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;border:none;background:none;color:#555;transition:all 0.2s;font-size:10px;padding:0}
+.tab-item.active{color:#a29bfe}
+.tab-item .tab-icon{font-size:20px;margin-bottom:1px}
+.tab-item.center-tab .tab-icon{font-size:26px;color:#a29bfe}
+
+/* 弹窗 */
+.modal-overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:100;display:none;align-items:flex-end;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal{background:#1a1a2e;width:100%;max-height:85%;border-radius:20px 20px 0 0;overflow:hidden;display:flex;flex-direction:column;animation:slideUp 0.3s ease}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 16px 10px;font-size:16px;font-weight:700;border-bottom:1px solid #2a2a4a;flex-shrink:0}
+.modal-close{background:none;border:none;color:#888;font-size:22px;cursor:pointer;padding:0 4px}
+.modal-body{flex:1;overflow-y:auto;padding:14px 16px}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+
+/* 表单元素 */
+.form-group{margin-bottom:14px}
+.form-label{font-size:12px;opacity:0.6;margin-bottom:6px;display:block}
+.form-input{width:100%;background:#2a2a4a;border:1px solid #3a3a5a;border-radius:10px;padding:10px 12px;color:#fff;font-size:14px;outline:none}
+.form-input:focus{border-color:#a29bfe}
+.form-select{width:100%;background:#2a2a4a;border:1px solid #3a3a5a;border-radius:10px;padding:10px 12px;color:#fff;font-size:14px;outline:none;appearance:none}
+.action-btn{width:100%;padding:12px;border-radius:12px;border:none;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:8px;transition:all 0.2s}
+.action-btn:active{transform:scale(0.97)}
+.btn-primary{background:linear-gradient(135deg,#6c5ce7,#a29bfe);color:#fff}
+.btn-danger{background:linear-gradient(135deg,#e84393,#fd79a8);color:#fff}
+.btn-secondary{background:#2a2a4a;color:#ccc}
+.btn-warning{background:linear-gradient(135deg,#e17055,#fdcb6e);color:#fff}
+
+/* 选项列表 */
+.option-list{background:#1f1f3a;border-radius:12px;overflow:hidden;margin-bottom:12px}
+.option-item{padding:13px 16px;border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.option-item:last-child{border:none}
+.option-item:active{background:rgba(255,255,255,0.05)}
+.option-name{font-size:14px}
+.option-cost{font-size:11px;opacity:0.5}
+.option-reward{font-size:11px;color:#2ed573}
+
+/* 详情卡 */
+.detail-card{background:#2a2a4a;border-radius:12px;padding:14px;margin-bottom:12px}
+.detail-row{display:flex;justify-content:space-between;padding:4px 0;font-size:13px}
+.detail-row span:first-child{opacity:0.6}
+
+/* Toast */
+.toast{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.85);color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;z-index:200;display:none;pointer-events:none;white-space:nowrap}
+.toast.show{display:block;animation:fadeInOut 1.5s ease forwards}
+@keyframes fadeInOut{0%{opacity:0;transform:translate(-50%,-50%) scale(0.8)}20%{opacity:1;transform:translate(-50%,-50%) scale(1)}80%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(0.8)}}
+
+/* 事件通知 */
+.event-banner{position:absolute;top:44px;left:0;right:0;background:linear-gradient(135deg,#e84393,#fd79a8);padding:10px 14px;font-size:13px;font-weight:600;z-index:50;display:none;animation:slideDown 0.3s ease}
+.event-banner.show{display:block}
+@keyframes slideDown{from{transform:translateY(-100%)}to{transform:translateY(0)}}
+
+/* 练习详情 */
+.practice-detail{text-align:center;padding:10px 0}
+.practice-detail .practice-icon{font-size:40px;margin-bottom:10px}
+.practice-detail .practice-effect{font-size:12px;opacity:0.6;margin-bottom:14px}
+
+/* 通告列表 */
+.job-item{background:#2a2a4a;border-radius:12px;padding:14px;margin-bottom:10px;cursor:pointer;border:none;width:100%;text-align:left;color:#fff}
+.job-item:active{transform:scale(0.98)}
+.job-name{font-size:15px;font-weight:700;margin-bottom:4px}
+.job-req{font-size:11px;opacity:0.5;margin-bottom:4px}
+.job-desc{font-size:12px;opacity:0.7}
+.job-tags{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.job-tag{padding:2px 8px;border-radius:10px;font-size:10px;background:rgba(255,255,255,0.1)}
+
+/* 考核 */
+.assess-card{background:#1f1f3a;border-radius:14px;padding:16px;margin-bottom:12px;text-align:center}
+.assess-rank{font-size:36px;font-weight:700;color:#fd79a8;margin:10px 0}
+.assess-rank-label{font-size:12px;opacity:0.6}
+
+/* 热搜 */
+.hot-entry{background:#2a2a4a;border-radius:12px;padding:14px;margin-bottom:10px;cursor:pointer}
+.hot-entry-title{font-size:14px;font-weight:600;margin-bottom:4px}
+.hot-entry-desc{font-size:11px;opacity:0.5}
+
+/* 私信 */
+.pm-item{background:#2a2a4a;border-radius:12px;padding:12px;margin-bottom:8px}
+.pm-sender{font-size:13px;font-weight:600;margin-bottom:4px}
+.pm-content{font-size:13px;opacity:0.8;margin-bottom:10px}
+.pm-options{display:flex;gap:6px;flex-wrap:wrap}
+.pm-option{padding:5px 12px;border-radius:8px;font-size:12px;cursor:pointer;border:none;color:#fff}
+.pm-option.reply1{background:#6c5ce7}
+.pm-option.reply2{background:#2ed573}
+.pm-option.ignore{background:#555}
+
+/* 微信对话 */
+.wx-header{display:flex;align-items:center;gap:10px;padding:12px 16px;background:#1a1a2e;border-bottom:1px solid #2a2a4a}
+.wx-contact-name{font-size:15px;font-weight:600}
+.wx-messages{flex:1;overflow-y:auto;padding:12px 16px;min-height:200px;max-height:300px}
+.wx-msg{margin-bottom:10px;display:flex;flex-direction:column}
+.wx-msg.other{align-items:flex-start}
+.wx-msg.self{align-items:flex-end}
+.wx-bubble{padding:8px 12px;border-radius:12px;max-width:75%;font-size:13px;line-height:1.5}
+.wx-msg.other .wx-bubble{background:#3a3a5a;border-bottom-left-radius:3px}
+.wx-msg.self .wx-bubble{background:#6c5ce7;border-bottom-right-radius:3px}
+.wx-input-bar{display:flex;gap:8px;padding:10px 16px;border-top:1px solid #2a2a4a;background:#1a1a2e}
+.wx-input{flex:1;background:#2a2a4a;border:1px solid #3a3a5a;border-radius:20px;padding:8px 14px;color:#fff;font-size:13px;outline:none}
+.wx-send{background:#6c5ce7;border:none;color:#fff;padding:6px 14px;border-radius:20px;font-size:13px;cursor:pointer}
+
+/* 短信 */
+.sms-item{background:#2a2a4a;border-radius:12px;padding:12px;margin-bottom:8px}
+.sms-from{font-size:12px;opacity:0.5;margin-bottom:4px}
+.sms-content{font-size:13px}
+
+/* 发微博 */
+.weibo-editor{background:#2a2a4a;border-radius:12px;padding:14px;margin-bottom:12px}
+.weibo-textarea{width:100%;background:transparent;border:none;color:#fff;font-size:14px;resize:none;outline:none;min-height:100px;line-height:1.6}
+.char-count{text-align:right;font-size:11px;opacity:0.4;margin-top:6px}
+
+/* 设置页 */
+.setting-item{padding:13px 0;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:space-between}
+.setting-label{font-size:14px}
+.setting-value{font-size:13px;opacity:0.5;text-align:right;max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* 关系好感度 */
+.relationship-card{background:#1f1f3a;border-radius:14px;padding:14px;margin-bottom:12px}
+.rel-item{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+.rel-item:last-child{border:none}
+.rel-avatar{width:36px;height:36px;border-radius:50%;background:#3a3a5a;display:flex;align-items:center;justify-content:center;font-size:16px}
+.rel-name{font-size:13px;font-weight:600;flex:1}
+.rel-bar-wrap{flex:1;height:4px;background:#2a2a4a;border-radius:2px;overflow:hidden}
+.rel-bar{height:100%;background:linear-gradient(90deg,#e84393,#fd79a8);border-radius:2px;transition:width 0.5s}
+.rel-val{font-size:11px;color:#fd79a8;width:30px;text-align:right}
+
+/* 滚动条 */
+::-webkit-scrollbar{width:0}
+
+/* 团队成员编辑 */
+.member-item{background:#2a2a4a;border-radius:12px;padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.member-avatar-sm{width:36px;height:36px;border-radius:50%;background:#3a3a5a;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.member-info{flex:1}
+.member-name-sm{font-size:13px;font-weight:600}
+.member-role{font-size:10px;opacity:0.5}
+</style>
+</head>
+<body>
+<div class="phone-frame">
+  <!-- 状态栏 -->
+  <div class="status-bar">
+    <div class="status-left">
+      <span id="status-time">00:00</span>
+    </div>
+    <div class="status-right">
+      <div class="signal-bar" style="height:8px"></div>
+      <div class="signal-bar" style="height:6px"></div>
+      <div class="signal-bar" style="height:4px"></div>
+      <div class="signal-bar" style="height:2px"></div>
+      <div style="width:4px"></div>
+      <div class="battery" id="battery-bar"><span style="width:80%;height:100%;background:#2ed573;border-radius:2px;display:block"></span></div>
+    </div>
+  </div>
+
+  <!-- 事件横幅 -->
+  <div class="event-banner" id="eventBanner"></div>
+
+  <!-- 首页 -->
+  <div class="main-content active" id="screen-home">
+    <div class="home-screen">
+      <div class="player-card">
+        <div class="player-card-header">
+          <div class="avatar" id="playerAvatar">练习生</div>
+          <div>
+            <div class="player-name" id="playerName">未设置</div>
+            <div class="player-status-label">ID: <span id="playerId">10000</span></div>
+            <span class="trainee-badge" id="badge-trainee">练习生</span>
+            <span class="debut-badge" id="badge-debut">已出道</span>
+          </div>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-item"><div class="stat-label">声乐</div><div class="stat-value" id="stat-vocal">10</div></div>
+          <div class="stat-item"><div class="stat-label">舞蹈</div><div class="stat-value" id="stat-dance">10</div></div>
+          <div class="stat-item"><div class="stat-label">体力</div><div class="stat-value" id="stat-stamina">200</div></div>
+          <div class="stat-item"><div class="stat-label">粉丝</div><div class="stat-value" id="stat-fans">0</div></div>
+          <div class="stat-item"><div class="stat-label">心情</div><div class="stat-value" id="stat-mood">80</div></div>
+          <div class="stat-item"><div class="stat-label">疲惫值</div><div class="stat-value" id="stat-fatigue">0</div></div>
+        </div>
+      </div>
+
+      <!-- 倒计时卡 -->
+      <div class="countdown-card" id="countdownCard">
+        <div class="countdown-title" id="countdownLabel">演唱会筹备</div>
+        <div class="countdown-time" id="countdownTime">30天 00:00:00</div>
+        <div class="countdown-progress"><div class="countdown-progress-bar" id="countdownProgressBar" style="width:0%"></div></div>
+        <div class="countdown-sub" id="countdownSub">准备中...</div>
+      </div>
+
+      <div class="quick-actions">
+        <button class="quick-btn" onclick="showPractice()">
+          <span class="btn-icon">🎤</span>
+          <span class="btn-label">练习</span>
+          <span class="btn-desc">提升技能</span>
+        </button>
+        <button class="quick-btn" onclick="showJobs()" id="btn-jobs">
+          <span class="btn-icon">📋</span>
+          <span class="btn-label">接通告</span>
+          <span class="btn-desc" id="btn-jobs-desc">出道后解锁</span>
+        </button>
+        <button class="quick-btn" onclick="showEntertainment()">
+          <span class="btn-icon">🎮</span>
+          <span class="btn-label">娱乐</span>
+          <span class="btn-desc">放松心情</span>
+        </button>
+        <button class="quick-btn highlight" onclick="showConcert()" id="btn-concert">
+          <span class="btn-icon">🎤</span>
+          <span class="btn-label">开演唱会</span>
+          <span class="btn-desc" id="btn-concert-desc">需10万粉丝</span>
+        </button>
+        <button class="quick-btn" onclick="showAssessment()" id="btn-assess">
+          <span class="btn-icon">🏆</span>
+          <span class="btn-label">考核</span>
+          <span class="btn-desc" id="btn-assess-desc">每月一次</span>
+        </button>
+        <button class="quick-btn" onclick="showWeibo()" style="background:#e84393">
+          <span class="btn-icon">📱</span>
+          <span class="btn-label">发微博</span>
+          <span class="btn-desc">发动态</span>
+        </button>
+      </div>
+
+      <div class="detail-card" style="display:none" id="newsCard">
+        <div class="section-title">📢 最新动态</div>
+        <div id="newsContent">暂无动态</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 发现页 -->
+  <div class="main-content" id="screen-discover">
+    <div class="discover-screen">
+      <div class="weibo-hot">
+        <div class="section-title">🔥 微博热搜</div>
+        <div id="hotList">加载中...</div>
+      </div>
+      <div class="menu-card">
+        <div class="section-title" style="padding:12px 16px 4px">📩 私信列表</div>
+        <div id="pmList">暂无私信</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 发微博页 -->
+  <div class="main-content" id="screen-plus">
+    <div class="discover-screen">
+      <div class="weibo-editor">
+        <textarea class="weibo-textarea" id="weiboText" placeholder="分享你的日常..." maxlength="280" oninput="updateCharCount()"></textarea>
+        <div class="char-count"><span id="charCount">0</span>/280</div>
+      </div>
+      <button class="action-btn btn-primary" onclick="postWeibo()">发布微博</button>
+      <div class="detail-card" style="margin-top:14px">
+        <div class="section-title">📋 已发微博</div>
+        <div id="myWeibos">还没发过微博...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 消息页 -->
+  <div class="main-content" id="screen-messages">
+    <div class="messages-screen">
+      <div class="msg-tab-bar">
+        <button class="msg-tab active" onclick="switchMsgTab('wx',this)">微信</button>
+        <button class="msg-tab" onclick="switchMsgTab('sms',this)">短信</button>
+      </div>
+      <div id="wxList"></div>
+      <div id="smsList" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- 我的 -->
+  <div class="main-content" id="screen-mine">
+    <div class="mine-screen">
+      <div class="mine-header">
+        <div class="mine-avatar" id="mineAvatar">🎤</div>
+        <div class="mine-name" id="mineName">未设置</div>
+        <div class="mine-id">ID: <span id="mineId">10000</span></div>
+        <div class="mine-stats">
+          <div class="mine-stat"><div class="mine-stat-value" id="mine-fans">0</div><div class="mine-stat-label">粉丝</div></div>
+          <div class="mine-stat"><div class="mine-stat-value" id="mine-vocal">10</div><div class="mine-stat-label">声乐</div></div>
+          <div class="mine-stat"><div class="mine-stat-value" id="mine-dance">10</div><div class="mine-stat-label">舞蹈</div></div>
+        </div>
+      </div>
+
+      <div class="menu-card">
+        <div class="menu-item" onclick="showEditProfile()"><span class="menu-icon">👤</span><span>编辑资料</span><span class="menu-arrow">›</span></div>
+        <div class="menu-item" onclick="showRelationships()"><span class="menu-icon">💕</span><span>好感关系</span><span class="menu-arrow">›</span></div>
+        <div class="menu-item" onclick="showTeam()" id="menu-team"><span class="menu-icon">👥</span><span>团队成员</span><span class="menu-arrow">›</span></div>
+        <div class="menu-item" onclick="showTeamName()" id="menu-teamname"><span class="menu-icon">🏷️</span><span>团队名称</span><span class="menu-arrow">›</span></div>
+        <div class="menu-item" onclick="showLive()" id="menu-live"><span class="menu-icon">📺</span><span>直播</span><span class="menu-arrow">›</span></div>
+        <div class="menu-item" onclick="showBanInfo()" id="menu-ban" style="display:none"><span class="menu-icon">🚫</span><span>恋爱限制令</span><span class="menu-arrow">›</span></div>
+      </div>
+
+      <div class="menu-card">
+        <div class="menu-item" onclick="showGameLog()"><span class="menu-icon">📜</span><span>游戏日志</span><span class="menu-arrow">›</span></div>
+        <div class="menu-item" onclick="resetGame()"><span class="menu-icon">🔄</span><span style="color:#e84393">重新开始</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab栏 -->
+  <div class="tab-bar">
+    <button class="tab-item active" onclick="switchTab('home',this)">
+      <span class="tab-icon">🏠</span><span>首页</span>
+    </button>
+    <button class="tab-item" onclick="switchTab('discover',this)">
+      <span class="tab-icon">🔍</span><span>发现</span>
+    </button>
+    <button class="tab-item center-tab" onclick="switchTab('plus',this)">
+      <span class="tab-icon">➕</span><span>发博</span>
+    </button>
+    <button class="tab-item" onclick="switchTab('messages',this)">
+      <span class="tab-icon">💬</span><span>消息</span>
+    </button>
+    <button class="tab-item" onclick="switchTab('mine',this)">
+      <span class="tab-icon">👤</span><span>我的</span>
+    </button>
+  </div>
+
+  <!-- 弹窗 -->
+  <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+    <div class="modal" id="modalContent" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <span id="modalTitle">标题</span>
+        <button class="modal-close" onclick="closeModal()">×</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+// ===== 游戏数据 =====
+const DEFAULT_STATE = {
+  playerName: '练习生',
+  gender: '男',
+  style: '全能偶像',
+  sexuality: '保密',
+  relationship: '单身',
+  debuted: false,
+  vocal: 10,
+  dance: 10,
+  stamina: 200,
+  fans: 0,
+  mood: 80,
+  fatigue: 0,
+  day: 1,
+  lastDayReset: null,
+  lastStaminaRegen: null,
+  assessmentCountdown: 30,
+  assessmentPending: false,
+  concertPlanned: false,
+  concertDaysLeft: 0,
+  concertSongLevel: 0,
+  concertDanceLevel: 0,
+  hotWeibo: false,
+  hotWeiboDays: 0,
+  banActive: true,
+  banDays: 60,
+  playerId: Math.floor(Math.random() * 9000) + 1000,
+  teamName: '',
+  solo: true,
+  members: [],
+  weibos: [],
+  news: [],
+  gameLog: [],
+  pmList: [],
+  wxContacts: [
+    {id:'manager', name:'经纪人王姐', avatar:'👩‍💼', lastMsg:'最近状态不错，有几个通告想跟你聊聊'},
+    {id:'assistant', name:'小助理阿涛', avatar:'🧑‍💻', lastMsg:'明天的行程我安排好了'},
+    {id:'senior', name:'前辈周哥', avatar:'👨‍🎤', lastMsg:'加油弟弟，期待你出道'},
+  ],
+  wxMessages: {
+    manager: [
+      {from:'other', text:'最近状态不错，有几个通告想跟你聊聊'},
+    ],
+    assistant: [
+      {from:'other', text:'明天的行程我安排好了'},
+    ],
+    senior: [
+      {from:'other', text:'加油弟弟，期待你出道'},
+    ]
+  },
+  smsList: [
+    {from:'1068888888', content:'【验证码】您的验证码为888888，切勿告知他人', time:'今天 08:00'}
+  },
+  relationships: [
+    {name:'经纪人王姐', role:'经纪人', value:50, avatar:'👩‍💼'},
+    {name:'小助理阿涛', role:'助理', value:45, avatar:'🧑‍💻'},
+    {name:'前辈周哥', role:'前辈', value:40, avatar:'👨‍🎤'},
+  ]
+};
+
+let game = JSON.parse(JSON.stringify(DEFAULT_STATE));
+
+function loadGame() {
+  const saved = localStorage.getItem('idolSim');
+  if (saved) {
+    game = {...DEFAULT_STATE, ...JSON.parse(saved)};
+  }
+}
+
+function saveGame() {
+  localStorage.setItem('idolSim', JSON.stringify(game));
+}
+
+// ===== 初始化 =====
+function init() {
+  loadGame();
+  updateStatusBar();
+  updateUI();
+  renderHotList();
+  renderPMList();
+  renderWXList();
+  renderSMSList();
+  renderMyWeibos();
+  checkConcert();
+  checkBan();
+  renderRelationships();
+  
+  setInterval(updateStatusBar, 1000);
+  setInterval(gameTick, 60000); // 每分钟检查一次
+  setInterval(maybeGenerateEvent, 30000);
+}
+
+function gameTick() {
+  // 每天恢复体力
+  const now = Date.now();
+  const dayStart = new Date().setHours(0,0,0,0);
+  if (game.lastDayReset !== dayStart) {
+    game.day++;
+    game.lastDayReset = dayStart;
+    game.stamina = Math.min(game.stamina + 100, 500);
+    game.assessmentCountdown--;
+    if (game.assessmentCountdown <= 0 && !game.debuted) {
+      triggerAssessment();
+    }
+    saveGame();
+  }
+  
+  // 疲惫值自然下降
+  if (game.fatigue > 0) {
+    game.fatigue = Math.max(0, game.fatigue - 1);
+  }
+  
+  // 心情自然恢复
+  if (game.mood < 80) {
+    game.mood = Math.min(80, game.mood + 1);
+  }
+  
+  // 热搜持续时间
+  if (game.hotWeibo && game.hotWeiboDays > 0) {
+    game.hotWeiboDays--;
+    if (game.hotWeiboDays <= 0) game.hotWeibo = false;
+  }
+  
+  // 恋爱限制令
+  if (game.banActive && game.banDays > 0) {
+    game.banDays--;
+    if (game.banDays <= 0) game.banActive = false;
+  }
+  
+  updateUI();
+  saveGame();
+}
+
+function maybeGenerateEvent() {
+  if (Math.random() < 0.15) {
+    generateRandomEvent();
+  }
+  // 随机私信
+  if (Math.random() < 0.2) {
+    generateRandomPM();
+  }
+  // 随机短信
+  if (Math.random() < 0.15) {
+    generateRandomSMS();
+  }
+  renderPMList();
+  renderSMSList();
+}
+
+// ===== 状态栏 =====
+function updateStatusBar() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  document.getElementById('status-time').textContent = `${h}:${m}`;
+  const bat = Math.min(game.stamina / 5, 100);
+  document.getElementById('battery-bar').innerHTML = `<span style="width:${bat}%;height:100%;background:${bat>30?'#2ed573':'#ff4757'};border-radius:2px;display:block"></span>`;
+}
+
+// ===== UI 更新 =====
+function updateUI() {
+  document.getElementById('playerName').textContent = game.playerName;
+  document.getElementById('playerId').textContent = game.playerId;
+  document.getElementById('playerAvatar').textContent = game.gender === '男' ? '🙎‍♂️' : '🙍‍♀️';
+  document.getElementById('stat-vocal').textContent = game.vocal;
+  document.getElementById('stat-dance').textContent = game.dance;
+  document.getElementById('stat-stamina').textContent = game.stamina;
+  document.getElementById('stat-fans').textContent = formatNum(game.fans);
+  document.getElementById('stat-mood').textContent = game.mood;
+  document.getElementById('stat-fatigue').textContent = game.fatigue;
+  
+  document.getElementById('mineName').textContent = game.playerName;
+  document.getElementById('mineId').textContent = game.playerId;
+  document.getElementById('mineAvatar').textContent = game.gender === '男' ? '🙎‍♂️' : '🙍‍♀️';
+  document.getElementById('mine-fans').textContent = formatNum(game.fans);
+  document.getElementById('mine-vocal').textContent = game.vocal;
+  document.getElementById('mine-dance').textContent = game.dance;
+
+  // 出道状态
+  if (game.debuted) {
+    document.getElementById('badge-trainee').style.display = 'none';
+    document.getElementById('badge-debut').style.display = 'inline-block';
+    document.getElementById('btn-jobs').style.opacity = '1';
+    document.getElementById('btn-jobs-desc').textContent = '可接通告';
+    document.getElementById('btn-assess').style.opacity = '0.4';
+    document.getElementById('btn-assess-desc').textContent = '已出道';
+    document.getElementById('btn-concert-desc').textContent = game.fans >= 100000 ? '可开演唱会' : '需10万粉丝';
+    document.getElementById('btn-concert').style.opacity = game.fans >= 100000 ? '1' : '0.5';
+  } else {
+    document.getElementById('badge-trainee').style.display = 'inline-block';
+    document.getElementById('badge-debut').style.display = 'none';
+    document.getElementById('btn-jobs').style.opacity = '0.4';
+    document.getElementById('btn-jobs-desc').textContent = '出道后解锁';
+    document.getElementById('btn-assess').style.opacity = '1';
+    document.getElementById('btn-assess-desc').textContent = `还剩${game.assessmentCountdown}天`;
+    document.getElementById('btn-concert').style.opacity = '0.5';
+    document.getElementById('btn-concert-desc').textContent = '需10万粉丝';
+  }
+
+  // 好感度颜色
+  const fatigueColor = game.fatigue > 50 ? '#ff4757' : game.fatigue > 20 ? '#ffa502' : '#2ed573';
+  document.getElementById('stat-fatigue').style.color = fatigueColor;
+  const moodColor = game.mood > 60 ? '#2ed573' : game.mood > 30 ? '#ffa502' : '#ff4757';
+  document.getElementById('stat-mood').style.color = moodColor;
+
+  // 演唱会倒计时
+  checkConcert();
+
+  // 恋爱限制令
+  document.getElementById('menu-ban').style.display = game.debuted ? 'flex' : 'none';
+
+  // 团队
+  if (game.solo) {
+    document.getElementById('menu-team').style.display = 'none';
+    document.getElementById('menu-teamname').style.display = 'none';
+    document.getElementById('menu-live').style.display = game.debuted ? 'flex' : 'none';
+  } else {
+    document.getElementById('menu-team').style.display = 'flex';
+    document.getElementById('menu-teamname').style.display = game.debuted ? 'flex' : 'none';
+    document.getElementById('menu-live').style.display = 'flex';
+  }
+}
+
+function formatNum(n) {
+  if (n >= 100000000) return (n/100000000).toFixed(1)+'亿';
+  if (n >= 10000) return (n/10000).toFixed(1)+'万';
+  return n.toLocaleString();
+}
+
+// ===== 导航 =====
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.main-content').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+// ===== 弹窗 =====
+function showModal(title, body) {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalBody').innerHTML = body;
+  document.getElementById('modalOverlay').classList.add('show');
+}
+function closeModal(e) {
+  if (e && e.target !== e.currentTarget) return;
+  document.getElementById('modalOverlay').classList.remove('show');
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.remove('show');
+  void t.offsetWidth;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1500);
+}
+
+function eventBanner(msg) {
+  const b = document.getElementById('eventBanner');
+  b.textContent = msg;
+  b.classList.add('show');
+  setTimeout(() => b.classList.remove('show'), 4000);
+}
+
+function addLog(msg) {
+  const time = new Date().toLocaleTimeString('zh-CN', {hour:'2-digit', minute:'2-digit'});
+  game.news.unshift({text: msg, time});
+  if (game.news.length > 10) game.news.pop();
+  renderNews();
+  saveGame();
+}
+
+function renderNews() {
+  const el = document.getElementById('newsContent');
+  if (!el) return;
+  if (game.news.length === 0) {
+    el.textContent = '暂无动态';
+    return;
+  }
+  el.innerHTML = game.news.slice(0,3).map(n => 
+    `<div style="padding:4px 0;font-size:12px;opacity:0.7">${n.time} - ${n.text}</div>`
+  ).join('');
+}
+
+// ===== 练习 =====
+function showPractice() {
+  const body = `
+    <div class="practice-detail">
+      <div class="practice-icon">🎤</div>
+      <div style="font-size:18px;font-weight:700;margin-bottom:6px">练习室</div>
+      <div class="practice-effect">消耗15体力 | 增加8点技能 | 增加5疲惫值</div>
+    </div>
+    <button class="action-btn btn-primary" onclick="doPractice('vocal')">🎤 练习声乐</button>
+    <button class="action-btn btn-primary" onclick="doPractice('dance')">💃 练习舞蹈</button>
+    <div style="margin-top:10px;text-align:center;font-size:11px;opacity:0.5">
+      当前体力: ${game.stamina} | 疲惫值: ${game.fatigue}
+    </div>
+  `;
+  showModal('练习', body);
+}
+
+function doPractice(type) {
+  if (game.stamina < 15) {
+    toast('体力不足！先去休息吧');
+    return;
+  }
+  if (game.fatigue >= 100) {
+    toast('太疲惫了！先娱乐放松一下');
+    return;
+  }
+  game.stamina -= 15;
+  game[type] += 8;
+  game.fatigue += 5;
+  const act = type === 'vocal' ? '声乐' : '舞蹈';
+  addLog(`练习了${act}！${act}+8`);
+  toast(`${act} +8！体力 -15`);
+  updateUI();
+  saveGame();
+}
+
+// ===== 通告 =====
+function showJobs() {
+  if (!game.debuted) {
+    toast('出道后才能接通告');
+    return;
+  }
+  const jobs = getAvailableJobs();
+  const body = jobs.map((j, i) => `
+    <button class="job-item" onclick="doJob(${i})">
+      <div class="job-name">${j.icon} ${j.name}</div>
+      ${j.req ? `<div class="job-req">要求: ${j.req}</div>` : ''}
+      <div class="job-tags">
+        <span class="job-tag">体力 ${j.staminaMin}-${j.staminaMax}</span>
+        <span class="job-tag">粉丝 ${j.fanMin == 0 ? '无要求' : formatNum(j.fanMin)+'+'}</span>
+      </div>
+      <div class="job-desc">${j.desc}</div>
+    </button>
+  `).join('');
+  showModal('接通告', body || '<div style="text-align:center;padding:20px;opacity:0.5">暂无可用通告</div>');
+}
+
+function getAvailableJobs() {
+  const all = [
+    {icon:'🎬', name:'品牌代言', req:'粉丝10万+', reqFans:100000, staminaMin:20, staminaMax:30, fanMin:100000, desc:'知名品牌的代言活动，影响力大增'},
+    {icon:'📺', name:'综艺节目', req:'粉丝5万+', reqFans:50000, staminaMin:15, staminaMax:25, fanMin:50000, desc:'参加热门综艺节目录制'},
+    {icon:'🎵', name:'音乐节目录制', req:null, staminaMin:15, staminaMax:20, fanMin:0, desc:'录制新歌或表演舞台'},
+    {icon:'📸', name:'杂志拍摄', req:'粉丝2万+', reqFans:20000, staminaMin:10, staminaMax:15, fanMin:20000, desc:'时尚杂志封面拍摄'},
+    {icon:'🎙️', name:'电台通告', req:null, staminaMin:8, staminaMax:12, fanMin:0, desc:'电台访谈节目'},
+    {icon:'🎭', name:'粉丝见面会', req:'粉丝1万+', reqFans:10000, staminaMin:18, staminaMax:25, fanMin:10000, desc:'与粉丝面对面互动'},
+    {icon:'🏆', name:'颁奖典礼', req:'粉丝50万+', reqFans:500000, staminaMin:20, staminaMax:30, fanMin:500000, desc:'受邀参加大型颁奖典礼'},
+    {icon:'🌐', name:'海外活动', req:'粉丝100万+', reqFans:1000000, staminaMin:25, staminaMax:35, fanMin:1000000, desc:'出国参加演艺活动'},
+  ];
+  return all.filter(j => !j.reqFans || game.fans >= j.reqFans);
+}
+
+function doJob(idx) {
+  const jobs = getAvailableJobs();
+  const job = jobs[idx];
+  if (!job) return;
+  const staminaCost = rand(job.staminaMin, job.staminaMax);
+  if (game.stamina < staminaCost) {
+    toast('体力不足！无法完成通告');
+    return;
+  }
+  game.stamina -= staminaCost;
+  const fanGain = rand(job.fanMin > 0 ? 50000 : 10000, job.fanMin > 0 ? 100000 : 50000);
+  game.fans += fanGain;
+  game.fatigue += 20;
+  game.mood = Math.min(100, game.mood + 10);
+  addLog(`完成通告「${job.name}」！粉丝+${formatNum(fanGain)}`);
+  toast(`通告完成！粉丝+${formatNum(fanGain)}`);
+
+  // 随机上热搜
+  if (Math.random() < 0.2) {
+    game.hotWeibo = true;
+    game.hotWeiboDays = 3;
+    game.fans += rand(10000, 50000);
+    addLog('相关话题冲上热搜！粉丝再涨！');
+    eventBanner('🔥 你上热搜了！');
+  }
+
+  // 好感度
+  game.relationships[0].value = Math.min(100, game.relationships[0].value + 3);
+  updateUI();
+  saveGame();
+  closeModal();
+}
+
+// ===== 娱乐 =====
+function showEntertainment() {
+  const body = `
+    <div style="margin-bottom:12px">
+      <div class="option-list">
+        <div class="option-item" onclick="doEntertainment('outdoor', 20)">
+          <span class="option-name">🌳 出门放松</span>
+          <span class="option-cost">-20 体力 / -5 疲惫</span>
+        </div>
+        <div class="option-item" onclick="doEntertainment('movie', 25)">
+          <span class="option-name">🎬 看电影</span>
+          <span class="option-cost">-25 体力 / -10 疲惫</span>
+        </div>
+        <div class="option-item" onclick="doEntertainment('gym', 20)">
+          <span class="option-name">🏋️ 健身房</span>
+          <span class="option-cost">-20 体力 / +3 舞蹈</span>
+        </div>
+        <div class="option-item" onclick="doEntertainment('karaoke', 30)">
+          <span class="option-name">🎤 唱KTV</span>
+          <span class="option-cost">-30 体力 / -8 疲惫 / +2 声乐</span>
+        </div>
+        <div class="option-item" onclick="doEntertainment('bar', 30)" style="border-top:1px solid rgba(255,0,0,0.2)">
+          <span class="option-name">🍸 <span style="color:#ff6b6b">去酒吧</span></span>
+          <span class="option-cost" style="color:#ff6b6b">⚠️ 高危活动</span>
+        </div>
+        <div class="option-item" onclick="doEntertainment('date', 30)" style="border-top:1px solid rgba(255,0,0,0.2)">
+          <span class="option-name">💕 <span style="color:#ff6b6b">约异性好友</span></span>
+          <span class="option-cost" style="color:#ff6b6b">⚠️ 高危活动</span>
+        </div>
+      </div>
+      <div style="font-size:11px;opacity:0.4;text-align:center;margin-top:4px">
+        当前疲惫值: ${game.fatigue} | 体力: ${game.stamina}
+      </div>
+    </div>
+  `;
+  showModal('娱乐放松', body);
+}
+
+function doEntertainment(type, staminaCost) {
+  if (game.stamina < staminaCost) {
+    toast('体力不足！');
+    return;
+  }
+  game.stamina -= staminaCost;
+  
+  const safe = ['outdoor','movie','gym','karaoke'];
+  if (safe.includes(type)) {
+    if (type === 'outdoor') {
+      game.fatigue = Math.max(0, game.fatigue - 5);
+      game.mood = Math.min(100, game.mood + 5);
+    } else if (type === 'movie') {
+      game.fatigue = Math.max(0, game.fatigue - 10);
+      game.mood = Math.min(100, game.mood + 8);
+    } else if (type === 'gym') {
+      game.dance += 3;
+      game.fatigue = Math.max(0, game.fatigue - 3);
+    } else if (type === 'karaoke') {
+      game.fatigue = Math.max(0, game.fatigue - 8);
+      game.vocal += 2;
+    }
+    toast('放松完毕！状态恢复了');
+    addLog(`去${type === 'outdoor' ? '户外放松' : type === 'movie' ? '看了电影' : type === 'gym' ? '健身房锻炼' : '唱KTV'}，感觉很好`);
+  } else {
+    // 高危活动
+    game.fatigue = Math.max(0, game.fatigue - 30);
+    toast('酒吧玩得很嗨！但要小心...');
+    if (Math.random() < 0.4) {
+      // 触发紧急公关
+      const crisis = triggerCrisis();
+      eventBanner('🚨 紧急公关事件！');
+      addLog(`酒吧被拍到！引发舆论危机`);
+    } else {
+      addLog('酒吧愉快玩耍，完美避开狗仔');
+      game.mood = Math.min(100, game.mood + 15);
+    }
+  }
+  updateUI();
+  saveGame();
+  closeModal();
+}
+
+function triggerCrisis() {
+  const crises = [
+    {title:'酒吧深夜被拍', desc:'有媒体拍到你在酒吧与神秘人聚会', effect:()=>{ game.fans = Math.max(0, game.fans - rand(5000,20000)); game.mood -= 20; game.fatigue += 20;}},
+    {title:'绯闻八卦', desc:'网上流传你与某网红的合照引发猜测', effect:()=>{ game.mood -= 30; if(game.banActive){game.fatigue += 30; addLog('恋爱限制令期间绯闻！公司震怒！');}}},
+    {title:'行程曝光', desc:'私生饭跟拍到你的私人行程', effect:()=>{ game.fans = Math.max(0, game.fans - rand(1000,5000));}},
+    {title:'言论风波', desc:'一段视频引发网友争议', effect:()=>{ game.mood -= 25; game.fans = Math.max(0, game.fans - rand(3000,8000));}},
+  ];
+  const c = crises[Math.floor(Math.random()*crises.length)];
+  c.effect();
+  toast(`🚨 ${c.title}`);
+  setTimeout(() => showModal('紧急公关事件', `<div style="text-align:center;padding:10px">
+    <div style="font-size:40px;margin-bottom:10px">🚨</div>
+    <div style="font-size:16px;font-weight:700;margin-bottom:8px">${c.title}</div>
+    <div style="font-size:13px;opacity:0.7;margin-bottom:16px">${c.desc}</div>
+    <button class="action-btn btn-primary" onclick="handleCrisis('public')">📢 发声明澄清</button>
+    <button class="action-btn btn-secondary" onclick="handleCrisis('silent')">🤐 沉默应对</button>
+    <button class="action-btn btn-warning" onclick="handleCrisis('compensation')">💰 出钱平息</button>
+  </div>`), 500);
+}
+
+function handleCrisis(way) {
+  if (way === 'public') {
+    game.mood = Math.min(100, game.mood + 5);
+    game.fans += rand(500,2000);
+    toast('声明发出，大部分粉丝支持你');
+  } else if (way === 'silent') {
+    game.fans = Math.max(0, game.fans - rand(3000,10000));
+    toast('沉默应对，舆论持续发酵...');
+  } else {
+    game.mood += 10;
+    toast('花钱平息了事态');
+  }
+  updateUI();
+  saveGame();
+  closeModal();
+}
+
+// ===== 演唱会 =====
+function showConcert() {
+  if (game.fans < 100000) {
+    toast(`还需要${formatNum(100000 - game.fans)}粉丝才能开演唱会`);
+    return;
+  }
+  if (game.concertPlanned) {
+    checkConcert();
+    showConcertStatus();
+    return;
+  }
+  const body = `
+    <div style="text-align:center;padding:10px">
+      <div style="font-size:50px;margin-bottom:10px">🎤</div>
+      <div style="font-size:15px;font-weight:700;margin-bottom:6px">大型演唱会</div>
+      <div style="font-size:12px;opacity:0.6;margin-bottom:16px">
+        需要准备两首歌和一支舞，每项达到80%以上即可圆满结束
+      </div>
+      <div style="background:#2a2a4a;border-radius:10px;padding:14px;margin-bottom:14px;text-align:left">
+        <div style="font-size:13px;margin-bottom:8px">📋 演唱会要求</div>
+        <div style="font-size:12px;opacity:0.7">• 粉丝基础: ${formatNum(game.fans)} (已满足)</div>
+        <div style="font-size:12px;opacity:0.7">• 筹备时间: 30天</div>
+        <div style="font-size:12px;opacity:0.7">• 歌曲熟练度: 0% → 80%+</div>
+        <div style="font-size:12px;opacity:0.7">• 舞蹈熟练度: 0% → 80%+</div>
+      </div>
+      <button class="action-btn btn-primary" onclick="startConcert()">🚀 开始筹备演唱会</button>
+    </div>
+  `;
+  showModal('开演唱会', body);
+}
+
+function showConcertStatus() {
+  const body = `
+    <div style="text-align:center;padding:10px">
+      <div style="font-size:40px;margin-bottom:10px">🎤</div>
+      <div style="font-size:16px;font-weight:700;margin-bottom:8px">演唱会倒计时</div>
+      <div style="font-size:32px;font-weight:700;color:#fd79a8;margin:10px 0">${game.concertDaysLeft}天</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0">
+        <div style="background:#2a2a4a;border-radius:10px;padding:12px;text-align:center">
+          <div style="font-size:11px;opacity:0.6">🎵 歌曲</div>
+          <div style="font-size:20px;font-weight:700">${game.concertSongLevel}%</div>
+          <div style="height:4px;background:#3a3a5a;border-radius:2px;margin-top:6px">
+            <div style="height:4px;width:${game.concertSongLevel}%;background:#6c5ce7;border-radius:2px"></div>
+          </div>
+        </div>
+        <div style="background:#2a2a4a;border-radius:10px;padding:12px;text-align:center">
+          <div style="font-size:11px;opacity:0.6">💃 舞蹈</div>
+          <div style="font-size:20px;font-weight:700">${game.concertDanceLevel}%</div>
+          <div style="height:4px;background:#3a3a5a;border-radius:2px;margin-top:6px">
+            <div style="height:4px;width:${game.concertDanceLevel}%;background:#e84393;border-radius:2px"></div>
+          </div>
+        </div>
+      </div>
+      <button class="action-btn btn-primary" onclick="practiceConcert('song')">🎤 练习歌曲 (+15%)</button>
+      <button class="action-btn btn-primary" onclick="practiceConcert('dance')">💃 练习舞蹈 (+15%)</button>
+      <div style="font-size:11px;opacity:0.5;margin-top:8px">每次练习消耗20体力，增加15%熟练度</div>
+    </div>
+  `;
+  showModal('演唱会筹备中', body);
+}
+
+function startConcert() {
+  game.concertPlanned = true;
+  game.concertDaysLeft = 30;
+  game.concertSongLevel = 0;
+  game.concertDanceLevel = 0;
+  saveGame();
+  toast('演唱会筹备开始！30天倒计时');
+  updateUI();
+  closeModal();
+}
+
+function practiceConcert(type) {
+  if (!game.concertPlanned) return;
+  if (game.stamina < 20) { toast('体力不足！'); return; }
+  if (game.concertDaysLeft <= 0) { 
+    executeConcert(); 
+    return;
+  }
+  game.stamina -= 20;
+  if (type === 'song') {
+    game.concertSongLevel = Math.min(100, game.concertSongLevel + 15);
+  } else {
+    game.concertDanceLevel = Math.min(100, game.concertDanceLevel + 15);
+  }
+  
+  // 每天减少1天
+  game.concertDaysLeft = Math.max(0, game.concertDaysLeft - 1);
+  
+  toast(`${type === 'song' ? '歌曲' : '舞蹈'}熟练度 +15%`);
+  addLog(`演唱会排练：${type === 'song' ? '🎵 歌曲' : '💃 舞蹈'} +15%`);
+  
+  if (game.concertDaysLeft <= 0) {
+    executeConcert();
+    return;
+  }
+  updateUI();
+  saveGame();
+  showConcertStatus();
+}
+
+function executeConcert() {
+  game.concertPlanned = false;
+  const avg = Math.round((game.concertSongLevel + game.concertDanceLevel) / 2);
+  
+  if (avg >= 80) {
+    const fanGain = rand(50000, 150000);
+    game.fans += fanGain;
+    game.mood = Math.min(100, game.mood + 50);
+    game.fatigue += 30;
+    addLog(`🎤 演唱会大成功！粉丝+${formatNum(fanGain)}`);
+    toast(`🎉 演唱会圆满成功！粉丝+${formatNum(fanGain)}`);
+    if (Math.random() < 0.5) {
+      game.hotWeibo = true;
+      game.hotWeiboDays = 5;
+      game.fans += rand(30000, 80000);
+      eventBanner('🔥 演唱会话题冲上热搜！');
+    }
+  } else {
+    const fanLoss = rand(5000, 20000);
+    game.fans = Math.max(0, game.fans - fanLoss);
+    game.mood = Math.max(0, game.mood - 20);
+    game.fatigue += 30;
+    addLog(`😢 演唱会表现不佳，粉丝-${formatNum(fanLoss)}`);
+    toast(`😢 演唱会未达标，粉丝-${formatNum(fanLoss)}`);
+  }
+  updateUI();
+  saveGame();
+  closeModal();
+}
+
+function checkConcert() {
+  const card = document.getElementById('countdownCard');
+  if (game.concertPlanned) {
+    card.classList.add('show');
+    const days = game.concertDaysLeft;
+    document.getElementById('countdownLabel').textContent = '🎤 演唱会筹备';
+    document.getElementById('countdownTime').textContent = `${days}天`;
+    const avg = Math.round((game.concertSongLevel + game.concertDanceLevel) / 2);
+    document.getElementById('countdownProgressBar').style.width = avg + '%';
+    document.getElementById('countdownSub').textContent = `歌曲${game.concertSongLevel}% | 舞蹈${game.concertDanceLevel}% | 剩余${days}天`;
+  } else {
+    card.classList.remove('show');
+  }
+}
+
+// ===== 考核 =====
+function showAssessment() {
+  if (game.debuted) {
+    toast('已出道，无法参加练习生考核');
+    return;
+  }
+  const body = `
+    <div style="text-align:center;padding:10px">
+      <div style="font-size:40px;margin-bottom:10px">🏆</div>
+      <div style="font-size:15px;font-weight:700;margin-bottom:4px">练习生月度考核</div>
+      <div style="font-size:12px;opacity:0.6;margin-bottom:16px">第${game.day}天 | 练习生期</div>
+      <div class="assess-card">
+        <div style="font-size:13px;opacity:0.6">当前排名</div>
+        <div class="assess-rank" id="assessRank">-</div>
+        <div class="assess-rank-label">综合评估中...</div>
+        <div style="margin-top:14px">
+          <div class="detail-row"><span>声乐</span><span>${game.vocal}</span></div>
+          <div class="detail-row"><span>舞蹈</span><span>${game.dance}</span></div>
+          <div class="detail-row"><span>综合</span><span>${game.vocal + game.dance}</span></div>
+          <div class="detail-row" style="color:#2ed573"><span>出道线</span><span>≥150</span></div>
+        </div>
+      </div>
+      ${game.vocal + game.dance >= 150 ? '<button class="action-btn btn-primary" onclick="debut()">🎉 申请出道！</button>' : '<div style="font-size:12px;opacity:0.5;text-align:center">声乐+舞蹈≥150时可申请出道</div>'}
+      <button class="action-btn btn-secondary" onclick="closeModal()">返回</button>
+    </div>
+  `;
+  showModal('月度考核', body);
+  setTimeout(() => {
+    const total = game.vocal + game.dance;
+    const rank = Math.max(1, Math.min(50, Math.ceil((300 - total) / 6 + Math.random() * 5)));
+    document.getElementById('assessRank').textContent = `#${rank}`;
+    document.getElementById('assessRank').style.color = rank <= 3 ? '#ffd700' : rank <= 10 ? '#a29bfe' : '#fff';
+  }, 600);
+}
+
+function debut() {
+  if (game.vocal + game.dance < 150) { toast('还不够条件！'); return; }
+  game.debuted = true;
+  game.assessmentPending = false;
+  addLog('🎉 恭喜出道！！');
+  eventBanner('🎊 恭喜你正式出道！');
+  toast('🎉 恭喜出道！');
+  updateUI();
+  saveGame();
+  closeModal();
+}
+
+function triggerAssessment() {
+  game.assessmentPending = true;
+  eventBanner('🏆 月度考核即将到来！');
+  // 实际考核在showAssessment中
+}
+
+// ===== 热搜 =====
+function renderHotList() {
+  const topics = [
+    {rank:1,title:'某顶流塌房全过程',tag:'hot',tagText:'爆'},
+    {rank:2,title:'选秀节目黑幕曝光',tag:'hot',tagText:'热'},
+    {rank:3,title:'新生代偶像营业日常',tag:'new',tagText:'新'},
+    {rank:4,title:'粉丝为偶像应援太卷了',tag:'hot',tagText:'热'},
+    {rank:5,title:'经纪公司又出事',tag:'hot',tagText:'热'},
+    {rank:6,title:'演唱会门票秒空',tag:'friend',tagText:'娱'},
+    {rank:7,title:'偶像剧CP感讨论',tag:'new',tagText:'新'},
+    {rank:8,title:'练习生宿舍日常',tag:'new',tagText:'新'},
+    {rank:9,title:'偶像时尚穿搭合集',tag:'friend',tagText:'服'},
+    {rank:10,title:'娱乐圈八卦周刊',tag:'hot',tagText:'热'},
+  ];
+  
+  if (game.hotWeibo) {
+    topics.unshift({rank:0,title:`🔥 你冲上热搜了！`,tag:'hot',tagText:'爆',isYou:true});
+  }
+  
+  const html = topics.map(t => `
+    <div class="hot-item" onclick="${t.isYou ? `removeHot()` : ``}">
+      <span class="hot-rank ${t.rank<=3?'top'+t.rank:''}">${t.rank || '🔥'}</span>
+      <span class="hot-title" style="${t.isYou?'color:#ff4757;font-weight:700':''}">${t.title}</span>
+      ${t.tagText ? `<span class="hot-tag tag-${t.tag}">${t.tagText}</span>` : ''}
+    </div>
+  `).join('');
+  document.getElementById('hotList').innerHTML = html;
+}
+
+function removeHot() {
+  game.hotWeibo = false;
+  renderHotList();
+}
+
+// ===== 私信 =====
+function generateRandomPM() {
+  const types = [
+    {from:'fan', avatar:'💖', names:['小可爱','追星少女','星星眼'], msgs:['加油！你最棒了！','新歌超好听！','今天也爱你','永远支持你！','期待你的新作品']},
+    {from:'sasa', avatar:'😡', names:['私生饭001','跟踪狂'], msgs:['你在哪里？','我知道你家地址','别躲了','跟了你一路了','你怎么不回我']},
+    {from:'hate', avatar:'💀', names:['专业黑','路人甲'], msgs:['就这水平也能出道？','别来丢人了','蹭热度的吧','长得也就那样']},
+  ];
+  const type = types[Math.floor(Math.random()*types.length)];
+  const name = type.names[Math.floor(Math.random()*type.names.length)];
+  const msg = type.msgs[Math.floor(Math.random()*type.msgs.length)];
+  
+  game.pmList.unshift({
+    id: Date.now(),
+    type: type.from,
+    name,
+    avatar: type.avatar,
+    content: msg,
+    time: '刚刚'
+  });
+  if (game.pmList.length > 20) game.pmList.pop();
+  saveGame();
+  renderPMList();
+}
+
+function renderPMList() {
+  if (game.pmList.length === 0) {
+    document.getElementById('pmList').innerHTML = '<div style="text-align:center;padding:20px;opacity:0.4;font-size:13px">暂无私信</div>';
+    return;
+  }
+  const html = game.pmList.slice(0,10).map(p => `
+    <div class="pm-item" onclick="showPM(${p.id})" style="cursor:pointer">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <span style="font-size:18px">${p.avatar}</span>
+        <span style="font-size:13px;font-weight:600">${p.name}</span>
+        <span style="font-size:10px;opacity:0.4;margin-left:auto">${p.time}</span>
+      </div>
+      <div style="font-size:12px;opacity:0.7">${p.content}</div>
+    </div>
+  `).join('');
+  document.getElementById('pmList').innerHTML = html;
+}
+
+function showPM(id) {
+  const pm = game.pmList.find(p => p.id === id);
+  if (!pm) return;
+  
+  let options = `<div class="pm-options">`;
+  if (pm.type === 'fan') {
+    options += `<button class="pm-option reply1" onclick="replyPM(${id},'thanks')">😊 感谢支持</button>`;
+    options += `<button class="pm-option reply2" onclick="replyPM(${id},'love')">💕 爱你哦</button>`;
+    options += `<button class="pm-option ignore" onclick="ignorePM(${id})">忽略</button>`;
+  } else if (pm.type === 'sasa') {
+    options += `<button class="pm-option reply1" onclick="replyPM(${id},'warn')">⚠️ 警告对方</button>`;
+    options += `<button class="pm-option ignore" onclick="replyPM(${id},'block')">🚫 拉黑</button>`;
+  } else {
+    options += `<button class="pm-option ignore" onclick="ignorePM(${id})">🤐 无视</button>`;
+    options += `<button class="pm-option reply1" onclick="replyPM(${id},'fight')">💪 正面回应</button>`;
+  }
+  options += `</div>`;
+  
+  showModal(`私信 - ${pm.name}`, `
+    <div style="text-align:center;padding:10px">
+      <div style="font-size:40px;margin-bottom:10px">${pm.avatar}</div>
+      <div style="font-size:14px;opacity:0.7;margin-bottom:16px">${pm.content}</div>
+      ${options}
+    </div>
+  `);
+}
+
+function replyPM(id, type) {
+  const pm = game.pmList.find(p => p.id === id);
+  if (!pm) return;
+  if (type === 'thanks') {
+    game.mood = Math.min(100, game.mood + 3);
+    addLog('回复了粉丝私信，收到暖心回复');
+    toast('收到暖心支持！');
+  } else if (type === 'love') {
+    game.mood = Math.min(100, game.mood + 5);
+    game.fans += rand(100,500);
+    toast('粉丝激动坏了！');
+  } else if (type === 'warn') {
+    toast('已警告对方');
+    if (Math.random() < 0.3) {
+      eventBanner('⚠️ 私生在网上发飙了！');
+      game.mood -= 5;
+    }
+  } else if (type === 'block') {
+    toast('已拉黑');
+  } else if (type === 'fight') {
+    if (Math.random() < 0.5) {
+      game.mood -= 15;
+      game.fans = Math.max(0, game.fans - rand(1000,3000));
+      toast('引发更多争议...');
+      addLog('正面回应黑粉，舆论分化');
+    } else {
+      game.mood += 10;
+      game.fans += rand(500,2000);
+      toast('大部分网友站你这边！');
+      addLog('正面回应黑粉，获得支持');
+    }
+  }
+  game.pmList = game.pmList.filter(p => p.id !== id);
+  updateUI();
+  saveGame();
+  renderPMList();
+  closeModal();
+}
+
+function ignorePM(id) {
+  game.pmList = game.pmList.filter(p => p.id !== id);
+  saveGame();
+  renderPMList();
+  closeModal();
+}
+
+// ===== 发微博 =====
+function showWeibo() {
+  switchTab('plus', null);
+}
+
+function updateCharCount() {
+  const t = document.getElementById('weiboText').value;
+  document.getElementById('charCount').textContent = t.length;
+}
+
+function postWeibo() {
+  const text = document.getElementById('weiboText').value.trim();
+  if (!text) { toast('内容不能为空'); return; }
+  game.weibos.unshift({text, time: new Date().toLocaleString('zh-CN', {month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})});
+  if (game.weibos.length > 20) game.weibos.pop();
+  document.getElementById('weiboText').value = '';
+  document.getElementById('charCount').textContent = '0';
+  
+  // 发微博可能上热搜
+  if (Math.random() < 0.15) {
+    game.hotWeibo = true;
+    game.hotWeiboDays = 2;
+    const fanGain = rand(10000, 50000);
+    game.fans += fanGain;
+    addLog(`微博引爆热搜！粉丝+${formatNum(fanGain)}`);
+    toast(`🔥 微博引爆热搜！粉丝+${formatNum(fanGain)}`);
+    eventBanner('🔥 你的微博冲上热搜了！');
+    renderHotList();
+  } else {
+    const fanGain = rand(100, 2000);
+    game.fans += fanGain;
+    toast(`发布成功！粉丝+${formatNum(fanGain)}`);
+    addLog(`发了微博，粉丝+${formatNum(fanGain)}`);
+  }
+  
+  updateUI();
+  saveGame();
+  renderMyWeibos();
+}
+
+function renderMyWeibos() {
+  if (game.weibos.length === 0) {
+    document.getElementById('myWeibos').innerHTML = '<div style="text-align:center;padding:16px;opacity:0.4;font-size:13px">还没发过微博...</div>';
+    return;
+  }
+  document.getElementById('myWeibos').innerHTML = game.weibos.slice(0,5).map(w => `
+    <div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:13px">${w.text}</div>
+    <div style="font-size:10px;opacity:0.3;margin-top:2px">${w.time}</div>
+  `).join('');
+}
+
+// ===== 消息页 =====
+function switchMsgTab(tab, btn) {
+  document.querySelectorAll('.msg-tab').forEach(t => t.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.getElementById('wxList').style.display = tab === 'wx' ? 'block' : 'none';
+  document.getElementById('smsList').style.display = tab === 'sms' ? 'block' : 'none';
+}
+
+function renderWXList() {
+  const contacts = game.wxContacts;
+  const html = contacts.map(c => `
+    <div class="msg-item" onclick="openWXChat('${c.id}')">
+      <div class="msg-avatar" style="background:${c.id==='manager'?'#6c5ce7':c.id==='assistant'?'#2ed573':'#fdcb6e'}">${c.avatar}</div>
+      <div class="msg-info">
+        <div class="msg-name">${c.name}</div>
+        <div class="msg-preview">${c.lastMsg}</div>
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('wxList').innerHTML = `<div class="msg-list">${html}</div>`;
+}
+
+function openWXChat(contactId) {
+  const contact = game.wxContacts.find(c => c.id === contactId);
+  const msgs = game.wxMessages[contactId] || [];
+  const html = `
+    <div class="wx-messages" id="wxMsgArea" style="min-height:250px;max-height:350px;overflow-y:auto">
+      ${msgs.map(m => `<div class="wx-msg ${m.from}"><div class="wx-bubble">${m.text}</div></div>`).join('')}
+    </div>
+    <div class="wx-input-bar">
+      <input class="wx-input" id="wxInput" placeholder="输入消息..." onkeypress="if(event.key==='Enter')sendWXMsg('${contactId}')">
+      <button class="wx-send" onclick="sendWXMsg('${contactId}')">发送</button>
+    </div>
+  `;
+  showModal(contact.name, html);
+  setTimeout(() => {
+    const area = document.getElementById('wxMsgArea');
+    if (area) area.scrollTop = area.scrollHeight;
+  }, 100);
+}
+
+function sendWXMsg(contactId) {
+  const input = document.getElementById('wxInput');
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text) return;
+  if (!game.wxMessages[contactId]) game.wxMessages[contactId] = [];
+  game.wxMessages[contactId].push({from:'self', text});
+  
+  // 自动回复
+  const replies = {
+    manager: ['好的收到，我安排一下', '知道了，最近行程比较满', '嗯，辛苦了'],
+    assistant: ['明白！我马上去办', '收到，王姐交代过了', '好的好的'],
+    senior: ['加油！', '好好努力，期待你', '年轻人有冲劲']
+  };
+  setTimeout(() => {
+    const rep = replies[contactId] || ['收到'];
+    game.wxMessages[contactId].push({from:'other', text: rep[Math.floor(Math.random()*rep.length)]});
+    const area = document.getElementById('wxMsgArea');
+    if (area) {
+      const html = game.wxMessages[contactId].map(m => `<div class="wx-msg ${m.from}"><div class="wx-bubble">${m.text}</div></div>`).join('');
+      area.innerHTML = html;
+      area.scrollTop = area.scrollHeight;
+    }
+  }, 1000 + Math.random() * 2000);
+  
+  input.value = '';
+  saveGame();
+}
+
+function generateRandomSMS() {
+  const sms = [
+    {from:'16688888888', content:'【银行】您的账户余额查询请点击...', type:'verify'},
+    {from:'10688888888', content:'【验证码】您的验证码为' + Math.floor(100000+Math.random()*900000), type:'verify'},
+    {from:'138****5566', content:'我知道你今天去哪了，跟踪很久了，出来见一面吧', type:'sasa'},
+    {from:'170****9900', content:'你最近表现不太好，公司在考虑...', type:'notice'},
+    {from:'Unknown', content:'你根本不会唱歌，别出来丢人了', type:'hate'},
+  ];
+  const s = sms[Math.floor(Math.random()*sms.length)];
+  game.smsList.unshift({...s, time: '刚刚'});
+  if (game.smsList.length > 30) game.smsList.pop();
+  saveGame();
+}
+
+function renderSMSList() {
+  const html = game.smsList.map(s => `
+    <div class="sms-item">
+      <div class="sms-from">${s.from} <span style="opacity:0.3">${s.time}</span></div>
+      <div class="sms-content">${s.content}</div>
+    </div>
+  `).join('');
+  document.getElementById('smsList').innerHTML = `<div class="msg-list" style="padding:8px">${html || '<div style="text-align:center;padding:20px;opacity:0.4">暂无短信</div>'}</div>`;
+}
+
+// ===== 我的页面 =====
+function showEditProfile() {
+  const body = `
+    <div class="form-group"><label class="form-label">昵称</label><input class="form-input" id="edit-name" value="${game.playerName}" maxlength="12"></div>
+    <div class="form-group"><label class="form-label">性别</label><select class="form-select" id="edit-gender"><option value="男" ${game.gender==='男'?'selected':''}>男</option><option value="女" ${game.gender==='女'?'selected':''}>女</option></select></div>
+    <div class="form-group"><label class="form-label">风格定位</label><input class="form-input" id="edit-style" value="${game.style}" placeholder="如：全能偶像"></div>
+    <div class="form-group"><label class="form-label">性取向</label><select class="form-select" id="edit-sexuality"><option value="保密" ${game.sexuality==='保密'?'selected':''}>保密</option><option value="男" ${game.sexuality==='男'?'selected':''}>男</option><option value="女" ${game.sexuality==='女'?'selected':''}>女</option></select></div>
+    <div class="form-group"><label class="form-label">恋爱状况</label><select class="form-select" id="edit-rel"><option value="单身" ${game.relationship==='单身'?'selected':''}>单身</option><option value="恋爱中" ${game.relationship==='恋爱中'?'selected':''}>恋爱中</option><option value="已婚" ${game.relationship==='已婚'?'selected':''}>已婚</option></select></div>
+    <button class="action-btn btn-primary" onclick="saveProfile()">保存</button>
+  `;
+  showModal('编辑资料', body);
+}
+
+function saveProfile() {
+  game.playerName = document.getElementById('edit-name').value.trim() || '练习生';
+  game.gender = document.getElementById('edit-gender').value;
+  game.style = document.getElementById('edit-style').value.trim() || '全能偶像';
+  game.sexuality = document.getElementById('edit-sexuality').value;
+  game.relationship = document.getElementById('edit-rel').value;
+  
+  // 恋爱限制令检查
+  if (game.debuted && game.relationship !== '单身' && game.banActive) {
+    toast('⚠️ 恋爱限制令期间请谨慎！');
+  }
+  
+  saveGame();
+  updateUI();
+  closeModal();
+  toast('资料已保存');
+}
+
+function showRelationships() {
+  const html = game.relationships.map(r => `
+    <div class="rel-item">
+      <div class="rel-avatar">${r.avatar}</div>
+      <div class="rel-name">${r.name}</div>
+      <div class="rel-bar-wrap"><div class="rel-bar" style="width:${r.value}%"></div></div>
+      <div class="rel-val">${r.value}</div>
+    </div>
+  `).join('');
+  showModal('好感关系', `<div class="relationship-card">${html}</div>`);
+}
+
+function renderRelationships() {
+  // 同步更新
+}
+
+function showTeam() {
+  if (game.solo) {
+    showSoloConfirm();
+    return;
+  }
+  const body = game.members.map((m, i) => `
+    <div class="member-item">
+      <div class="member-avatar-sm">${m.avatar}</div>
+      <div class="member-info">
+        <div class="member-name-sm">${m.name}</div>
+        <div class="member-role">${m.role} · ${m.age}岁</div>
+      </div>
+      <button class="action-btn btn-secondary" style="width:auto;padding:5px 12px;font-size:11px" onclick="editMember(${i})">编辑</button>
+    </div>
+  `).join('');
+  showModal('团队成员', `<div style="margin-bottom:12px">${body}</div>
+    <button class="action-btn btn-secondary" onclick="closeModal()">关闭</button>
+  `);
+}
+
+function showSoloConfirm() {
+  showModal('团队设置', `
+    <div style="text-align:center;padding:10px">
+      <div style="font-size:40px;margin-bottom:10px">🎤</div>
+      <div style="margin-bottom:16px">当前为Solo模式，可以组建团队</div>
+      <button class="action-btn btn-primary" onclick="switchToTeam()">组建团队</button>
+      <button class="action-btn btn-secondary" onclick="closeModal()">保持Solo</button>
+    </div>
+  `);
+}
+
+function switchToTeam() {
+  game.solo = false;
+  game.members = [
+    {name:'队友A', role:'主舞', age:20, avatar:'💃'},
+    {name:'队友B', role:'rapper', age:21, avatar:'🎧'},
+  ];
+  saveGame();
+  updateUI();
+  closeModal();
+  showTeam();
+  toast('团队已组建！');
+}
+
+function editMember(idx) {
+  const m = game.members[idx];
+  showModal('编辑成员', `
+    <div class="form-group"><label class="form-label">姓名</label><input class="form-input" id="m-name" value="${m.name}"></div>
+    <div class="form-group"><label class="form-label">定位</label><input class="form-input" id="m-role" value="${m.role}"></div>
+    <div class="form-group"><label class="form-label">年龄</label><input class="form-input" id="m-age" type="number" value="${m.age}" min="15" max="40"></div>
+    <div class="form-group"><label class="form-label">头像</label><select class="form-select" id="m-avatar">
+      <option value="💃" ${m.avatar==='💃'?'selected':''}>💃 女舞者</option>
+      <option value="🎤" ${m.avatar==='🎤'?'selected':''}>🎤 男歌手</option>
+      <option value="🎧" ${m.avatar==='🎧'?'selected':''}>🎧 Rapper</option>
+      <option value="🌟" ${m.avatar==='🌟'?'selected':''}>🌟 全能</option>
+      <option value="🎸" ${m.avatar==='🎸'?'selected':''}>🎸 乐器</option>
+    </select></div>
+    <button class="action-btn btn-primary" onclick="saveMember(${idx})">保存</button>
+  `);
+}
+
+function saveMember(idx) {
+  game.members[idx].name = document.getElementById('m-name').value || '队友';
+  game.members[idx].role = document.getElementById('m-role').value || '成员';
+  game.members[idx].age = parseInt(document.getElementById('m-age').value) || 20;
+  game.members[idx].avatar = document.getElementById('m-avatar').value;
+  saveGame();
+  closeModal();
+  showTeam();
+}
+
+function showTeamName() {
+  showModal('团队名称', `
+    <div class="form-group"><label class="form-label">团队名</label><input class="form-input" id="team-name-input" value="${game.teamName}" placeholder="给你的团队起个名字"></div>
+    <button class="action-btn btn-primary" onclick="saveTeamName()">保存</button>
+  `);
+}
+
+function saveTeamName() {
+  game.teamName = document.getElementById('team-name-input').value.trim() || '';
+  saveGame();
+  closeModal();
+  toast('团队名已保存');
+}
+
+function showLive() {
+  const body = `
+    <div style="text-align:center;padding:10px">
+      <div style="font-size:40px;margin-bottom:10px">📺</div>
+      <div style="font-size:13px;opacity:0.7;margin-bottom:14px">开启直播，随机增加粉丝</div>
+      <button class="action-btn btn-primary" onclick="doLive()">开始直播</button>
+    </div>
+  `;
+  showModal('直播', body);
+}
+
+function doLive() {
+  const fanGain = rand(1000, 10000);
+  game.fans += fanGain;
+  game.stamina = Math.max(0, game.stamina - 10);
+  addLog(`直播获得${formatNum(fanGain)}新粉丝！`);
+  toast(`直播结束！粉丝+${formatNum(fanGain)}`);
+  updateUI();
+  saveGame();
+  closeModal();
+}
+
+function showBanInfo() {
+  const body = `
+    <div style="text-align:center;padding:10px">
+      <div style="font-size:40px;margin-bottom:10px">🚫</div>
+      ${game.banActive ? `<div style="font-size:14px;font-weight:700;margin-bottom:8px">恋爱限制令生效中</div>
+        <div style="font-size:28px;font-weight:700;color:#ff6b6b;margin:10px 0">剩余${game.banDays}天</div>
+        <div style="font-size:12px;opacity:0.6;margin-bottom:14px">限制令期间请勿公开恋爱关系</div>` :
+        `<div style="font-size:14px;font-weight:700;color:#2ed573;margin-bottom:8px">限制令已解除</div>
+        <div style="font-size:12px;opacity:0.6">可以自由恋爱了</div>`}
+      <button class="action-btn btn-secondary" onclick="closeModal()">知道了</button>
+    </div>
+  `;
+  showModal('恋爱限制令', body);
+}
+
+function showGameLog() {
+  const body = game.news.length > 0 ?
+    game.news.map(n => `<div style="padding:5px 0;font-size:12px;border-bottom:1px solid rgba(255,255,255,0.05)">${n.time} - ${n.text}</div>`).join('') :
+    '<div style="text-align:center;padding:20px;opacity:0.4">暂无日志</div>';
+  showModal('游戏日志', `<div style="max-height:400px;overflow-y:auto">${body}</div>
+    <button class="action-btn btn-secondary" onclick="closeModal()" style="margin-top:12px">关闭</button>
+  `);
+}
+
+function resetGame() {
+  showModal('确认重置', `
+    <div style="text-align:center;padding:10px">
+      <div style="font-size:40px;margin-bottom:10px">⚠️</div>
+      <div style="margin-bottom:14px;font-size:14px">确定要重新开始吗？所有数据将被清空！</div>
+      <button class="action-btn btn-danger" onclick="confirmReset()">确定重置</button>
+      <button class="action-btn btn-secondary" onclick="closeModal()">取消</button>
+    </div>
+  `);
+}
+
+function confirmReset() {
+  localStorage.removeItem('idolSim');
+  game = JSON.parse(JSON.stringify(DEFAULT_STATE));
+  game.playerId = Math.floor(Math.random()*9000)+1000;
+  game.day = 1;
+  game.lastDayReset = new Date().setHours(0,0,0,0);
+  saveGame();
+  updateUI();
+  renderHotList();
+  renderPMList();
+  renderWXList();
+  renderSMSList();
+  renderMyWeibos();
+  checkConcert();
+  closeModal();
+  toast('游戏已重置！');
+}
+
+// ===== 随机事件 =====
+function generateRandomEvent() {
+  const events = [
+    {type:'good', text:'✨ 收到神秘礼物！心情+10', effect:()=>{ game.mood = Math.min(100, game.mood+10); }},
+    {type:'good', text:'🌟 被前辈夸奖！声乐+3', effect:()=>{ game.vocal += 3; }},
+    {type:'good', text:'💃 突然想跳舞！舞蹈+3', effect:()=>{ game.dance += 3; }},
+    {type:'good', text:'😴 美美睡了一觉，体力恢复+20', effect:()=>{ game.stamina = Math.min(500, game.stamina+20); }},
+    {type:'neutral', text:'🤔 思考人生，心情-5', effect:()=>{ game.mood = Math.max(0, game.mood-5); }},
+    {type:'bad', text:'😴 有点累，疲惫+5', effect:()=>{ game.fatigue = Math.min(100, game.fatigue+5); }},
+  ];
+  const ev = events[Math.floor(Math.random()*events.length)];
+  ev.effect();
+  addLog(ev.text);
+  updateUI();
+  saveGame();
+}
+
+function checkBan() {
+  if (game.banActive) {
+    // 每过一天减少
+  }
+}
+
+// ===== 工具 =====
+function rand(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+// 启动
+init();
+</script>
+</body>
+</html>
