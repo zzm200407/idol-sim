@@ -249,20 +249,36 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue'
 </head>
 <body>
 <div class="lock-screen" id="lockScreen">
-  <div class="lock-time" id="lockTime">00:00</div>
-  <div class="lock-date" id="lockDate">1月1日 星期三</div>
-  <div class="lock-icon">🔒</div>
-  <div class="lock-dots" id="lockDots">
-    <div class="lock-dot" id="lockDot0"></div>
-    <div class="lock-dot" id="lockDot1"></div>
-    <div class="lock-dot" id="lockDot2"></div>
-    <div class="lock-dot" id="lockDot3"></div>
+  <div class="lock-top">
+    <div class="lock-time" id="lockTime">00:00</div>
+    <div class="lock-date" id="lockDate">1月1日 星期三</div>
+    <div class="lock-dots" id="lockDots">
+      <div class="lock-dot" id="lockDot0"></div>
+      <div class="lock-dot" id="lockDot1"></div>
+      <div class="lock-dot" id="lockDot2"></div>
+      <div class="lock-dot" id="lockDot3"></div>
+      <div class="lock-dot" id="lockDot4"></div>
+      <div class="lock-dot" id="lockDot5"></div>
+    </div>
   </div>
-  <div class="lock-input-wrap">
-    <input class="lock-input" id="lockInput" type="password" maxlength="4" placeholder="输入密码" oninput="updateLockDots(this.value)" onkeypress="if(event.key==='Enter')checkLock()">
-    <button class="lock-btn" onclick="checkLock()">解锁</button>
+  <div class="lock-middle">
+    <div class="lock-keypad">
+      <button class="lock-key" onclick="lockKeyPress('1')">1</button>
+      <button class="lock-key" onclick="lockKeyPress('2')">2</button>
+      <button class="lock-key" onclick="lockKeyPress('3')">3</button>
+      <button class="lock-key" onclick="lockKeyPress('4')">4</button>
+      <button class="lock-key" onclick="lockKeyPress('5')">5</button>
+      <button class="lock-key" onclick="lockKeyPress('6')">6</button>
+      <button class="lock-key" onclick="lockKeyPress('7')">7</button>
+      <button class="lock-key" onclick="lockKeyPress('8')">8</button>
+      <button class="lock-key" onclick="lockKeyPress('9')">9</button>
+      <button class="lock-key"></button>
+      <button class="lock-key" onclick="lockKeyPress('0')">0</button>
+      <button class="lock-key delete" onclick="lockKeyDelete()">⌫</button>
+    </div>
   </div>
   <div class="lock-error" id="lockError"></div>
+  <div class="lock-bottom"></div>
 </div>
 
 <div class="phone-frame">
@@ -466,7 +482,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue'
 
 <script>
 // ========== 全局配置 ==========
-const GAME_PASSWORD = '0506';
+const GAME_PASSWORD = '050628';
 const STAMINA_MAX = 500;
 const TRAINEES_MAX_STAMINA = 200;
 const INITIAL_MONEY_OPTIONS = [3000, 6000, 8000, 10000];
@@ -2370,7 +2386,13 @@ function formatNum(n) {
 }
 
 // ========== 密码锁 ==========
-function initLock() { window._lockPwd = GAME_PASSWORD; }
+function initLock() { 
+  window._lockPwd = GAME_PASSWORD; 
+  _lockInputValue = '';
+  updateLockDots('');
+  updateLockTime();
+  setInterval(updateLockTime, 1000);
+}
 function updateLockTime() {
   const now = new Date();
   const hours = String(now.getHours()).padStart(2, '0');
@@ -2387,7 +2409,7 @@ function updateLockTime() {
 }
 
 function updateLockDots(val) {
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 6; i++) {
     const dot = document.getElementById('lockDot' + i);
     if (dot) {
       dot.classList.toggle('filled', i < val.length);
@@ -2395,19 +2417,35 @@ function updateLockDots(val) {
   }
 }
 
+let _lockInputValue = '';
+function lockKeyPress(num) {
+  if (_lockInputValue.length < 6) {
+    _lockInputValue += num;
+    updateLockDots(_lockInputValue);
+    if (_lockInputValue.length === 6) {
+      setTimeout(checkLock, 100);
+    }
+  }
+}
+function lockKeyDelete() {
+  if (_lockInputValue.length > 0) {
+    _lockInputValue = _lockInputValue.slice(0, -1);
+    updateLockDots(_lockInputValue);
+  }
+}
 function checkLock() {
-  const val = document.getElementById('lockInput').value.trim();
-  if (val === window._lockPwd) {
-    document.getElementById('lockScreen').classList.add('hide');
+  if (_lockInputValue === window._lockPwd) {
+    document.getElementById('lockScreen').style.display = 'none';
+    _lockInputValue = '';
     const saved = localStorage.getItem('idolCurrent');
     if (saved) { init(); }
     else { showInitialSetup(); }
   } else {
     document.getElementById('lockError').textContent = '密码错误';
-    document.getElementById('lockInput').value = '';
+    _lockInputValue = '';
     updateLockDots('');
     // 震动效果
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 6; i++) {
       const dot = document.getElementById('lockDot' + i);
       if (dot) {
         dot.classList.add('error');
