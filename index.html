@@ -7,191 +7,192 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue',Helvetica,Arial,sans-serif;background:#1a1a2e;color:#fff;overflow:hidden;height:100vh;width:100vw;display:flex;justify-content:center;align-items:center}
-.phone-frame{width:375px;height:700px;background:#16162a;border-radius:40px;overflow:hidden;display:flex;flex-direction:column;position:relative;box-shadow:0 0 60px rgba(0,0,0,0.8);border:3px solid #2a2a4a}
-.status-bar{height:44px;background:#0d0d1f;display:flex;justify-content:space-between;align-items:center;padding:0 20px;font-size:12px;font-weight:600;flex-shrink:0;z-index:10}
+.phone-frame{width:375px;height:700px;background:#e8e0f0;border-radius:40px;overflow:hidden;display:flex;flex-direction:column;position:relative;box-shadow:0 0 60px rgba(0,0,0,0.8);border:3px solid #d0c8e0}
+.status-bar{height:44px;background:#f5f0fa;display:flex;justify-content:space-between;align-items:center;padding:0 20px;font-size:12px;font-weight:600;flex-shrink:0;z-index:10;color:#6b5b7a}
 .status-left{display:flex;align-items:center;gap:4px;font-size:13px}
 .status-right{display:flex;align-items:center;gap:4px}
-.signal-bar{width:3px;background:#fff;border-radius:1px;margin:0 1px}
-.battery{width:22px;height:10px;border:1.5px solid #fff;border-radius:3px;position:relative;display:flex;align-items:center;justify-content:flex-end;padding:1px}
-.battery::after{content:'';position:absolute;right:-4px;top:2px;width:3px;height:5px;background:#fff;border-radius:0 2px 2px 0}
+.signal-bar{width:3px;background:#6b5b7a;border-radius:1px;margin:0 1px}
+.battery{width:22px;height:10px;border:1.5px solid #6b5b7a;border-radius:3px;position:relative;display:flex;align-items:center;justify-content:flex-end;padding:1px}
+.battery::after{content:'';position:absolute;right:-4px;top:2px;width:3px;height:5px;background:#6b5b7a;border-radius:0 2px 2px 0}
 .main-content{flex:1;overflow-y:auto;overflow-x:hidden;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;display:none;padding-bottom:60px}
 .main-content.active{display:block}
 .home-screen{padding:12px 14px}
-.day-bar{display:flex;align-items:center;justify-content:center;gap:6px;padding:6px 0;margin-bottom:8px;font-size:12px;opacity:0.5}
+.day-bar{display:flex;align-items:center;justify-content:center;gap:8px;padding:6px 0;margin-bottom:8px;font-size:12px;opacity:0.6}
 .day-bar span{font-size:13px;opacity:1}
-.player-card{background:linear-gradient(135deg,#6c5ce7,#a29bfe);border-radius:16px;padding:16px;margin-bottom:10px;position:relative;overflow:hidden}
-.player-card::after{content:'';position:absolute;top:-30px;right:-30px;width:100px;height:100px;background:rgba(255,255,255,0.1);border-radius:50%}
+.player-card{background:linear-gradient(135deg,#b8a9d4,#d4c8e8);border-radius:16px;padding:16px;margin-bottom:10px;position:relative;overflow:hidden;color:#4a3d5c}
+.player-card::after{content:'';position:absolute;top:-30px;right:-30px;width:100px;height:100px;background:rgba(255,255,255,0.3);border-radius:50%}
 .player-card-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
 .avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:bold;flex-shrink:0;overflow:hidden;background:#ccc}
 .avatar img{width:100%;height:100%;object-fit:cover}
 .player-name{font-size:16px;font-weight:700;margin-bottom:2px}
-.player-status-label{font-size:11px;opacity:0.8}
-.trainee-badge{display:inline-block;background:rgba(255,255,255,0.2);padding:2px 8px;border-radius:10px;font-size:10px;margin-top:4px}
-.debut-badge{display:inline-block;background:#e84393;padding:2px 8px;border-radius:10px;font-size:10px;margin-top:4px;display:none}
+.player-status-label{font-size:11px;opacity:0.7}
+.trainee-badge{display:inline-block;background:rgba(255,255,255,0.4);padding:2px 8px;border-radius:10px;font-size:10px;margin-top:4px}
+.debut-badge{display:inline-block;background:#c490c4;padding:2px 8px;border-radius:10px;font-size:10px;margin-top:4px;display:none}
 .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.stat-item{background:rgba(0,0,0,0.2);border-radius:10px;padding:7px 8px}
+.stat-item{background:rgba(255,255,255,0.3);border-radius:10px;padding:7px 8px}
 .stat-label{font-size:10px;opacity:0.7;margin-bottom:2px}
 .stat-value{font-size:14px;font-weight:700}
 .stats-row{display:flex;gap:6px;margin-top:8px;align-items:center}
-.money-display{background:rgba(0,0,0,0.2);border-radius:10px;padding:7px 10px;flex:1;display:flex;align-items:center;gap:4px}
+.money-display{background:rgba(255,255,255,0.3);border-radius:10px;padding:7px 10px;flex:1;display:flex;align-items:center;gap:4px}
 .quick-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
-.quick-btn{background:#1f1f3a;border-radius:14px;padding:12px 4px;text-align:center;cursor:pointer;transition:all 0.2s;min-height:72px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:none;color:#fff}
-.quick-btn:active{transform:scale(0.95);background:#2a2a50}
+.quick-btn{background:#f5f0fa;color:#6b5b7a;border-radius:14px;padding:12px 4px;text-align:center;cursor:pointer;transition:all 0.2s;min-height:72px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:none}
+.quick-btn:active{transform:scale(0.95);background:#e8e0f0}
 .quick-btn .btn-icon{font-size:20px;margin-bottom:1px}
 .quick-btn .btn-label{font-size:11px;font-weight:600}
-.quick-btn .btn-desc{font-size:9px;opacity:0.5}
-.quick-btn.highlight{background:linear-gradient(135deg,#e84393,#fd79a8)}
-.countdown-card{background:#1f1f3a;border-radius:14px;padding:12px;margin-bottom:10px;display:none}
+.quick-btn .btn-desc{font-size:9px;opacity:0.6}
+.quick-btn.highlight{background:linear-gradient(135deg,#c490c4,#d4b0d4)}
+.quick-btn.highlight{color:#fff}
+.countdown-card{background:#f5f0fa;border-radius:14px;padding:12px;margin-bottom:10px;display:none;color:#6b5b7a}
 .countdown-card.show{display:block}
 .countdown-title{font-size:11px;opacity:0.6;margin-bottom:3px}
-.countdown-time{font-size:24px;font-weight:700;color:#fd79a8;margin-bottom:4px}
-.countdown-progress{width:100%;height:5px;background:#2a2a50;border-radius:3px;overflow:hidden;margin-bottom:4px}
-.countdown-progress-bar{height:100%;background:linear-gradient(90deg,#e84393,#fd79a8);border-radius:3px;transition:width 0.5s}
+.countdown-time{font-size:24px;font-weight:700;color:#c490c4;margin-bottom:4px}
+.countdown-progress{width:100%;height:5px;background:#e8e0f0;border-radius:3px;overflow:hidden;margin-bottom:4px}
+.countdown-progress-bar{height:100%;background:linear-gradient(90deg,#c490c4,#d4b0d4);border-radius:3px;transition:width 0.5s}
 .countdown-sub{font-size:10px;opacity:0.5}
 .discover-screen{padding:12px 14px}
-.weibo-hot{background:#1f1f3a;border-radius:14px;padding:12px;margin-bottom:10px}
+.weibo-hot{background:#f5f0fa;border-radius:14px;padding:12px;margin-bottom:10px;color:#6b5b7a}
 .section-title{font-size:14px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:5px}
-.hot-item{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer}
+.hot-item{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(107,91,122,0.1);cursor:pointer}
 .hot-item:last-child{border:none}
 .hot-rank{font-size:12px;font-weight:700;width:18px;text-align:center;flex-shrink:0}
-.hot-rank.top1{color:#ff4757}
-.hot-rank.top2{color:#ff6b35}
-.hot-rank.top3{color:#ffa502}
+.hot-rank.top1{color:#e07070}
+.hot-rank.top2{color:#e09050}
+.hot-rank.top3{color:#d0a030}
 .hot-title{flex:1;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hot-tag{font-size:9px;padding:1px 4px;border-radius:3px;flex-shrink:0}
-.tag-hot{background:#ff4757}
-.tag-new{background:#2ed573}
-.tag-friend{background:#3742fa}
+.tag-hot{background:#e07070}
+.tag-new{background:#70c090}
+.tag-friend{background:#7080e0}
 .messages-screen{padding:12px 14px}
 .msg-tab-bar{display:flex;gap:8px;margin-bottom:10px}
-.msg-tab{padding:6px 14px;background:#1f1f3a;border-radius:20px;font-size:12px;cursor:pointer;border:none;color:#fff;transition:all 0.2s;position:relative}
-.msg-tab.active{background:linear-gradient(135deg,#6c5ce7,#a29bfe)}
-.msg-badge{position:absolute;top:-4px;right:-4px;background:#ff4757;color:#fff;font-size:9px;padding:1px 5px;border-radius:10px;min-width:16px;text-align:center}
-.msg-list{background:#1f1f3a;border-radius:14px;overflow:hidden}
-.msg-item{padding:11px 14px;border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;display:flex;gap:10px;align-items:center}
+.msg-tab{padding:6px 14px;background:#f5f0fa;border-radius:20px;font-size:12px;cursor:pointer;border:none;color:#6b5b7a;transition:all 0.2s;position:relative}
+.msg-tab.active{background:linear-gradient(135deg,#b8a9d4,#d4c8e8)}
+.msg-badge{position:absolute;top:-4px;right:-4px;background:#e07070;color:#fff;font-size:9px;padding:1px 5px;border-radius:10px;min-width:16px;text-align:center}
+.msg-list{background:#f5f0fa;border-radius:14px;overflow:hidden}
+.msg-item{padding:11px 14px;border-bottom:1px solid rgba(107,91,122,0.1);cursor:pointer;display:flex;gap:10px;align-items:center}
 .msg-item:last-child{border:none}
-.msg-item:active{background:rgba(255,255,255,0.05)}
-.msg-avatar{width:38px;height:38px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;background:#3a3a5a;overflow:hidden}
+.msg-item:active{background:rgba(255,255,255,0.5)}
+.msg-avatar{width:38px;height:38px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;background:#e8e0f0;overflow:hidden}
 .msg-avatar img{width:100%;height:100%;object-fit:cover}
 .msg-info{flex:1;min-width:0}
 .msg-name{font-size:13px;font-weight:600;margin-bottom:2px;display:flex;align-items:center;gap:4px}
 .msg-preview{font-size:11px;opacity:0.5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mine-screen{padding:12px 14px}
-.mine-header{background:linear-gradient(135deg,#6c5ce7,#a29bfe);border-radius:16px;padding:16px 16px 14px;margin-bottom:12px;text-align:center;position:relative;overflow:hidden}
+.mine-header{background:linear-gradient(135deg,#b8a9d4,#d4c8e8);border-radius:16px;padding:16px 16px 14px;margin-bottom:12px;text-align:center;position:relative;overflow:hidden;color:#4a3d5c}
 .mine-avatar-wrap{position:relative;display:inline-block;margin-bottom:8px}
 .mine-avatar{width:60px;height:60px;border-radius:50%;margin:0 auto 8px;font-size:26px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#ddd}
 .mine-avatar img{width:100%;height:100%;object-fit:cover}
-.mine-avatar-edit{position:absolute;bottom:0;right:0;width:20px;height:20px;background:#6c5ce7;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;border:2px solid #a29bfe;cursor:pointer}
+.mine-avatar-edit{position:absolute;bottom:0;right:0;width:20px;height:20px;background:#b8a9d4;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;border:2px solid #d4c8e8;cursor:pointer}
 .mine-name{font-size:16px;font-weight:700;margin-bottom:2px}
 .mine-id{font-size:10px;opacity:0.5;margin-bottom:2px}
 .mine-status{font-size:11px;margin-bottom:8px;opacity:0.8;display:flex;align-items:center;justify-content:center;gap:4px}
 .mine-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
-.mine-stat{background:rgba(0,0,0,0.15);border-radius:10px;padding:6px 4px;text-align:center}
+.mine-stat{background:rgba(255,255,255,0.3);border-radius:10px;padding:6px 4px;text-align:center}
 .mine-stat-value{font-size:14px;font-weight:700}
 .mine-stat-label{font-size:9px;opacity:0.7;margin-top:1px}
-.menu-card{background:#1f1f3a;border-radius:14px;overflow:hidden;margin-bottom:10px}
-.menu-item{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px}
+.menu-card{background:#f5f0fa;border-radius:14px;overflow:hidden;margin-bottom:10px}
+.menu-item{padding:12px 16px;border-bottom:1px solid rgba(107,91,122,0.1);display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;color:#6b5b7a}
 .menu-item:last-child{border:none}
-.menu-item:active{background:rgba(255,255,255,0.05)}
+.menu-item:active{background:rgba(255,255,255,0.5)}
 .menu-icon{font-size:16px;width:22px;text-align:center}
-.menu-arrow{color:#555;font-size:12px;margin-left:auto}
-.tab-bar{height:60px;background:#0d0d1f;border-top:1px solid #1a1a2e;display:flex;position:absolute;bottom:0;left:0;right:0;z-index:10}
-.tab-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;border:none;background:none;color:#555;transition:all 0.2s;font-size:10px;padding:0}
-.tab-item.active{color:#a29bfe}
+.menu-arrow{color:#a090b0;font-size:12px;margin-left:auto}
+.tab-bar{height:60px;background:#f5f0fa;border-top:1px solid #e8e0f0;display:flex;position:absolute;bottom:0;left:0;right:0;z-index:10}
+.tab-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;border:none;background:none;color:#a090b0;transition:all 0.2s;font-size:10px;padding:0}
+.tab-item.active{color:#8b70b0}
 .tab-item .tab-icon{font-size:20px;margin-bottom:1px}
-.tab-item.center-tab .tab-icon{font-size:26px;color:#a29bfe}
+.tab-item.center-tab .tab-icon{font-size:26px;color:#8b70b0}
 .tab-item .tab-badge{position:relative}
-.tab-item .tab-badge::after{content:'';position:absolute;top:-2px;right:-4px;width:8px;height:8px;background:#ff4757;border-radius:50%;display:none}
+.tab-item .tab-badge::after{content:'';position:absolute;top:-2px;right:-4px;width:8px;height:8px;background:#e07070;border-radius:50%;display:none}
 .tab-item .tab-badge.has-msg::after{display:block}
-.modal-overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:100;display:none;align-items:flex-end;justify-content:center}
+.modal-overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:100;display:none;align-items:flex-end;justify-content:center}
 .modal-overlay.show{display:flex}
-.modal{background:#1a1a2e;width:100%;max-height:85%;border-radius:20px 20px 0 0;overflow:hidden;display:flex;flex-direction:column;animation:slideUp 0.3s ease}
-.modal-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;font-size:15px;font-weight:700;border-bottom:1px solid #2a2a4a;flex-shrink:0}
-.modal-close{background:none;border:none;color:#888;font-size:20px;cursor:pointer;padding:0}
+.modal{background:#f5f0fa;color:#6b5b7a;width:100%;max-height:85%;border-radius:20px 20px 0 0;overflow:hidden;display:flex;flex-direction:column;animation:slideUp 0.3s ease}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;font-size:15px;font-weight:700;border-bottom:1px solid #e8e0f0;flex-shrink:0}
+.modal-close{background:none;border:none;color:#a090b0;font-size:20px;cursor:pointer;padding:0}
 .modal-body{flex:1;overflow-y:auto;padding:12px 16px}
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .form-group{margin-bottom:12px}
 .form-label{font-size:11px;opacity:0.6;margin-bottom:5px;display:block}
-.form-input{width:100%;background:#2a2a4a;border:1px solid #3a3a5a;border-radius:10px;padding:9px 12px;color:#fff;font-size:13px;outline:none}
-.form-input:focus{border-color:#a29bfe}
-.form-select{width:100%;background:#2a2a4a;border:1px solid #3a3a5a;border-radius:10px;padding:9px 12px;color:#fff;font-size:13px;outline:none;appearance:none}
+.form-input{width:100%;background:#fff;border:1px solid #e8e0f0;border-radius:10px;padding:9px 12px;color:#6b5b7a;font-size:13px;outline:none}
+.form-input:focus{border-color:#b8a9d4}
+.form-select{width:100%;background:#fff;border:1px solid #e8e0f0;border-radius:10px;padding:9px 12px;color:#6b5b7a;font-size:13px;outline:none;appearance:none}
 .action-btn{width:100%;padding:10px;border-radius:12px;border:none;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:6px;transition:all 0.2s}
 .action-btn:active{transform:scale(0.97)}
-.btn-primary{background:linear-gradient(135deg,#6c5ce7,#a29bfe);color:#fff}
-.btn-danger{background:linear-gradient(135deg,#e84393,#fd79a8);color:#fff}
-.btn-secondary{background:#2a2a4a;color:#ccc}
-.btn-warning{background:linear-gradient(135deg,#e17055,#fdcb6e);color:#fff}
+.btn-primary{background:linear-gradient(135deg,#b8a9d4,#d4c8e8);color:#fff}
+.btn-danger{background:linear-gradient(135deg,#c490c4,#d4b0d4);color:#fff}
+.btn-secondary{background:#e8e0f0;color:#6b5b7a}
+.btn-warning{background:linear-gradient(135deg,#d0a080,#e0c090);color:#fff}
 .btn-small{padding:5px 12px;border-radius:8px;border:none;font-size:11px;font-weight:600;cursor:pointer;color:#fff}
-.option-list{background:#1f1f3a;border-radius:12px;overflow:hidden;margin-bottom:10px}
-.option-item{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.option-list{background:#fff;border-radius:12px;overflow:hidden;margin-bottom:10px}
+.option-item{padding:12px 14px;border-bottom:1px solid rgba(107,91,122,0.1);cursor:pointer;display:flex;justify-content:space-between;align-items:center}
 .option-item:last-child{border:none}
-.option-item:active{background:rgba(255,255,255,0.05)}
+.option-item:active{background:rgba(255,255,255,0.5)}
 .option-name{font-size:13px}
 .option-cost{font-size:11px;opacity:0.5;text-align:right}
-.option-reward{font-size:11px;color:#2ed573;text-align:right}
-.detail-card{background:#2a2a4a;border-radius:12px;padding:12px;margin-bottom:10px}
+.option-reward{font-size:11px;color:#70a060;text-align:right}
+.detail-card{background:#fff;border-radius:12px;padding:12px;margin-bottom:10px}
 .detail-row{display:flex;justify-content:space-between;padding:3px 0;font-size:12px}
 .detail-row span:first-child{opacity:0.6}
-.toast{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.85);color:#fff;padding:9px 18px;border-radius:10px;font-size:13px;z-index:200;display:none;pointer-events:none;white-space:nowrap}
+.toast{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(107,91,122,0.9);color:#fff;padding:9px 18px;border-radius:10px;font-size:13px;z-index:200;display:none;pointer-events:none;white-space:nowrap}
 .toast.show{display:block;animation:fadeInOut 1.5s ease forwards}
 @keyframes fadeInOut{0%{opacity:0;transform:translate(-50%,-50%) scale(0.8)}20%{opacity:1;transform:translate(-50%,-50%) scale(1)}80%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(0.8)}}
-.event-banner{position:absolute;top:44px;left:0;right:0;background:linear-gradient(135deg,#e84393,#fd79a8);padding:9px 14px;font-size:13px;font-weight:600;z-index:50;display:none;animation:slideDown 0.3s ease}
+.event-banner{position:absolute;top:44px;left:0;right:0;background:linear-gradient(135deg,#c490c4,#d4b0d4);padding:9px 14px;font-size:13px;font-weight:600;z-index:50;display:none;animation:slideDown 0.3s ease;color:#fff}
 .event-banner.show{display:block}
 @keyframes slideDown{from{transform:translateY(-100%)}to{transform:translateY(0)}}
-.lock-screen{position:absolute;top:0;left:0;right:0;bottom:0;background:#1a1a2e;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+.lock-screen{position:absolute;top:0;left:0;right:0;bottom:0;background:#f5f0fa;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:#6b5b7a}
 .lock-screen.hide{display:none}
 .lock-icon{font-size:46px;margin-bottom:4px}
 .lock-title{font-size:18px;font-weight:700}
 .lock-sub{font-size:11px;opacity:0.4}
 .lock-input-wrap{display:flex;gap:8px;align-items:center}
-.lock-input{width:150px;background:#2a2a4a;border:2px solid #3a3a5a;border-radius:10px;padding:9px 12px;color:#fff;font-size:18px;text-align:center;letter-spacing:6px;outline:none}
-.lock-input:focus{border-color:#a29bfe}
-.lock-btn{background:linear-gradient(135deg,#6c5ce7,#a29bfe);border:none;color:#fff;padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer}
-.lock-error{color:#ff4757;font-size:11px;height:14px}
+.lock-input{width:150px;background:#fff;border:2px solid #e8e0f0;border-radius:10px;padding:9px 12px;color:#6b5b7a;font-size:18px;text-align:center;letter-spacing:6px;outline:none}
+.lock-input:focus{border-color:#b8a9d4}
+.lock-btn{background:linear-gradient(135deg,#b8a9d4,#d4c8e8);border:none;color:#fff;padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer}
+.lock-error{color:#e07070;font-size:11px;height:14px}
 .wx-modal{padding:0!important}
-.wx-chat-header{display:flex;align-items:center;gap:8px;padding:10px 14px;background:#1a1a2e;border-bottom:1px solid #2a2a4a}
-.wx-back{background:none;border:none;color:#a29bfe;font-size:22px;cursor:pointer;padding:0;line-height:1}
+.wx-chat-header{display:flex;align-items:center;gap:8px;padding:10px 14px;background:#f5f0fa;border-bottom:1px solid #e8e0f0}
+.wx-back{background:none;border:none;color:#8b70b0;font-size:22px;cursor:pointer;padding:0;line-height:1}
 .wx-contact-name{font-size:14px;font-weight:600;flex:1}
-.wx-contact-edit{background:none;border:none;color:#a29bfe;font-size:11px;cursor:pointer;text-decoration:underline}
-.wx-messages{flex:1;overflow-y:auto;padding:10px 14px;min-height:280px;max-height:380px;background:#f0f0f5}
+.wx-contact-edit{background:none;border:none;color:#8b70b0;font-size:11px;cursor:pointer;text-decoration:underline}
+.wx-messages{flex:1;overflow-y:auto;padding:10px 14px;min-height:280px;max-height:380px;background:#f0f0f8}
 .wx-msg{margin-bottom:8px;display:flex;flex-direction:column}
 .wx-msg.other{align-items:flex-start}
 .wx-msg.self{align-items:flex-end}
 .wx-bubble{padding:7px 11px;border-radius:12px;max-width:75%;font-size:13px;line-height:1.5;word-break:break-all}
 .wx-msg.other .wx-bubble{background:#fff;color:#333;border-bottom-left-radius:3px}
-.wx-msg.self .wx-bubble{background:#6c5ce7;color:#fff;border-bottom-right-radius:3px}
-.wx-input-bar{display:flex;gap:6px;padding:8px 12px;border-top:1px solid #2a2a4a;background:#1a1a2e}
-.wx-input{flex:1;background:#2a2a4a;border:1px solid #3a3a5a;border-radius:18px;padding:7px 12px;color:#fff;font-size:12px;outline:none}
-.wx-send{background:#6c5ce7;border:none;color:#fff;padding:5px 12px;border-radius:18px;font-size:12px;cursor:pointer}
-.sms-item{background:#2a2a4a;border-radius:12px;padding:11px;margin-bottom:7px;cursor:pointer}
+.wx-msg.self .wx-bubble{background:#b8a9d4;color:#fff;border-bottom-right-radius:3px}
+.wx-input-bar{display:flex;gap:6px;padding:8px 12px;border-top:1px solid #e8e0f0;background:#f5f0fa}
+.wx-input{flex:1;background:#fff;border:1px solid #e8e0f0;border-radius:18px;padding:7px 12px;color:#6b5b7a;font-size:12px;outline:none}
+.wx-send{background:#b8a9d4;border:none;color:#fff;padding:5px 12px;border-radius:18px;font-size:12px;cursor:pointer}
+.sms-item{background:#fff;border-radius:12px;padding:11px;margin-bottom:7px;cursor:pointer}
 .sms-item:active{transform:scale(0.98)}
 .sms-from{font-size:11px;opacity:0.5;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center}
 .sms-from-right{display:flex;align-items:center;gap:5px}
-.sms-block-btn{color:#ff4757;font-size:10px;cursor:pointer;text-decoration:underline;background:none;border:none}
+.sms-block-btn{color:#e07070;font-size:10px;cursor:pointer;text-decoration:underline;background:none;border:none}
 .sms-content{font-size:12px;line-height:1.5}
-.weibo-card{background:#2a2a4a;border-radius:12px;padding:11px;margin-bottom:7px}
+.weibo-card{background:#fff;border-radius:12px;padding:11px;margin-bottom:7px}
 .weibo-text{font-size:13px;line-height:1.5;margin-bottom:6px;word-break:break-all}
 .weibo-meta{display:flex;gap:14px;font-size:11px;opacity:0.5;margin-top:4px}
-.weibo-like{color:#ff6b6b}
-.weibo-editor{background:#2a2a4a;border-radius:12px;padding:12px;margin-bottom:10px}
-.weibo-textarea{width:100%;background:transparent;border:none;color:#fff;font-size:13px;resize:none;outline:none;min-height:70px;line-height:1.5}
+.weibo-like{color:#e07070}
+.weibo-editor{background:#fff;border-radius:12px;padding:12px;margin-bottom:10px}
+.weibo-textarea{width:100%;background:transparent;border:none;color:#6b5b7a;font-size:13px;resize:none;outline:none;min-height:70px;line-height:1.5}
 .char-count{text-align:right;font-size:10px;opacity:0.4;margin-top:4px}
-.rel-item{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+.rel-item{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(107,91,122,0.1)}
 .rel-item:last-child{border:none}
-.rel-avatar-wrap{position:relative;width:34px;height:34px;border-radius:50%;background:#3a3a5a;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;overflow:hidden}
+.rel-avatar-wrap{position:relative;width:34px;height:34px;border-radius:50%;background:#e8e0f0;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;overflow:hidden}
 .rel-avatar-wrap img{width:100%;height:100%;object-fit:cover}
 .rel-name{font-size:12px;font-weight:600;flex:1}
-.rel-bar-wrap{flex:1;height:4px;background:#2a2a4a;border-radius:2px;overflow:hidden}
-.rel-bar{height:100%;background:linear-gradient(90deg,#e84393,#fd79a8);border-radius:2px;transition:width 0.5s}
-.rel-val{font-size:10px;color:#fd79a8;width:28px;text-align:right}
-.rel-love-btn{font-size:10px;padding:2px 8px;border-radius:8px;background:#e84393;border:none;color:#fff;cursor:pointer;margin-left:4px}
-.member-item{background:#2a2a4a;border-radius:12px;padding:10px;margin-bottom:7px;display:flex;align-items:center;gap:8px}
-.member-avatar-sm{width:34px;height:34px;border-radius:50%;background:#3a3a5a;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;overflow:hidden}
+.rel-bar-wrap{flex:1;height:4px;background:#f5f0fa;border-radius:2px;overflow:hidden}
+.rel-bar{height:100%;background:linear-gradient(90deg,#c490c4,#d4b0d4);border-radius:2px;transition:width 0.5s}
+.rel-val{font-size:10px;color:#c490c4;width:28px;text-align:right}
+.rel-love-btn{font-size:10px;padding:2px 8px;border-radius:8px;background:#c490c4;border:none;color:#fff;cursor:pointer;margin-left:4px}
+.member-item{background:#fff;border-radius:12px;padding:10px;margin-bottom:7px;display:flex;align-items:center;gap:8px}
+.member-avatar-sm{width:34px;height:34px;border-radius:50%;background:#e8e0f0;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;overflow:hidden}
 .member-avatar-sm img{width:100%;height:100%;object-fit:cover}
 .member-info{flex:1;min-width:0}
 .member-name-sm{font-size:12px;font-weight:600}
 .member-role{font-size:10px;opacity:0.5}
-.job-card{background:#2a2a4a;border-radius:14px;padding:14px;margin-bottom:10px;cursor:pointer;border:none;width:100%;text-align:left;color:#fff;display:block}
+.job-card{background:#fff;border-radius:14px;padding:14px;margin-bottom:10px;cursor:pointer;border:none;width:100%;text-align:left;display:block}
 .job-card:active{transform:scale(0.99)}
 .job-card-header{display:flex;align-items:center;gap:8px;margin-bottom:6px}
 .job-icon{font-size:22px}
@@ -199,30 +200,47 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue'
 .job-req{font-size:11px;opacity:0.5;margin-bottom:4px}
 .job-desc{font-size:12px;opacity:0.7;margin-bottom:6px;line-height:1.4}
 .job-tags{display:flex;gap:5px;flex-wrap:wrap}
-.job-tag{padding:2px 7px;border-radius:8px;font-size:10px;background:rgba(255,255,255,0.1)}
-.job-money{color:#fdcb6e;font-weight:700;margin-left:auto}
-.save-slot{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer}
-.save-slot:active{background:rgba(255,255,255,0.05)}
+.job-tag{padding:2px 7px;border-radius:8px;font-size:10px;background:rgba(107,91,122,0.1)}
+.job-money{color:#d0a030;font-weight:700;margin-left:auto}
+.save-slot{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid rgba(107,91,122,0.1);cursor:pointer}
+.save-slot:active{background:rgba(255,255,255,0.5)}
 .save-slot-info{flex:1}
 .save-slot-name{font-size:13px;font-weight:600}
 .save-slot-date{font-size:10px;opacity:0.5}
 .save-slot-btn{font-size:11px;padding:4px 10px;border-radius:8px;border:none;cursor:pointer}
-.save-btn-save{background:#6c5ce7;color:#fff}
-.save-btn-load{background:#2ed573;color:#fff}
-.save-btn-del{background:#ff4757;color:#fff;margin-left:4px}
+.save-btn-save{background:#b8a9d4;color:#fff}
+.save-btn-load{background:#70a060;color:#fff}
+.save-btn-del{background:#e07070;color:#fff;margin-left:4px}
 .avatar-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:6px}
-.avatar-opt{width:42px;height:42px;border-radius:50%;background:#2a2a4a;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;border:3px solid transparent;transition:all 0.2s}
-.avatar-opt:hover{border-color:#3a3a5a}
-.avatar-opt.selected{border-color:#a29bfe;transform:scale(1.1)}
+.avatar-opt{width:42px;height:42px;border-radius:50%;background:#f5f0fa;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;border:3px solid transparent;transition:all 0.2s}
+.avatar-opt:hover{border-color:#d4c8e8}
+.avatar-opt.selected{border-color:#8b70b0;transform:scale(1.1)}
 .color-picker-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
 .color-picker-swatch{width:34px;height:34px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all 0.2s}
-.color-picker-swatch:hover{border-color:rgba(255,255,255,0.3)}
-.color-picker-swatch.selected{border-color:#fff;transform:scale(1.15)}
+.color-picker-swatch:hover{border-color:rgba(107,91,122,0.3)}
+.color-picker-swatch.selected{border-color:#8b70b0;transform:scale(1.15)}
 .color-picker-custom{margin-top:8px;display:flex;align-items:center;gap:8px}
 .color-picker-custom input[type=color]{width:36px;height:36px;border:none;border-radius:50%;cursor:pointer;background:none}
-.concert-ready{background:linear-gradient(135deg,#6c5ce7,#a29bfe);border-radius:12px;padding:14px;text-align:center;margin-bottom:12px}
+.concert-ready{background:linear-gradient(135deg,#b8a9d4,#d4c8e8);border-radius:12px;padding:14px;text-align:center;margin-bottom:12px}
 .concert-ready-title{font-size:13px;font-weight:700;margin-bottom:4px}
 .concert-ready-sub{font-size:11px;opacity:0.7;margin-bottom:10px}
+/* 泡泡群聊样式 */
+.bubble-group{background:#fff;border-radius:14px;padding:12px;margin-bottom:10px}
+.bubble-msg{margin-bottom:8px;display:flex;gap:8px}
+.bubble-avatar{width:28px;height:28px;border-radius:50%;background:#e8e0f0;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.bubble-content{flex:1}
+.bubble-name{font-size:10px;color:#a090b0;margin-bottom:2px}
+.bubble-text{font-size:12px;line-height:1.4;background:#f5f0fa;padding:6px 10px;border-radius:10px;display:inline-block;max-width:90%}
+.bubble-input-bar{display:flex;gap:6px;padding:8px 12px;background:#f5f0fa;border-radius:12px;margin-top:8px}
+.bubble-input{flex:1;background:#fff;border:none;border-radius:18px;padding:7px 12px;color:#6b5b7a;font-size:12px;outline:none}
+.bubble-send{background:#b8a9d4;border:none;color:#fff;padding:5px 12px;border-radius:18px;font-size:12px;cursor:pointer}
+/* 警告框 */
+.warning-overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:150;display:none;align-items:center;justify-content:center}
+.warning-overlay.show{display:flex}
+.warning-box{background:#f5f0fa;border-radius:16px;padding:24px 20px;text-align:center;max-width:280px;margin:0 auto}
+.warning-icon{font-size:48px;margin-bottom:12px}
+.warning-title{font-size:16px;font-weight:700;color:#c490c4;margin-bottom:8px}
+.warning-text{font-size:13px;opacity:0.7;margin-bottom:16px;line-height:1.5}
 ::-webkit-scrollbar{width:0}
 </style>
 </head>
@@ -247,7 +265,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue'
       <div class="signal-bar" style="height:4px"></div>
       <div class="signal-bar" style="height:2px"></div>
       <div style="width:4px"></div>
-      <div class="battery" id="battery-bar"><span style="width:80%;height:100%;background:#2ed573;border-radius:2px;display:block"></span></div>
+      <div class="battery" id="battery-bar"><span style="width:80%;height:100%;background:#70a060;border-radius:2px;display:block"></span></div>
     </div>
   </div>
   <div class="event-banner" id="eventBanner"></div>
@@ -255,10 +273,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue'
   <!-- 首页 -->
   <div class="main-content active" id="screen-home">
     <div class="home-screen">
-      <div class="day-bar">📅 第 <span id="dayDisplay">1</span> 天</div>
+      <div class="day-bar">📅 第 <span id="dayDisplay">1</span> 天 · <span id="monthDisplay">1月</span></div>
       <div class="player-card">
         <div class="player-card-header">
-          <div class="avatar" id="playerAvatar" style="background:linear-gradient(135deg,#fd79a8,#e84393)">🎤</div>
+          <div class="avatar" id="playerAvatar" style="background:linear-gradient(135deg,#c490c4,#d4b0d4)">🎤</div>
           <div>
             <div class="player-name" id="playerName">未设置</div>
             <div class="player-status-label">ID: <span id="playerId">10000</span></div>
@@ -269,6 +287,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue'
         <div class="stats-grid">
           <div class="stat-item"><div class="stat-label">声乐</div><div class="stat-value" id="stat-vocal">10</div></div>
           <div class="stat-item"><div class="stat-label">舞蹈</div><div class="stat-value" id="stat-dance">10</div></div>
+          <div class="stat-item"><div class="stat-label">演技</div><div class="stat-value" id="stat-acting">0</div></div>
+          <div class="stat-item"><div class="stat-label">综艺感</div><div class="stat-value" id="stat-variety">0</div></div>
           <div class="stat-item"><div class="stat-label">体力</div><div class="stat-value" id="stat-stamina">200/500</div></div>
           <div class="stat-item"><div class="stat-label" id="fans-label">粉丝</div><div class="stat-value" id="stat-fans">—</div></div>
           <div class="stat-item"><div class="stat-label">心情</div><div class="stat-value" id="stat-mood">80</div></div>
@@ -276,8 +296,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue'
         </div>
         <div class="stats-row">
           <div class="money-display">💰 <span id="stat-money">3000</span></div>
+          <div class="money-display" id="salaryDisplay" style="display:none">💵 工资: <span id="salaryAmount">0</span></div>
         </div>
       </div>
+      
+      <!-- 分红提现 -->
+      <div class="countdown-card" id="dividendCard" style="display:none">
+        <div class="countdown-title">💰 待领取分红</div>
+        <div class="countdown-time" id="dividendAmount">¥0</div>
+        <button class="action-btn btn-primary" style="margin-top:8px" onclick="withdrawDividend()">提现</button>
+      </div>
+      
       <div class="countdown-card" id="countdownCard">
         <div class="countdown-title" id="countdownLabel">演唱会筹备</div>
         <div class="countdown-time" id="countdownTime">30天</div>
@@ -303,7 +332,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue'
         <button class="quick-btn" onclick="showAssessment()" id="btn-assess">
           <span class="btn-icon">🏆</span><span class="btn-label">考核</span><span class="btn-desc" id="btn-assess-desc">每月一次</span>
         </button>
-        <button class="quick-btn" onclick="showWeibo()" style="background:#e84393">
+        <button class="quick-btn" onclick="showSkills()" id="btn-skills" style="display:none">
+          <span class="btn-icon">📚</span><span class="btn-label">技能班</span><span class="btn-desc">演技/综艺感</span>
+        </button>
+        <button class="quick-btn" onclick="showBrandEndorsement()" id="btn-brand" style="display:none">
+          <span class="btn-icon">✨</span><span class="btn-label">品牌代言</span><span class="btn-desc">商务合作</span>
+        </button>
+        <button class="quick-btn" onclick="showWeibo()" style="background:#c490c4">
           <span class="btn-icon">📱</span><span class="btn-label">发微博</span><span class="btn-desc">发动态</span>
         </button>
       </div>
@@ -318,7 +353,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue'
         <div id="hotList">加载中...</div>
       </div>
       <div class="menu-card">
-        <div class="section-title" style="padding:10px 14px 2px">📩 私信 <span id="pmBadge" style="font-size:10px;background:#ff4757;border-radius:8px;padding:1px 6px;color:#fff;margin-left:4px;display:none">0</span></div>
+        <div class="section-title" style="padding:10px 14px 2px">📩 私信 <span id="pmBadge" style="font-size:10px;background:#e07070;border-radius:8px;padding:1px 6px;color:#fff;margin-left:4px;display:none">0</span></div>
         <div id="pmList">暂无私信</div>
       </div>
     </div>
@@ -343,11 +378,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue'
   <div class="main-content" id="screen-messages">
     <div class="messages-screen">
       <div class="msg-tab-bar">
-        <button class="msg-tab active" onclick="switchMsgTab('wx',this)">微信 <span id="wxBadge" style="font-size:9px;background:#ff4757;border-radius:8px;padding:1px 5px;color:#fff;display:none">0</span></button>
-        <button class="msg-tab" onclick="switchMsgTab('sms',this)">短信 <span id="smsBadge" style="font-size:9px;background:#ff4757;border-radius:8px;padding:1px 5px;color:#fff;display:none">0</span></button>
+        <button class="msg-tab active" onclick="switchMsgTab('wx',this)">微信 <span id="wxBadge" style="font-size:9px;background:#e07070;border-radius:8px;padding:1px 5px;color:#fff;display:none">0</span></button>
+        <button class="msg-tab" onclick="switchMsgTab('sms',this)">短信 <span id="smsBadge" style="font-size:9px;background:#e07070;border-radius:8px;padding:1px 5px;color:#fff;display:none">0</span></button>
+        <button class="msg-tab" onclick="switchMsgTab('bubble',this)">泡泡 <span id="bubbleBadge" style="font-size:9px;background:#e07070;border-radius:8px;padding:1px 5px;color:#fff;display:none">0</span></button>
       </div>
       <div id="wxList"></div>
       <div id="smsList" style="display:none"></div>
+      <div id="bubbleList" style="display:none"></div>
     </div>
   </div>
 
@@ -356,7 +393,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue'
     <div class="mine-screen">
       <div class="mine-header">
         <div class="mine-avatar-wrap">
-          <div class="mine-avatar" id="mineAvatar" style="background:linear-gradient(135deg,#fd79a8,#e84393)">🎤</div>
+          <div class="mine-avatar" id="mineAvatar" style="background:linear-gradient(135deg,#c490c4,#d4b0d4)">🎤</div>
           <input type="file" id="avatarUpload" accept="image/*" style="display:none" onchange="handleAvatarUpload(event)">
           <div class="mine-avatar-edit" onclick="document.getElementById('avatarUpload').click()">✏️</div>
         </div>
@@ -381,7 +418,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue'
       <div class="menu-card">
         <div class="menu-item" onclick="showSaveLoad()"><span class="menu-icon">💾</span><span>存档/读档</span><span class="menu-arrow">›</span></div>
         <div class="menu-item" onclick="showGameLog()"><span class="menu-icon">📜</span><span>游戏日志</span><span class="menu-arrow">›</span></div>
-        <div class="menu-item" onclick="resetGame()"><span class="menu-icon">🔄</span><span style="color:#e84393">重新开始</span></div>
+        <div class="menu-item" onclick="resetGame()"><span class="menu-icon">🔄</span><span style="color:#c490c4">重新开始</span></div>
       </div>
     </div>
   </div>
@@ -405,6 +442,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue'
     </div>
   </div>
   <div class="toast" id="toast"></div>
+  
+  <!-- 警告框 -->
+  <div class="warning-overlay" id="warningOverlay">
+    <div class="warning-box">
+      <div class="warning-icon" id="warningIcon">⚠️</div>
+      <div class="warning-title" id="warningTitle">警告</div>
+      <div class="warning-text" id="warningText"></div>
+      <button class="action-btn btn-primary" id="warningBtn" onclick="closeWarning()">确定</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -414,32 +461,54 @@ const STAMINA_MAX = 500;
 const TRAINEES_MAX_STAMINA = 200;
 const INITIAL_MONEY_OPTIONS = [3000, 6000, 8000, 10000];
 const SAVE_SLOTS = 3;
+const TRAINEES_SALARY = 2000; // 练习生月薪
+const DEBUT_REQUIREMENT = 300; // 出道要求：声乐300+舞蹈300
+const ACTING_VARIETY_REQUIREMENT = 100; // 接综艺/影视需要演技/综艺感达到100
 
-const ENTERTAINMENT_COSTS = {outdoor:{stamina:20,money:0,fatigueChange:-15,moodChange:5,skill:null},movie:{stamina:25,money:50,fatigueChange:-20,moodChange:8,skill:null},gym:{stamina:20,money:100,fatigueChange:-10,moodChange:3,skill:'dance'},karaoke:{stamina:30,money:60,fatigueChange:-10,moodChange:6,skill:'vocal'},massage:{stamina:15,money:100,fatigueChange:-30,moodChange:10,skill:null}};
+// 娱乐项目（包含高风险）
+const ENTERTAINMENT_COSTS = {
+  outdoor:{stamina:20,money:0,fatigueChange:-15,moodChange:5,skill:null,risk:false},
+  movie:{stamina:25,money:50,fatigueChange:-20,moodChange:8,skill:null,risk:false},
+  gym:{stamina:20,money:100,fatigueChange:-10,moodChange:3,skill:'dance',risk:false},
+  karaoke:{stamina:30,money:60,fatigueChange:-10,moodChange:6,skill:'vocal',risk:false},
+  massage:{stamina:15,money:100,fatigueChange:-30,moodChange:10,skill:null,risk:false},
+  club:{stamina:30,money:200,fatigueChange:-10,moodChange:12,skill:null,risk:true,scandalChance:0.2}, // 高风险
+  scandal_party:{stamina:40,money:500,fatigueChange:-5,moodChange:15,skill:null,risk:true,scandalChance:0.35}, // 高风险
+};
 
 const AVATAR_EMOJIS = ['🙎‍♂️','🙍‍♀️','🧑‍🎤','👨‍🎤','👩‍🎤','🎤','🌟','🔥','💎','🎵','💜','🖤','🤍','💖','🩷','🩵','💛','🧡','💚','🩵','🩶','🤎','🧡','💜','🩷','💙','💛'];
-
 const STYLE_OPTIONS = ['全能偶像','唱跳歌手','实力演员','综艺达人','创作才子','舞台王者','清新治愈','冷酷 rapper'];
+
+// 品牌代言配置
+const BRANDS = [
+  {id:'coffee',name:'瑞幸咖啡',minFans:50000,fee:5000},
+  {id:'phone',name:'某手机品牌',minFans:100000,fee:10000},
+  {id:'fashion',name:'时尚服饰',minFans:200000,fee:15000},
+  {id:'watch',name:'名表品牌',minFans:500000,fee:30000},
+  {id:'car',name:'汽车品牌',minFans:1000000,fee:80000},
+];
 
 // ========== 默认游戏数据 ==========
 function makeDefaultState(initialMoney) {
   return {
     playerName:'练习生', gender:'男', style:'全能偶像', sexuality:'保密',
-    relationship:'单身', supportColor:'#fd79a8', avatarData:null,
-    debuted:false, vocal:10, dance:10, stamina:200, fans:0, mood:80, fatigue:0,
+    relationship:'单身', supportColor:'#d4b0d4', avatarData:null,
+    debuted:false, vocal:10, dance:10, acting:0, variety:0,
+    stamina:200, fans:0, mood:80, fatigue:0,
     money: initialMoney || 3000,
-    day:1, assessmentCountdown:30,
+    day:1, month:1, assessmentCountdown:30, salaryCountdown:30,
     concertPlanned:false, concertDaysLeft:0, concertSongLevel:0, concertDanceLevel:0, concertCooldown:0,
     hotWeibo:false, hotWeiboDays:0, banActive:true,
     playerId:Math.floor(Math.random()*9000)+1000,
     teamName:'', solo:true, members:[],
     weibos:[], news:[], pmList:[], pmUnread:0,
     smsList:[], smsUnread:0, smsBlocked:[],
+    // 微信联系人
     wxContacts:[
-      {id:'manager',name:'经纪人王姐',avatar:'👩‍💼',avatarData:null,lastMsg:'最近状态不错，有几个通告想跟你聊聊',lastMsgTime:0,msgCount:0},
-      {id:'assistant',name:'小助理阿涛',avatar:'🧑‍💻',avatarData:null,lastMsg:'明天的行程我安排好了',lastMsgTime:0,msgCount:0},
-      {id:'senior',name:'前辈周哥',avatar:'👨‍🎤',avatarData:null,lastMsg:'加油弟弟，期待你出道',lastMsgTime:0,msgCount:0},
-      {id:'mom',name:'妈妈',avatar:'👩',avatarData:null,lastMsg:'宝贝注意身体呀',lastMsgTime:0,msgCount:0,hidden:true},
+      {id:'manager',name:'经纪人王姐',avatar:'👩‍💼',avatarData:null,lastMsg:'最近状态不错，有几个通告想跟你聊聊',lastMsgTime:0,msgCount:0,replyWait:false,lastSentTime:0},
+      {id:'assistant',name:'小助理阿涛',avatar:'🧑‍💻',avatarData:null,lastMsg:'明天的行程我安排好了',lastMsgTime:0,msgCount:0,replyWait:false,lastSentTime:0},
+      {id:'senior',name:'前辈周哥',avatar:'👨‍🎤',avatarData:null,lastMsg:'加油弟弟，期待你出道',lastMsgTime:0,msgCount:0,replyWait:false,lastSentTime:0},
+      {id:'mom',name:'妈妈',avatar:'👩',avatarData:null,lastMsg:'宝贝注意身体呀',lastMsgTime:0,msgCount:0,replyWait:false,lastSentTime:0,hidden:true},
     ],
     wxMessages:{
       manager:[{from:'other',text:'最近状态不错，有几个通告想跟你聊聊'}],
@@ -447,13 +516,28 @@ function makeDefaultState(initialMoney) {
       senior:[{from:'other',text:'加油弟弟，期待你出道'}],
       mom:[{from:'other',text:'宝贝注意身体呀'}],
     },
+    // 好感关系
     relationships:[
       {id:'manager',name:'经纪人王姐',role:'经纪人',value:50,avatar:'👩‍💼',avatarData:null,canEdit:true,canDate:true},
       {id:'assistant',name:'小助理阿涛',role:'助理',value:45,avatar:'🧑‍💻',avatarData:null,canEdit:true,canDate:true},
       {id:'senior',name:'前辈周哥',role:'前辈',value:40,avatar:'👨‍🎤',avatarData:null,canEdit:false,canDate:true},
       {id:'mom',name:'妈妈',role:'家人',value:70,avatar:'👩',avatarData:null,canEdit:false,canDate:false},
     ],
-    newContacts:[],
+    newContacts:[], // 新认识的朋友
+    // 泡泡群聊
+    bubbleMessages:[
+      {fanId:'fan1',fanName:'小甜心',fanAvatar:'💕',text:'姐姐好美！',time:0},
+      {fanId:'fan2',fanName:'追星少女',fanAvatar:'🌸',text:'永远支持你！',time:1},
+      {fanId:'fan3',fanName:'星星糖',fanAvatar:'⭐',text:'今天也要加油哦~',time:2},
+    ],
+    // 品牌代言
+    brandEndorsements:[], // 当前代言的品牌
+    brandFavorability:{coffee:0,phone:0,fashion:0,watch:0,car:0}, // 品牌好感度
+    // 分红系统
+    pendingDividend:0, // 待领取分红
+    totalEarnings:0, // 累计收益
+    // 通告收入记录
+    jobEarnings:[],
   };
 }
 
@@ -487,7 +571,7 @@ function loadFromSlot(idx) {
   if (!data) { toast('存档为空'); return; }
   try {
     game = JSON.parse(data);
-    updateUI(); renderHotList(); renderPMList(); renderWXList(); renderSMSList(); renderMyWeibos(); checkConcert();
+    updateUI(); renderHotList(); renderPMList(); renderWXList(); renderSMSList(); renderMyWeibos(); checkConcert(); renderBubbleList();
     toast('读档成功！');
     closeModal();
   } catch(e) { toast('读档失败'); }
@@ -525,6 +609,7 @@ function init() {
   renderWXList();
   renderSMSList();
   renderMyWeibos();
+  renderBubbleList();
   checkConcert();
   setInterval(updateStatusBar, 1000);
   setInterval(gameTick, 60000);
@@ -533,21 +618,64 @@ function init() {
 
 // ========== 游戏循环 ==========
 function gameTick() {
-  // 每天恢复体力（只在睡觉时增加天数）
   const maxSt = game.debuted ? STAMINA_MAX : TRAINEES_MAX_STAMINA;
+  
+  // 疲惫值检查
+  if (game.fatigue >= 80) {
+    if (game.fatigue >= 100) {
+      // 强制休息两天
+      game.stamina = Math.min(maxSt, game.stamina + 100);
+      game.day += 2;
+      game.month = Math.floor(game.day / 30) + 1;
+      game.fatigue = 60;
+      showWarning('😫 疲惫过度！', '你的身体已经到达极限！强制休息两天，恢复到60疲惫值。', '💤 我知道了');
+      addLog('🚨 疲惫过度，强制休息2天');
+      updateUI();
+      saveGame();
+      return;
+    } else {
+      showWarning('⚠️ 疲惫警告', '你的疲惫值已经达到80！请注意休息，否则会影响身体健康。', '💪 我会注意');
+    }
+  }
+  
   if (game.stamina < maxSt) game.stamina = Math.min(maxSt, game.stamina + 100);
   game.assessmentCountdown--;
   if (game.assessmentCountdown <= 0 && !game.debuted) triggerAssessment();
+  
+  // 练习生工资
+  if (!game.debuted) {
+    game.salaryCountdown--;
+    if (game.salaryCountdown <= 0) {
+      game.money += TRAINEES_SALARY;
+      addLog('💵 领取了月薪 +' + formatNum(TRAINEES_SALARY) + ' 金币');
+      toast('💵 领取月薪 +' + formatNum(TRAINEES_SALARY) + '！');
+      game.salaryCountdown = 30;
+    }
+  }
+  
   if (game.fatigue > 0) game.fatigue = Math.max(0, game.fatigue - 1);
   if (game.mood < 80) game.mood = Math.min(80, game.mood + 1);
   if (game.hotWeibo && game.hotWeiboDays > 0) { game.hotWeiboDays--; if (game.hotWeiboDays <= 0) game.hotWeibo = false; }
   if (game.concertCooldown > 0) game.concertCooldown--;
+  
   // 微信未读时间追踪
-  game.wxContacts.forEach(c => { if (c.msgCount > 0) c.lastMsgTime++; });
+  game.wxContacts.forEach(c => { 
+    if (c.msgCount > 0) c.lastMsgTime++; 
+    // 经纪人好感度惩罚（长时间不回复）
+    if (c.id === 'manager' && c.lastMsgTime > 3 && !c.replyWait) {
+      const rel = game.relationships.find(r => r.id === 'manager');
+      if (rel && rel.value > 20) {
+        rel.value = Math.max(20, rel.value - 2);
+        addLog('经纪人王姐对你长时间不回复感到不满，好感度-2');
+      }
+    }
+  });
+  
   // 偷着恋爱被抓
   if (game.debuted && game.relationship === '恋爱中' && game.banActive) {
     if (Math.random() < 0.05) { triggerScandal(); }
   }
+  
   updateUI(); saveGame();
 }
 function maybeGenerateEvent() {
@@ -558,6 +686,18 @@ function maybeGenerateEvent() {
   updateBadges();
 }
 
+// ========== 警告框 ==========
+function showWarning(title, text, btnText) {
+  document.getElementById('warningIcon').textContent = '⚠️';
+  document.getElementById('warningTitle').textContent = title;
+  document.getElementById('warningText').textContent = text;
+  document.getElementById('warningBtn').textContent = btnText || '确定';
+  document.getElementById('warningOverlay').classList.add('show');
+}
+function closeWarning() {
+  document.getElementById('warningOverlay').classList.remove('show');
+}
+
 // ========== 塌房 ==========
 function triggerScandal() {
   eventBanner('🚨 塌房事件！');
@@ -566,9 +706,21 @@ function triggerScandal() {
   game.mood = Math.max(0, game.mood - 40);
   game.fatigue = Math.min(100, game.fatigue + 40);
   addLog('🚨 恋爱曝光！粉丝数腰斩！');
-  // 生成大量黑粉私信
   for (let i = 0; i < 5; i++) generateRandomPM();
   renderHotList();
+}
+
+// ========== 公关危机 ==========
+function triggerPublicCrisis() {
+  eventBanner('🚨 紧急公关事件！');
+  toast('🚨 紧急公关事件！');
+  game.fans = Math.max(0, Math.floor(game.fans * 0.9)); // 粉丝掉10%
+  game.mood = Math.max(0, game.mood - 20);
+  game.fatigue = Math.min(100, game.fatigue + 20);
+  game.money = Math.max(0, game.money - 2000); // 扣2000工资
+  addLog('🚨 公关危机！粉丝-10%，工资-2000');
+  for (let i = 0; i < 3; i++) generateRandomPM();
+  showWarning('🚨 公关危机！', '你参与高风险活动引发舆论风波！粉丝-10%，工资-2000！', '💪 我会注意形象');
 }
 
 // ========== 状态栏 ==========
@@ -577,13 +729,15 @@ function updateStatusBar() {
   document.getElementById('status-time').textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
   const maxSt = game.debuted ? STAMINA_MAX : TRAINEES_MAX_STAMINA;
   const bat = Math.min(game.stamina / maxSt, 1) * 100;
-  document.getElementById('battery-bar').innerHTML = `<span style="width:${bat}%;height:100%;background:${bat>30?'#2ed573':'#ff4757'};border-radius:2px;display:block"></span>`;
+  document.getElementById('battery-bar').innerHTML = `<span style="width:${bat}%;height:100%;background:${bat>30?'#70a060':'#e07070'};border-radius:2px;display:block"></span>`;
 }
 
 // ========== UI更新 ==========
 function updateUI() {
   const maxSt = game.debuted ? STAMINA_MAX : TRAINEES_MAX_STAMINA;
+  const month = Math.floor(game.day / 30) + 1;
   document.getElementById('dayDisplay').textContent = game.day;
+  document.getElementById('monthDisplay').textContent = month + '月';
   document.getElementById('playerName').textContent = game.playerName;
   document.getElementById('playerId').textContent = game.playerId;
   if (game.avatarData) {
@@ -592,18 +746,54 @@ function updateUI() {
   }
   document.getElementById('stat-vocal').textContent = game.vocal;
   document.getElementById('stat-dance').textContent = game.dance;
+  document.getElementById('stat-acting').textContent = game.acting;
+  document.getElementById('stat-variety').textContent = game.variety;
   document.getElementById('stat-stamina').textContent = `${game.stamina}/${maxSt}`;
   document.getElementById('stat-fans').textContent = game.debuted ? formatNum(game.fans) : '—';
   document.getElementById('stat-mood').textContent = game.mood;
   document.getElementById('stat-fatigue').textContent = game.fatigue;
   document.getElementById('stat-money').textContent = formatNum(game.money);
-
+  
+  // 练习生显示工资
+  if (!game.debuted) {
+    document.getElementById('salaryDisplay').style.display = 'flex';
+    document.getElementById('salaryAmount').textContent = formatNum(TRAINEES_SALARY);
+  } else {
+    document.getElementById('salaryDisplay').style.display = 'none';
+  }
+  
+  // 分红卡片
+  if (game.debuted && game.pendingDividend > 0) {
+    document.getElementById('dividendCard').style.display = 'block';
+    document.getElementById('dividendCard').classList.add('show');
+    document.getElementById('dividendAmount').textContent = '¥' + formatNum(game.pendingDividend);
+  } else {
+    document.getElementById('dividendCard').style.display = 'none';
+  }
+  
+  // 出道状态
+  if (game.debuted) {
+    document.getElementById('badge-trainee').style.display = 'none';
+    document.getElementById('badge-debut').style.display = 'inline-block';
+    document.getElementById('btn-jobs-desc').textContent = '接通告赚钱';
+    document.getElementById('btn-assess').style.display = 'none';
+    document.getElementById('btn-skills').style.display = 'block';
+    document.getElementById('btn-brand').style.display = 'block';
+    document.getElementById('menu-ban').style.display = 'block';
+  } else {
+    document.getElementById('badge-trainee').style.display = 'inline-block';
+    document.getElementById('badge-debut').style.display = 'none';
+    document.getElementById('btn-jobs-desc').textContent = '出道后解锁';
+    document.getElementById('btn-assess').style.display = 'block';
+    document.getElementById('btn-skills').style.display = 'none';
+    document.getElementById('btn-brand').style.display = 'none';
+    document.getElementById('menu-ban').style.display = 'none';
+  }
+  
+  // 我的页面
   if (game.avatarData) {
     document.getElementById('mineAvatar').innerHTML = `<img src="${game.avatarData}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
     document.getElementById('mineAvatar').style.background = 'none';
-  } else {
-    document.getElementById('mineAvatar').innerHTML = '🎤';
-    document.getElementById('mineAvatar').style.background = `linear-gradient(135deg,${game.supportColor},${game.supportColor}88)`;
   }
   document.getElementById('mineName').textContent = game.playerName;
   document.getElementById('mineId').textContent = game.playerId;
@@ -611,872 +801,1133 @@ function updateUI() {
   document.getElementById('mine-vocal').textContent = game.vocal;
   document.getElementById('mine-dance').textContent = game.dance;
   document.getElementById('mine-money').textContent = formatNum(game.money);
-
-  let statusText = '';
-  if (game.debuted) {
-    if (game.banActive) statusText = '🚫 限制恋爱令';
-    else if (game.relationship === '恋爱中') statusText = '💕 恋爱中（秘密）';
-    else if (game.relationship === '已婚') statusText = '💍 隐婚';
-    else statusText = '💔 单身';
-  }
-  document.getElementById('mineStatusLabel').textContent = statusText;
-
-  if (game.debuted) {
-    document.getElementById('badge-trainee').style.display = 'none';
-    document.getElementById('badge-debut').style.display = 'inline-block';
-    document.getElementById('btn-jobs').style.opacity = '1'; document.getElementById('btn-jobs-desc').textContent = '可接通告';
-    document.getElementById('btn-assess').style.opacity = '0.4'; document.getElementById('btn-assess-desc').textContent = '已出道';
-    document.getElementById('btn-concert-desc').textContent = game.fans >= 100000 ? (game.concertCooldown>0?`${game.concertCooldown}天后可开`:`可开演唱会`) : '需10万粉丝';
-    document.getElementById('btn-concert').style.opacity = game.fans >= 100000 && game.concertCooldown===0 ? '1' : '0.4';
-    document.getElementById('menu-ban').style.display = 'flex';
-    document.getElementById('menu-live').style.display = 'flex';
-    document.getElementById('menu-teamname').style.display = game.solo ? 'none' : 'flex';
-    document.getElementById('menu-team').style.display = game.solo ? 'none' : 'flex';
+  
+  // 恋爱状态
+  const statusLabel = document.getElementById('mineStatusLabel');
+  if (game.relationship !== '单身') {
+    statusLabel.innerHTML = `💕 ${game.relationship}`;
   } else {
-    document.getElementById('badge-trainee').style.display = 'inline-block';
-    document.getElementById('badge-debut').style.display = 'none';
-    document.getElementById('btn-jobs').style.opacity = '0.4'; document.getElementById('btn-jobs-desc').textContent = '出道后解锁';
-    document.getElementById('btn-assess').style.opacity = '1'; document.getElementById('btn-assess-desc').textContent = `还剩${game.assessmentCountdown}天`;
-    document.getElementById('btn-concert').style.opacity = '0.4'; document.getElementById('btn-concert-desc').textContent = '需10万粉丝';
-    document.getElementById('menu-ban').style.display = 'none';
-    document.getElementById('menu-live').style.display = 'none';
-    document.getElementById('menu-team').style.display = 'none';
-    document.getElementById('menu-teamname').style.display = 'none';
+    statusLabel.innerHTML = game.banActive ? '🚫 恋爱限制令生效中' : '';
   }
-
-  const fatigueColor = game.fatigue > 50 ? '#ff4757' : game.fatigue > 20 ? '#ffa502' : '#2ed573';
-  document.getElementById('stat-fatigue').style.color = fatigueColor;
-  const moodColor = game.mood > 60 ? '#2ed573' : game.mood > 30 ? '#ffa502' : '#ff4757';
-  document.getElementById('stat-mood').style.color = moodColor;
-  const staminaColor = game.stamina < 50 ? '#ff4757' : game.stamina < 100 ? '#ffa502' : '#2ed573';
-  document.getElementById('stat-stamina').style.color = staminaColor;
-
+  
+  // 检查演唱会按钮
   checkConcert();
+  
+  // 更新品牌好感度显示
+  updateBrandDisplay();
+  
+  // 更新未读标记
   updateBadges();
 }
 
+function updateBrandDisplay() {
+  // 品牌好感度随粉丝数增加
+  if (game.debuted) {
+    BRANDS.forEach(b => {
+      if (game.fans > b.minFans * 0.5) {
+        game.brandFavorability[b.id] = Math.min(100, game.brandFavorability[b.id] + Math.floor(game.fans / 10000));
+      }
+    });
+  }
+}
+
 function updateBadges() {
-  // 发现页私信
-  if (game.pmUnread > 0) {
-    document.getElementById('pmBadge').style.display = 'inline';
-    document.getElementById('pmBadge').textContent = game.pmUnread;
-    document.getElementById('tab-badge-discover').classList.add('has-msg');
-  } else {
-    document.getElementById('pmBadge').style.display = 'none';
-    document.getElementById('tab-badge-discover').classList.remove('has-msg');
-  }
-  // 短信
-  const smsUnblocked = game.smsList.filter(s => !game.smsBlocked.includes(s.from));
-  if (game.smsUnread > 0) {
-    document.getElementById('smsBadge').style.display = 'inline';
-    document.getElementById('smsBadge').textContent = game.smsUnread;
-  } else {
-    document.getElementById('smsBadge').style.display = 'none';
-  }
-  // 微信未读
-  const wxUnread = game.wxContacts.filter(c => !c.hidden && c.msgCount > 0).length;
+  const wxUnread = game.wxContacts.reduce((sum, c) => sum + (c.msgCount || 0), 0);
   if (wxUnread > 0) {
-    document.getElementById('wxBadge').style.display = 'inline';
     document.getElementById('wxBadge').textContent = wxUnread;
+    document.getElementById('wxBadge').style.display = 'inline';
     document.getElementById('tab-badge-msg').classList.add('has-msg');
   } else {
     document.getElementById('wxBadge').style.display = 'none';
     document.getElementById('tab-badge-msg').classList.remove('has-msg');
   }
+  
+  if (game.pmUnread > 0) {
+    document.getElementById('pmBadge').textContent = game.pmUnread;
+    document.getElementById('pmBadge').style.display = 'inline';
+    document.getElementById('tab-badge-discover').classList.add('has-msg');
+  } else {
+    document.getElementById('pmBadge').style.display = 'none';
+    document.getElementById('tab-badge-discover').classList.remove('has-msg');
+  }
 }
 
-function formatNum(n) {
-  if (n >= 100000000) return (n/100000000).toFixed(1)+'亿';
-  if (n >= 10000) return (n/10000).toFixed(1)+'万';
-  return n.toLocaleString();
-}
-
-// ========== 导航 ==========
-function switchTab(name, btn) {
-  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+// ========== Tab切换 ==========
+function switchTab(tab, btn) {
   document.querySelectorAll('.main-content').forEach(s => s.classList.remove('active'));
-  document.getElementById('screen-' + name).classList.add('active');
-  if (btn) btn.classList.add('active');
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  document.getElementById('screen-' + tab).classList.add('active');
+  btn.classList.add('active');
+  if (tab === 'discover') { game.pmUnread = 0; updateBadges(); renderPMList(); }
+  if (tab === 'messages') { game.pmUnread = 0; renderWXList(); renderSMSList(); renderBubbleList(); updateBadges(); }
 }
 
-// ========== 弹窗 ==========
-function showModal(title, body) {
-  document.getElementById('modalTitle').textContent = title;
-  document.getElementById('modalBody').innerHTML = body;
-  document.getElementById('modalOverlay').classList.add('show');
+// ========== 消息页Tab ==========
+function switchMsgTab(type, btn) {
+  document.querySelectorAll('.msg-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('wxList').style.display = type === 'wx' ? 'block' : 'none';
+  document.getElementById('smsList').style.display = type === 'sms' ? 'block' : 'none';
+  document.getElementById('bubbleList').style.display = type === 'bubble' ? 'block' : 'none';
 }
-function closeModal() { document.getElementById('modalOverlay').classList.remove('show'); }
-function toast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.remove('show');
-  void t.offsetWidth; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 1500);
+
+// ========== 微信 ==========
+function renderWXList() {
+  const list = document.getElementById('wxList');
+  // 合并原有联系人和新朋友
+  const allContacts = [...game.wxContacts];
+  game.newContacts.forEach(nc => {
+    if (!allContacts.find(c => c.id === nc.id)) {
+      allContacts.push(nc);
+    }
+  });
+  
+  const html = allContacts.map(c => `
+    <div class="msg-item" onclick="openWXChat('${c.id}')">
+      <div class="msg-avatar">${c.avatarData ? '<img src="'+c.avatarData+'">' : c.avatar}</div>
+      <div class="msg-info">
+        <div class="msg-name">${c.name} ${c.msgCount > 0 ? '<span style="background:#e07070;border-radius:8px;padding:1px 5px;font-size:9px;color:#fff">'+c.msgCount+'</span>' : ''}</div>
+        <div class="msg-preview">${c.lastMsg || '暂无消息'}</div>
+      </div>
+    </div>
+  `).join('');
+  list.innerHTML = html || '<div style="padding:20px;text-align:center;opacity:0.5">暂无联系人</div>';
 }
-function eventBanner(msg) {
-  const b = document.getElementById('eventBanner');
-  b.textContent = msg; b.classList.add('show');
-  setTimeout(() => b.classList.remove('show'), 4000);
+
+function openWXChat(contactId) {
+  const contact = game.wxContacts.find(c => c.id === contactId) || game.newContacts.find(c => c.id === contactId);
+  if (!contact) return;
+  
+  wxActiveContact = contact;
+  contact.msgCount = 0;
+  contact.replyWait = false;
+  updateBadges();
+  
+  const msgs = game.wxMessages[contact.name] || [];
+  const msgsHtml = msgs.map(m => `
+    <div class="wx-msg ${m.from}">
+      <div class="wx-bubble">${m.text}</div>
+    </div>
+  `).join('');
+  
+  // 检查是否可编辑资料
+  const rel = game.relationships.find(r => r.id === contactId);
+  const editBtn = rel && rel.canEdit ? `<button class="wx-contact-edit" onclick="event.stopPropagation();showContactProfile('${contactId}')">编辑</button>` : '';
+  
+  showModal('', `
+    <div class="wx-chat-header">
+      <button class="wx-back" onclick="closeModal()">‹</button>
+      <span class="wx-contact-name">${contact.name}</span>
+      ${editBtn}
+    </div>
+    <div class="wx-messages" id="wxMsgArea">${msgsHtml}</div>
+    <div class="wx-input-bar">
+      <input class="wx-input" id="wxInput" placeholder="输入消息..." onkeypress="if(event.key==='Enter')sendWXMsg()">
+      <button class="wx-send" onclick="sendWXMsg()">发送</button>
+    </div>
+  `, true);
+  
+  setTimeout(() => {
+    const area = document.getElementById('wxMsgArea');
+    if (area) area.scrollTop = area.scrollHeight;
+    const inp = document.getElementById('wxInput');
+    if (inp) inp.focus();
+  }, 100);
 }
-function addLog(msg) {
-  const time = pad(new Date().getHours()) + ':' + pad(new Date().getMinutes());
-  game.news.unshift({text:msg, time});
-  if (game.news.length > 20) game.news.pop();
+
+function sendWXMsg() {
+  const input = document.getElementById('wxInput');
+  if (!input || !wxActiveContact) return;
+  const text = input.value.trim();
+  if (!text) return;
+  
+  const contact = wxActiveContact;
+  if (!game.wxMessages[contact.name]) game.wxMessages[contact.name] = [];
+  
+  // 玩家发送消息
+  game.wxMessages[contact.name].push({from:'self', text});
+  contact.lastMsg = text;
+  contact.replyWait = true;
+  contact.lastSentTime = game.day;
+  input.value = '';
+  
+  // 更新好感度（聊天增加好感度）
+  const rel = game.relationships.find(r => r.id === contact.id);
+  if (rel && rel.canDate) {
+    rel.value = Math.min(100, rel.value + 1);
+  }
+  
   saveGame();
+  
+  // 刷新消息显示
+  const msgs = game.wxMessages[contact.name];
+  const msgsHtml = msgs.map(m => `<div class="wx-msg ${m.from}"><div class="wx-bubble">${m.text}</div></div>`).join('');
+  document.getElementById('wxMsgArea').innerHTML = msgsHtml;
+  document.getElementById('wxMsgArea').scrollTop = document.getElementById('wxMsgArea').scrollHeight;
+  
+  // 3-4天后自动回复
+  setTimeout(() => {
+    if (wxActiveContact && wxActiveContact.id === contact.id) {
+      generateWXReply(contact);
+    }
+  }, 3000 + Math.random() * 1000);
 }
-function pad(n) { return String(n).padStart(2,'0'); }
+
+function generateWXReply(contact) {
+  const replies = [
+    '好的收到！',
+    '没问题！',
+    '期待你更好的表现~',
+    '注意休息哦',
+    '加油！',
+    '今天辛苦了',
+    '有通告我会第一时间通知你',
+    '好好练习，期待出道！',
+  ];
+  const text = replies[rand(0, replies.length - 1)];
+  game.wxMessages[contact.name].push({from:'other', text});
+  contact.lastMsg = text;
+  contact.lastMsgTime = 0;
+  contact.replyWait = false;
+  
+  saveGame();
+  
+  if (wxActiveContact && wxActiveContact.id === contact.id) {
+    const msgs = game.wxMessages[contact.name];
+    const msgsHtml = msgs.map(m => `<div class="wx-msg ${m.from}"><div class="wx-bubble">${m.text}</div></div>`).join('');
+    document.getElementById('wxMsgArea').innerHTML = msgsHtml;
+    document.getElementById('wxMsgArea').scrollTop = document.getElementById('wxMsgArea').scrollHeight;
+  }
+  
+  renderWXList();
+}
+
+// ========== 短信 ==========
+function renderSMSList() {
+  const list = document.getElementById('smsList');
+  const html = game.smsList.map((s, i) => `
+    <div class="sms-item" onclick="openSMS(${i})">
+      <div class="sms-from">
+        <span>📱 ${s.from}</span>
+        <div class="sms-from-right">
+          <span style="font-size:10px;opacity:0.4">${s.time}天前</span>
+          ${!game.smsBlocked.includes(s.from) ? `<button class="sms-block-btn" onclick="event.stopPropagation();blockSMS('${s.from}')">拉黑</button>` : ''}
+        </div>
+      </div>
+      <div class="sms-content">${s.text}</div>
+    </div>
+  `).join('');
+  list.innerHTML = html || '<div style="padding:20px;text-align:center;opacity:0.5">暂无短信</div>';
+}
+
+function openSMS(idx) {
+  toast(game.smsList[idx].text);
+}
+
+function blockSMS(name) {
+  if (!game.smsBlocked.includes(name)) {
+    game.smsBlocked.push(name);
+    toast('已拉黑 ' + name);
+    saveGame();
+    renderSMSList();
+  }
+}
+
+// ========== 泡泡群聊 ==========
+function renderBubbleList() {
+  const list = document.getElementById('bubbleList');
+  const msgs = game.bubbleMessages.map(m => `
+    <div class="bubble-msg">
+      <div class="bubble-avatar">${m.fanAvatar}</div>
+      <div class="bubble-content">
+        <div class="bubble-name">${m.fanName}</div>
+        <div class="bubble-text">${m.text}</div>
+      </div>
+    </div>
+  `).join('');
+  
+  list.innerHTML = `
+    <div class="bubble-group">
+      <div class="section-title">💬 泡泡群聊</div>
+      <div style="max-height:300px;overflow-y:auto;margin-bottom:8px" id="bubbleMsgArea">${msgs}</div>
+      <div class="bubble-input-bar">
+        <input class="bubble-input" id="bubbleInput" placeholder="说点什么..." onkeypress="if(event.key==='Enter')sendBubbleMsg()">
+        <button class="bubble-send" onclick="sendBubbleMsg()">发送</button>
+      </div>
+    </div>
+  `;
+  
+  setTimeout(() => {
+    const area = document.getElementById('bubbleMsgArea');
+    if (area) area.scrollTop = area.scrollHeight;
+  }, 100);
+}
+
+function sendBubbleMsg() {
+  const input = document.getElementById('bubbleInput');
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text) return;
+  
+  game.bubbleMessages.push({
+    fanId:'player',
+    fanName:game.playerName,
+    fanAvatar:'🎤',
+    text:text,
+    time:0
+  });
+  
+  input.value = '';
+  saveGame();
+  renderBubbleList();
+  
+  // 粉丝随机回复
+  setTimeout(() => {
+    const fanReplies = [
+      {name:'小甜心', avatar:'💕', text:'姐姐/哥哥说得对！'},
+      {name:'追星少女', avatar:'🌸', text:'好喜欢这个！'},
+      {name:'星星糖', avatar:'⭐', text:'永远支持你！'},
+      {name:'爱笑的我', avatar:'😊', text:'今天也要加油~'},
+      {name:'小迷弟', avatar:'😎', text:'太帅了！'},
+    ];
+    const r = fanReplies[rand(0, fanReplies.length - 1)];
+    game.bubbleMessages.push({
+      fanId:r.name,
+      fanName:r.name,
+      fanAvatar:r.avatar,
+      text:r.text,
+      time:0
+    });
+    saveGame();
+    renderBubbleList();
+  }, 1500);
+}
+
+// ========== 练习 ==========
+function showPractice() {
+  const maxSt = game.debuted ? STAMINA_MAX : TRAINEES_MAX_STAMINA;
+  const cost = 15;
+  const options = [
+    {type:'vocal',name:'声乐练习',icon:'🎤',gain:8},
+    {type:'dance',name:'舞蹈练习',icon:'💃',gain:8},
+  ];
+  
+  let html = `<div class="option-list">`;
+  options.forEach(o => {
+    const disabled = game.stamina < cost ? 'opacity:0.5;cursor:not-allowed' : '';
+    html += `<div class="option-item" style="${disabled}" onclick="doPractice('${o.type}',${o.gain})">
+      <span class="option-name">${o.icon} ${o.name}</span>
+      <span class="option-reward">技能+${o.gain} | 体力-${cost}</span>
+    </div>`;
+  });
+  html += `</div>`;
+  html += `<div style="font-size:11px;opacity:0.5;text-align:center;margin-top:8px">当前体力: ${game.stamina}/${maxSt}</div>`;
+  
+  showModal('🎤 练习', html);
+}
+
+function doPractice(type, gain) {
+  if (game.stamina < 15) { toast('体力不足！'); return; }
+  game.stamina -= 15;
+  game[type] += gain;
+  game.fatigue = Math.min(100, game.fatigue + 5);
+  addLog(`${type === 'vocal' ? '声乐' : '舞蹈'}练习，${type}+${gain}，体力-15`);
+  toast(`${type === 'vocal' ? '声乐' : '舞蹈'} +${gain}！`);
+  updateUI(); saveGame(); closeModal();
+}
 
 // ========== 睡觉 ==========
 function showSleep() {
-  const maxSt = game.debuted ? STAMINA_MAX : TRAINEES_MAX_STAMINA;
-  const recovered = Math.min(100, maxSt - game.stamina);
-  showModal('😴 睡觉 - 第' + game.day + '天结束', `
+  showModal('😴 休息', `
     <div style="text-align:center;padding:8px">
-      <div style="font-size:46px;margin-bottom:8px">😴</div>
-      <div style="font-size:13px;margin-bottom:12px">好好休息，明天继续努力</div>
-      <div style="background:#2a2a4a;border-radius:12px;padding:14px;margin-bottom:12px">
-        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span style="opacity:0.6">当前体力</span><span>${game.stamina}/${maxSt}</span></div>
-        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span style="opacity:0.6">恢复体力</span><span style="color:#2ed573">+${recovered > 0 ? recovered : '已满'}</span></div>
-        <div style="display:flex;justify-content:space-between;font-size:12px"><span style="opacity:0.6">疲惫变化</span><span style="color:#2ed573">-10</span></div>
-      </div>
-      <button class="action-btn btn-primary" onclick="doSleep()">💤 进入第${game.day+1}天</button>
+      <div style="font-size:40px;margin-bottom:8px">😴</div>
+      <div style="margin-bottom:10px">好好休息一晚，恢复100体力</div>
+      <button class="action-btn btn-primary" onclick="doSleep()">休息到明天</button>
     </div>
   `);
 }
+
 function doSleep() {
   const maxSt = game.debuted ? STAMINA_MAX : TRAINEES_MAX_STAMINA;
   game.stamina = Math.min(maxSt, game.stamina + 100);
   game.fatigue = Math.max(0, game.fatigue - 10);
   game.day++;
-  game.assessmentCountdown--;
-  if (game.assessmentCountdown <= 0 && !game.debuted) triggerAssessment();
-  addLog('😴 第' + game.day + '天开始');
+  game.month = Math.floor(game.day / 30) + 1;
+  
+  // 出道后品牌好感度增加
+  if (game.debuted) {
+    BRANDS.forEach(b => {
+      if (game.fans >= b.minFans) {
+        game.brandFavorability[b.id] = Math.min(100, game.brandFavorability[b.id] + 1);
+      }
+    });
+  }
+  
+  addLog('休息一晚，体力+100，疲惫-10，天数+1');
+  toast('新的一天开始了！');
   updateUI(); saveGame(); closeModal();
 }
 
-// ========== 练习 ==========
-function showPractice() {
-  showModal('🎤 练习室', `
-    <div style="text-align:center;padding:8px">
-      <div style="font-size:40px;margin-bottom:8px">🎤</div>
-      <div style="font-size:11px;opacity:0.6;margin-bottom:12px">消耗15体力 | +8技能 | +5疲惫值 | +200金币</div>
-      <button class="action-btn btn-primary" onclick="doPractice('vocal')">🎤 练习声乐</button>
-      <button class="action-btn btn-primary" onclick="doPractice('dance')">💃 练习舞蹈</button>
-      <div style="margin-top:8px;text-align:center;font-size:11px;opacity:0.5">体力: ${game.stamina} | 疲惫: ${game.fatigue}</div>
+// ========== 技能班 ==========
+function showSkills() {
+  const html = `
+    <div class="option-list">
+      <div class="option-item" onclick="takeSkillClass('acting')">
+        <span class="option-name">📚 演技课</span>
+        <span class="option-cost">💰 200金币</span>
+      </div>
+      <div class="option-item" onclick="takeSkillClass('variety')">
+        <span class="option-name">🎭 综艺感课</span>
+        <span class="option-cost">💰 200金币</span>
+      </div>
     </div>
-  `);
+    <div style="margin-top:10px">
+      <div style="font-size:11px;opacity:0.5;margin-bottom:6px">当前技能</div>
+      <div class="detail-card">
+        <div class="detail-row"><span>演技</span><span>${game.acting}/100</span></div>
+        <div class="detail-row"><span>综艺感</span><span>${game.variety}/100</span></div>
+      </div>
+    </div>
+    <div style="font-size:10px;opacity:0.5;text-align:center;margin-top:8px">演技/综艺感达到100才能接综艺、电视剧、电影</div>
+  `;
+  showModal('📚 技能班', html);
 }
-function doPractice(type) {
-  if (game.stamina < 15) { toast('体力不足！'); closeModal(); return; }
-  if (game.fatigue >= 100) { toast('太疲惫了！先休息'); closeModal(); return; }
-  game.stamina -= 15;
-  game[type] += 8;
-  game.fatigue += 5;
-  game.money += 200;
-  const act = type === 'vocal' ? '声乐' : '舞蹈';
-  addLog('练习了' + act + '！' + act + '+8，金币+200');
-  toast(act + ' +8！体力-15');
+
+function takeSkillClass(type) {
+  if (game.money < 200) { toast('金币不足！'); return; }
+  game.money -= 200;
+  game[type] = Math.min(100, game[type] + 10);
+  addLog(`${type === 'acting' ? '演技' : '综艺感'}课，${type === 'acting' ? '演技' : '综艺感'}+10`);
+  toast(`${type === 'acting' ? '演技' : '综艺感'} +10！`);
   updateUI(); saveGame(); closeModal();
 }
 
 // ========== 通告 ==========
 function showJobs() {
-  if (!game.debuted) { toast('出道后才能接通告'); return; }
-  const jobs = getAvailableJobs();
-  const body = jobs.map((j, i) => `<button class="job-card" onclick="doJob(${i})">
-    <div class="job-card-header">
-      <span class="job-icon">${j.icon}</span>
-      <span class="job-name">${j.name}</span>
-      <span class="job-money">+${formatNum(j.money)}</span>
-    </div>
-    ${j.req ? '<div class="job-req">要求: ' + j.req + '</div>' : ''}
-    <div class="job-desc">${j.desc}</div>
-    <div class="job-tags">
-      <span class="job-tag">体力 ${j.staminaMin}-${j.staminaMax}</span>
-      <span class="job-tag">粉丝+${formatNum(j.fanMin)}</span>
-      ${j.newContact ? '<span class="job-tag" style="background:#e84393">可能认识新人</span>' : ''}
-    </div>
-  </button>`).join('') || '<div style="text-align:center;padding:20px;opacity:0.5">暂无可用通告</div>';
-  showModal('📋 接通告', body);
-}
-function getAvailableJobs() {
-  const all = [
-    {icon:'🎬',name:'品牌代言',req:'粉丝10万+',reqFans:100000,staminaMin:20,staminaMax:30,fanMin:100000,money:5000,desc:'知名品牌的代言活动，影响力大增',newContact:true},
-    {icon:'📺',name:'综艺节目',req:'粉丝5万+',reqFans:50000,staminaMin:15,staminaMax:25,fanMin:50000,money:3000,desc:'参加热门综艺节目录制',newContact:true},
-    {icon:'🎵',name:'音乐节目',req:null,staminaMin:15,staminaMax:20,fanMin:0,money:1000,desc:'录制新歌或表演舞台'},
-    {icon:'📸',name:'杂志拍摄',req:'粉丝2万+',reqFans:20000,staminaMin:10,staminaMax:15,fanMin:20000,money:2000,desc:'时尚杂志封面拍摄',newContact:true},
-    {icon:'🎙️',name:'电台通告',req:null,staminaMin:8,staminaMax:12,fanMin:0,money:800,desc:'电台访谈节目'},
-    {icon:'🎭',name:'粉丝见面会',req:'粉丝1万+',reqFans:10000,staminaMin:18,staminaMax:25,fanMin:10000,money:2000,desc:'与粉丝面对面互动'},
-    {icon:'🏆',name:'颁奖典礼',req:'粉丝50万+',reqFans:500000,staminaMin:20,staminaMax:30,fanMin:500000,money:10000,desc:'受邀参加大型颁奖典礼',newContact:true},
-    {icon:'🌐',name:'海外活动',req:'粉丝100万+',reqFans:1000000,staminaMin:25,staminaMax:35,fanMin:1000000,money:20000,desc:'出国参加演艺活动',newContact:true},
+  if (!game.debuted) { toast('出道后解锁！'); return; }
+  
+  const jobs = [
+    {id:'variety',name:'综艺节目',icon:'🎬',desc:'录制综艺节目',fans:200,fee:3000,req:{variety:ACTING_VARIETY_REQUIREMENT},reqText:'综艺感100+'},
+    {id:'drama',name:'电视剧拍摄',icon:'🎥',desc:'参与电视剧角色',fans:500,fee:8000,req:{acting:ACTING_VARIETY_REQUIREMENT},reqText:'演技100+'},
+    {id:'movie',name:'电影拍摄',icon:'🎞️',desc:'参与电影角色',fans:1000,fee:15000,req:{acting:ACTING_VARIETY_REQUIREMENT},reqText:'演技100+'},
+    {id:'commercial',name:'广告代言',icon:'📺',desc:'拍摄商业广告',fans:100,fee:2000,req:{},reqText:'无限制'},
+    {id:'event',name:'线下活动',icon:'🎪',desc:'出席品牌活动',fans:150,fee:2500,req:{},reqText:'无限制'},
+    {id:'music',name:'音乐节目',icon:'🎵',desc:'录制歌曲/舞台',fans:300,fee:4000,req:{},reqText:'无限制'},
   ];
-  return all.filter(j => !j.reqFans || game.fans >= j.reqFans);
-}
-function doJob(idx) {
-  const jobs = getAvailableJobs();
-  const job = jobs[idx];
-  if (!job) return;
-  const staminaCost = rand(job.staminaMin, job.staminaMax);
-  if (game.stamina < staminaCost) { toast('体力不足！'); return; }
-  if (game.money < Math.floor(job.money * 0.1)) { toast('需要预付费用！'); return; }
-  game.stamina -= staminaCost;
-  game.money -= Math.floor(job.money * 0.1);
-  const fanGain = rand(job.fanMin > 0 ? 50000 : 10000, job.fanMin > 0 ? 100000 : 50000);
-  game.fans += fanGain;
-  game.money += job.money;
-  game.fatigue += 20;
-  game.mood = Math.min(100, game.mood + 10);
-  addLog('完成通告「' + job.name + '」！粉丝+' + formatNum(fanGain) + '，金币+' + formatNum(job.money));
-  toast('通告完成！粉丝+' + formatNum(fanGain) + '，金币+' + formatNum(job.money));
-  if (Math.random() < 0.2) {
-    game.hotWeibo = true; game.hotWeiboDays = 3;
-    game.fans += rand(10000, 50000);
-    eventBanner('🔥 你上热搜了！'); renderHotList();
-  }
-  // 认识新人
-  if (job.newContact && Math.random() < 0.4) { addNewContact(); }
-  // 经纪人好感
-  game.relationships[0].value = Math.min(100, game.relationships[0].value + 2);
-  updateUI(); saveGame(); closeModal();
-}
-function addNewContact() {
-  const names = ['导演李导','摄影师小林','化妆师小美','造型师阿Ken','前辈歌手韩哥','演员小花','主持人大张','编曲老师老赵'];
-  const name = names[rand(0, names.length - 1)];
-  if (!game.wxContacts.find(c => c.name === name)) {
-    const emoji = ['🎬','📷','💄','👔','🎤','🎭','🎙️','🎵'][rand(0,7)];
-    game.wxContacts.push({id:'new_'+Date.now(), name, avatar:emoji, avatarData:null, lastMsg:'你好，很高兴认识你', lastMsgTime:0, msgCount:1, hidden:false});
-    game.wxMessages[name] = [{from:'other', text:'你好，很高兴认识你'}];
-    game.relationships.push({id:'new_'+Date.now(), name, role:'新朋友', value:20, avatar:emoji, avatarData:null, canEdit:false, canDate:true});
-    addLog('在通告中认识了新朋友：' + name + '！');
-    toast('认识新朋友：' + name + '！');
-  }
+  
+  let html = '<div class="option-list">';
+  jobs.forEach(j => {
+    let canTake = true;
+    let reqText = j.reqText;
+    for (let k in j.req) {
+      if (game[k] < j.req[k]) { canTake = false; reqText = `需要${k === 'acting' ? '演技' : '综艺感'}${j.req[k]}+`; break; }
+    }
+    const disabled = !canTake ? 'opacity:0.5' : '';
+    html += `<div class="option-item" style="${disabled}" onclick="${canTake ? `takeJob('${j.id}')` : ''}">
+      <div>
+        <div style="font-size:14px">${j.icon} ${j.name}</div>
+        <div style="font-size:10px;opacity:0.5">${j.desc} · ${reqText}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="color:#d0a030">+${formatNum(j.fee)}</div>
+        <div style="font-size:10px;color:#70a060">粉丝+${Math.floor(j.fans * 0.5)}</div>
+      </div>
+    </div>`;
+  });
+  html += '</div>';
+  html += '<div style="font-size:10px;opacity:0.4;text-align:center;margin-top:8px">通告收入公司8玩家2分红，将在月底发放</div>';
+  
+  showModal('📋 接通告', html);
 }
 
-// ========== 娱乐 ==========
-function showEntertainment() {
-  const items = [
-    {id:'outdoor', name:'出门放松', icon:'🌳', desc:'-15疲惫 / +5心情'},
-    {id:'movie', name:'看电影', icon:'🎬', desc:'-20疲惫 / +8心情 | ¥50'},
-    {id:'gym', name:'健身房', icon:'🏋️', desc:'-10疲惫 / +3舞蹈 | ¥100'},
-    {id:'karaoke', name:'唱KTV', icon:'🎤', desc:'-10疲惫 / +2声乐 | ¥60'},
-    {id:'massage', name:'按摩', icon:'💆', desc:'-30疲惫 / +10心情 | ¥100'},
-  ];
-  const html = items.map(item => `<div class="option-item" onclick="doEntertainment('${item.id}')">
-    <div style="display:flex;align-items:center;gap:8px">
-      <span style="font-size:18px">${item.icon}</span>
-      <span class="option-name">${item.name}</span>
-    </div>
-    <span class="option-cost">${item.desc}</span>
-  </div>`).join('');
-  showModal('🎮 娱乐放松', `
-    <div class="option-list">${html}</div>
-    <div style="font-size:11px;opacity:0.4;text-align:center;margin-top:4px">体力: ${game.stamina} | 疲惫: ${game.fatigue} | 💰 ${game.money}</div>
-  `);
-}
-function doEntertainment(id) {
-  const e = ENTERTAINMENT_COSTS[id];
-  if (!e) return;
-  if (game.stamina < e.stamina) { toast('体力不足！'); return; }
-  if (game.money < e.money) { toast('金币不足！'); return; }
-  game.stamina -= e.stamina;
-  game.money -= e.money;
-  if (e.fatigueChange < 0) game.fatigue = Math.max(0, game.fatigue + e.fatigueChange);
-  if (e.fatigueChange > 0) game.fatigue = Math.min(100, game.fatigue + e.fatigueChange);
-  game.mood = Math.min(100, game.mood + e.moodChange);
-  if (e.skill) game[e.skill] += {dance:3, vocal:2}[e.skill] || 0;
-  addLog('去' + {outdoor:'户外放松',movie:'看了电影',gym:'健身房',karaoke:'唱KTV',massage:'按摩'}[id] + '，感觉很好');
-  toast('放松完毕！');
-  if (id === 'outdoor' || id === 'movie') {
-    if (Math.random() < 0.1) {
-      if (Math.random() < 0.4) {
-        eventBanner('🚨 紧急公关事件！');
-        triggerCrisis();
-      } else {
-        addLog('出门玩得很开心！');
-      }
-    }
-  }
+function takeJob(jobId) {
+  const jobs = {
+    variety:{name:'综艺节目',icon:'🎬',fans:200,fee:3000},
+    drama:{name:'电视剧拍摄',icon:'🎥',fans:500,fee:8000},
+    movie:{name:'电影拍摄',icon:'🎞️',fans:1000,fee:15000},
+    commercial:{name:'广告代言',icon:'📺',fans:100,fee:2000},
+    event:{name:'线下活动',icon:'🎪',fans:150,fee:2500},
+    music:{name:'音乐节目',icon:'🎵',fans:300,fee:4000},
+  };
+  
+  const job = jobs[jobId];
+  if (!job) return;
+  
+  if (game.stamina < 20) { toast('体力不足！'); return; }
+  
+  game.stamina -= 20;
+  game.fans += job.fans;
+  
+  // 记录收入用于分红
+  game.jobEarnings.push({type:jobId, fee:job.fee, day:game.day});
+  
+  addLog(`${job.icon} ${job.name}完成，粉丝+${job.fans}，收入已记录分红`);
+  toast(`${job.name}完成！粉丝+${job.fans}！`);
   updateUI(); saveGame(); closeModal();
 }
-function triggerCrisis() {
-  const crises = [
-    {title:'被拍到私下行程',desc:'有媒体拍到你的私人行程，引发猜测',effect:()=>{ game.fans=Math.max(0,game.fans-rand(5000,20000)); game.mood-=20;}},
-    {title:'绯闻八卦',desc:'网上流传你与异性的合照引发猜测',effect:()=>{ game.mood-=30;}},
-    {title:'言论风波',desc:'一段视频引发网友争议',effect:()=>{ game.mood-=25; game.fans=Math.max(0,game.fans-rand(3000,8000));}},
-  ];
-  const c = crises[rand(0, crises.length-1)];
-  c.effect();
-  toast('🚨 '+c.title);
-  setTimeout(()=>showModal('🚨 紧急公关',`<div style="text-align:center;padding:8px">
-    <div style="font-size:40px;margin-bottom:8px">🚨</div>
-    <div style="font-size:15px;font-weight:700;margin-bottom:6px">${c.title}</div>
-    <div style="font-size:12px;opacity:0.7;margin-bottom:14px">${c.desc}</div>
-    <button class="action-btn btn-primary" onclick="handleCrisis('public')">📢 发声明澄清</button>
-    <button class="action-btn btn-secondary" onclick="handleCrisis('silent')">🤐 沉默应对</button>
-    <button class="action-btn btn-warning" onclick="handleCrisis('compensation')">💰 出钱平息</button>
-  </div>`),300);
+
+// ========== 品牌代言 ==========
+function showBrandEndorsement() {
+  let html = '<div class="option-list">';
+  
+  // 当前代言
+  if (game.brandEndorsements.length > 0) {
+    html += '<div style="font-size:11px;opacity:0.6;margin-bottom:6px">当前代言</div>';
+    game.brandEndorsements.forEach(bId => {
+      const b = BRANDS.find(x => x.id === bId);
+      if (b) {
+        const fee = Math.floor(b.fee * (1 + game.fans / 100000));
+        html += `<div class="option-item" style="background:rgba(184,169,212,0.2)">
+          <span>✨ ${b.name}</span>
+          <span style="color:#d0a030">代言费 ¥${formatNum(fee)}</span>
+        </div>`;
+      }
+    });
+    html += '<div style="font-size:10px;opacity:0.4;margin:6px 0">最多同时代言2个品牌</div>';
+  }
+  
+  // 可邀请代言的品牌
+  html += '<div style="font-size:11px;opacity:0.6;margin-bottom:6px">可邀请代言</div>';
+  BRANDS.forEach(b => {
+    if (game.brandEndorsements.includes(b.id)) return; // 已代言跳过
+    const favor = game.brandFavorability[b.id] || 0;
+    const canInvite = favor >= 60 && game.fans >= b.minFans && game.brandEndorsements.length < 2;
+    const fee = Math.floor(b.fee * (1 + game.fans / 100000));
+    
+    let status = '';
+    if (favor < 60) status = `好感度不足(${favor}/60)`;
+    else if (game.fans < b.minFans) status = `需要${formatNum(b.minFans)}粉丝`;
+    else if (game.brandEndorsements.length >= 2) status = '代言位已满';
+    else status = '可邀请！';
+    
+    const disabled = !canInvite ? 'opacity:0.5' : '';
+    html += `<div class="option-item" style="${disabled}" onclick="${canInvite ? `takeEndorsement('${b.id}')` : ''}">
+      <div>
+        <div style="font-size:13px">✨ ${b.name}</div>
+        <div style="font-size:10px;opacity:0.5">好感度: ${favor}/60 · ${status}</div>
+      </div>
+      <div style="color:#d0a030">代言费 ¥${formatNum(fee)}</div>
+    </div>`;
+  });
+  html += '</div>';
+  html += '<div style="font-size:10px;opacity:0.4;text-align:center;margin-top:8px">品牌好感度随粉丝数增加，需达到60才能被邀请代言</div>';
+  
+  showModal('✨ 品牌代言', html);
 }
-function handleCrisis(way) {
-  if (way==='public') { game.mood=Math.min(100,game.mood+5); game.fans+=rand(500,2000); toast('声明发出，大部分粉丝支持你'); }
-  else if (way==='silent') { game.fans=Math.max(0,game.fans-rand(3000,10000)); toast('沉默应对，舆论发酵...'); }
-  else { game.money-=2000; toast('花钱平息了事态，金币-2000'); }
+
+function takeEndorsement(brandId) {
+  const brand = BRANDS.find(b => b.id === brandId);
+  if (!brand) return;
+  if (game.brandEndorsements.length >= 2) { toast('最多同时代言2个品牌！'); return; }
+  
+  game.brandEndorsements.push(brandId);
+  const fee = Math.floor(brand.fee * (1 + game.fans / 100000));
+  
+  // 记录代言收入
+  game.jobEarnings.push({type:'endorsement', brandId:brandId, fee:fee, day:game.day});
+  
+  addLog(`✨ 签约${brand.name}，代言费已记录`);
+  toast(`✨ 签约${brand.name}成功！`);
   updateUI(); saveGame(); closeModal();
 }
 
 // ========== 演唱会 ==========
 function showConcert() {
-  if (game.fans < 100000) { toast('还需要' + formatNum(100000-game.fans) + '粉丝才能开演唱会'); return; }
-  if (game.concertCooldown > 0) { toast('演唱会冷却中，还需' + game.concertCooldown + '天'); return; }
-  if (game.concertPlanned) { checkConcert(); showConcertStatus(); return; }
-  showModal('🎤 大型演唱会', `
-    <div class="concert-ready">
-      <div class="concert-ready-title">🎤 大型演唱会筹备</div>
-      <div class="concert-ready-sub">粉丝${formatNum(game.fans)} 已满足条件！</div>
-      <div style="font-size:11px;opacity:0.7;margin-bottom:10px">准备两首歌+一支舞，每项≥80%即可圆满<br>每次排练消耗1天、20体力、+15%熟练度<br>开完后需等30天才能再开</div>
-      <button class="action-btn btn-primary" onclick="startConcert()">🚀 开始筹备演唱会</button>
-    </div>
-  `);
-}
-function startConcert() { game.concertPlanned=true; game.concertDaysLeft=30; game.concertSongLevel=0; game.concertDanceLevel=0; saveGame(); toast('演唱会筹备开始！'); updateUI(); closeModal(); }
-function showConcertStatus() {
-  showModal('🎤 演唱会筹备中 — 第'+game.day+'天', `
-    <div style="text-align:center;padding:8px">
-      <div style="font-size:28px;font-weight:700;color:#fd79a8;margin:6px 0">剩余 ${game.concertDaysLeft} 天</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0">
-        <div style="background:#2a2a4a;border-radius:10px;padding:10px;text-align:center">
-          <div style="font-size:10px;opacity:0.6">🎵 歌曲</div>
-          <div style="font-size:18px;font-weight:700">${game.concertSongLevel}%</div>
-          <div style="height:4px;background:#3a3a5a;border-radius:2px;margin-top:5px"><div style="height:4px;width:${game.concertSongLevel}%;background:#6c5ce7;border-radius:2px"></div></div>
-        </div>
-        <div style="background:#2a2a4a;border-radius:10px;padding:10px;text-align:center">
-          <div style="font-size:10px;opacity:0.6">💃 舞蹈</div>
-          <div style="font-size:18px;font-weight:700">${game.concertDanceLevel}%</div>
-          <div style="height:4px;background:#3a3a5a;border-radius:2px;margin-top:5px"><div style="height:4px;width:${game.concertDanceLevel}%;background:#e84393;border-radius:2px"></div></div>
-        </div>
-      </div>
-      <button class="action-btn btn-primary" onclick="practiceConcert('song')">🎤 练习歌曲</button>
-      <button class="action-btn btn-primary" onclick="practiceConcert('dance')">💃 练习舞蹈</button>
-      <div style="font-size:10px;opacity:0.5;margin-top:6px">每次消耗20体力，增加15%熟练度，消耗1天</div>
-    </div>
-  `);
-}
-function practiceConcert(type) {
-  if (!game.concertPlanned) return;
-  if (game.stamina < 20) { toast('体力不足！'); return; }
-  if (game.concertDaysLeft <= 0) { executeConcert(); return; }
-  game.stamina -= 20;
-  game.fatigue = Math.min(100, game.fatigue + 5);
-  game.day++;
-  game.concertDaysLeft = Math.max(0, game.concertDaysLeft - 1);
-  if (type==='song') game.concertSongLevel = Math.min(100, game.concertSongLevel+15);
-  else game.concertDanceLevel = Math.min(100, game.concertDanceLevel+15);
-  toast((type==='song'?'歌曲':'舞蹈')+'熟练度+15%');
-  addLog('演唱会排练：'+(type==='song'?'🎵':'💃')+'+15%');
-  if (game.concertDaysLeft <= 0) { executeConcert(); return; }
-  updateUI(); saveGame(); showConcertStatus();
-}
-function executeConcert() {
-  game.concertPlanned = false;
-  game.concertCooldown = 30;
-  const avg = Math.round((game.concertSongLevel+game.concertDanceLevel)/2);
-  if (avg >= 80) {
-    const fanGain = rand(50000, 150000);
-    game.fans += fanGain;
-    game.money += 20000;
-    game.mood = Math.min(100, game.mood+50);
-    game.fatigue = Math.min(100, game.fatigue+30);
-    addLog('🎤 演唱会大成功！粉丝+'+formatNum(fanGain)+'，金币+20000');
-    toast('🎉 演唱会圆满成功！粉丝+'+formatNum(fanGain));
-    if (Math.random() < 0.5) { game.hotWeibo=true; game.hotWeiboDays=5; game.fans+=rand(30000,80000); eventBanner('🔥 演唱会冲上热搜！'); renderHotList(); }
-  } else {
-    const fanLoss = rand(5000, 20000);
-    game.fans = Math.max(0, game.fans-fanLoss);
-    game.money = Math.max(0, game.money-5000);
-    game.mood = Math.max(0, game.mood-20);
-    game.fatigue = Math.min(100, game.fatigue+30);
-    addLog('😢 演唱会表现不佳，粉丝-'+formatNum(fanLoss));
-    toast('😢 演唱会未达标，粉丝-'+formatNum(fanLoss));
+  if (!game.debuted) {
+    toast('出道后才能举办演唱会！');
+    return;
   }
+  if (game.fans < 100000) {
+    toast('需要10万粉丝才能举办！');
+    return;
+  }
+  if (game.concertCooldown > 0) {
+    toast('演唱会冷却中，还需' + game.concertCooldown + '天');
+    return;
+  }
+  
+  if (game.concertPlanned) {
+    const progress = Math.max(0, 30 - game.concertDaysLeft);
+    showModal('🎤 演唱会', `
+      <div class="concert-ready">
+        <div class="concert-ready-title">🎤 演唱会筹备中</div>
+        <div class="concert-ready-sub">还剩 ${game.concertDaysLeft} 天</div>
+        <div style="width:100%;height:6px;background:rgba(255,255,255,0.3);border-radius:3px;margin:10px 0">
+          <div style="width:${progress/30*100}%;height:100%;background:#fff;border-radius:3px"></div>
+        </div>
+        <button class="btn-small" style="background:rgba(255,255,255,0.3)" onclick="cancelConcert()">取消筹备</button>
+      </div>
+      <div style="text-align:center;padding:8px">
+        <button class="action-btn btn-secondary" onclick="closeModal()">继续准备</button>
+      </div>
+    `);
+  } else {
+    showModal('🎤 演唱会', `
+      <div style="text-align:center;padding:8px">
+        <div style="font-size:40px;margin-bottom:8px">🎤</div>
+        <div style="margin-bottom:6px">举办演唱会</div>
+        <div style="font-size:11px;opacity:0.6;margin-bottom:10px">预计收益10万，公司8玩家2分红</div>
+        <button class="action-btn btn-primary" onclick="planConcert()">开始筹备</button>
+        <button class="action-btn btn-secondary" onclick="closeModal()">取消</button>
+      </div>
+    `);
+  }
+}
+
+function planConcert() {
+  game.concertPlanned = true;
+  game.concertDaysLeft = 30;
+  addLog('开始筹备演唱会...');
+  toast('演唱会筹备开始！30天后举办！');
   updateUI(); saveGame(); closeModal();
 }
+
+function cancelConcert() {
+  game.concertPlanned = false;
+  game.concertDaysLeft = 0;
+  toast('已取消演唱会筹备');
+  updateUI(); saveGame(); closeModal();
+}
+
 function checkConcert() {
   const card = document.getElementById('countdownCard');
+  const label = document.getElementById('countdownLabel');
+  const time = document.getElementById('countdownTime');
+  const progress = document.getElementById('countdownProgressBar');
+  const sub = document.getElementById('countdownSub');
+  const btn = document.getElementById('btn-concert-desc');
+  
+  if (!game.debuted) {
+    card.style.display = 'none';
+    btn.textContent = '出道后解锁';
+    return;
+  }
+  
+  if (game.fans < 100000) {
+    btn.textContent = '需10万粉丝';
+    card.style.display = 'none';
+    return;
+  }
+  
+  if (game.concertCooldown > 0) {
+    btn.textContent = `冷却期${game.concertCooldown}天`;
+    card.style.display = 'none';
+    return;
+  }
+  
   if (game.concertPlanned) {
+    card.style.display = 'block';
     card.classList.add('show');
-    const avg = Math.round((game.concertSongLevel+game.concertDanceLevel)/2);
-    document.getElementById('countdownLabel').textContent = '🎤 演唱会筹备';
-    document.getElementById('countdownTime').textContent = '剩余'+game.concertDaysLeft+'天';
-    document.getElementById('countdownProgressBar').style.width = avg+'%';
-    document.getElementById('countdownSub').textContent = '歌曲'+game.concertSongLevel+'% | 舞蹈'+game.concertDanceLevel+'%';
-  } else { card.classList.remove('show'); }
+    label.textContent = '🎤 演唱会筹备';
+    time.textContent = game.concertDaysLeft + '天';
+    progress.style.width = ((30 - game.concertDaysLeft) / 30 * 100) + '%';
+    sub.textContent = '准备中...';
+    btn.textContent = '筹备中';
+    btn.parentElement.style.display = 'none';
+    
+    // 每天减少
+    if (game.concertDaysLeft > 0) {
+      game.concertDaysLeft--;
+      if (game.concertDaysLeft === 0) {
+        holdConcert();
+      }
+    }
+  } else {
+    card.style.display = 'none';
+    btn.textContent = '举办演唱会';
+    btn.parentElement.style.display = 'block';
+  }
+}
+
+function holdConcert() {
+  game.concertPlanned = false;
+  game.concertCooldown = 30;
+  game.fans += 10000;
+  
+  // 演唱会收入记录分红
+  game.jobEarnings.push({type:'concert', fee:100000, day:game.day});
+  
+  addLog('🎤 演唱会成功举办！粉丝+10000！');
+  eventBanner('🎤 演唱会大成功！');
+  toast('演唱会大成功！粉丝+10000！');
+  updateUI(); saveGame();
+}
+
+// ========== 分红提现 ==========
+function withdrawDividend() {
+  if (game.pendingDividend <= 0) { toast('没有可提现的分红'); return; }
+  
+  const amount = game.pendingDividend;
+  game.money += amount;
+  game.pendingDividend = 0;
+  
+  addLog('💰 提现分红 ¥' + formatNum(amount));
+  toast('💰 提现成功！+' + formatNum(amount) + '金币！');
+  updateUI(); saveGame();
+}
+
+// 月底分红计算（睡觉时触发）
+function calculateDividend() {
+  if (!game.jobEarnings || game.jobEarnings.length === 0) return;
+  
+  let totalCompany = 0;
+  game.jobEarnings.forEach(j => {
+    totalCompany += j.fee;
+  });
+  
+  // 公司8玩家2分红
+  const playerShare = Math.floor(totalCompany * 0.2);
+  game.pendingDividend += playerShare;
+  game.totalEarnings += totalCompany;
+  
+  addLog('💰 本月分红 ¥' + formatNum(playerShare) + ' 已到账，请到首页提现');
+  toast('💰 本月分红 ¥' + formatNum(playerShare) + '！');
+  
+  // 清空记录
+  game.jobEarnings = [];
 }
 
 // ========== 考核 ==========
 function showAssessment() {
-  if (game.debuted) { toast('已出道，无法参加练习生考核'); return; }
-  const canDebut = game.vocal >= 150 && game.dance >= 150;
-  const rank = Math.max(1, Math.min(50, Math.ceil((300 - game.vocal - game.dance)/6 + Math.random()*5)));
-  const rankColor = rank<=3 ? '#ffd700' : rank<=10 ? '#a29bfe' : '#fff';
-  showModal('🏆 月度考核 — 第'+game.day+'天', `
+  if (game.debuted) return;
+  showModal('🏆 出道考核', `
     <div style="text-align:center;padding:8px">
-      <div style="font-size:36px;margin-bottom:6px">🏆</div>
-      <div style="font-size:11px;opacity:0.6;margin-bottom:4px">练习生期</div>
-      <div style="font-size:11px;opacity:0.5;margin-bottom:6px">当前排名</div>
-      <div style="font-size:36px;font-weight:700;color:${rankColor};margin:4px 0">#${rank}</div>
-      <div style="background:#2a2a4a;border-radius:10px;padding:12px;margin:10px 0;text-align:left">
-        <div class="detail-row"><span>声乐</span><span>${game.vocal} ${game.vocal>=150?'✅':'❌'}</span></div>
-        <div class="detail-row"><span>舞蹈</span><span>${game.dance} ${game.dance>=150?'✅':'❌'}</span></div>
-        <div class="detail-row"><span>综合</span><span>${game.vocal+game.dance}</span></div>
-        <div class="detail-row" style="color:#2ed573"><span>出道线</span><span>各≥150</span></div>
+      <div style="font-size:40px;margin-bottom:8px">🏆</div>
+      <div style="margin-bottom:10px">声乐和舞蹈都要达到300才能出道！</div>
+      <div class="detail-card" style="margin-bottom:10px">
+        <div class="detail-row"><span>声乐</span><span>${game.vocal}/300</span></div>
+        <div class="detail-row"><span>舞蹈</span><span>${game.dance}/300</span></div>
       </div>
-      ${canDebut ? '<button class="action-btn btn-primary" onclick="debut()">🎉 申请出道！</button>' : '<div style="font-size:11px;opacity:0.5;text-align:center;margin-bottom:8px">声乐≥150 且 舞蹈≥150 才可出道<br>（当前：声乐'+game.vocal+' 舞蹈'+game.dance+'）</div>'}
-      <button class="action-btn btn-secondary" onclick="closeModal()">返回</button>
+      ${game.vocal >= DEBUT_REQUIREMENT && game.dance >= DEBUT_REQUIREMENT ? 
+        '<button class="action-btn btn-danger" onclick="applyDebut()">申请出道！</button>' : 
+        '<button class="action-btn btn-secondary" disabled>声乐300+舞蹈300可申请</button>'}
+      <button class="action-btn btn-secondary" onclick="closeModal()">继续练习</button>
     </div>
   `);
 }
-function debut() {
-  if (game.vocal < 150 || game.dance < 150) { toast('还不够条件！'); return; }
+
+function applyDebut() {
+  if (game.vocal < DEBUT_REQUIREMENT || game.dance < DEBUT_REQUIREMENT) {
+    toast('还没达到出道标准！');
+    return;
+  }
+  
   game.debuted = true;
-  game.relationship = '单身';
-  addLog('🎉 恭喜出道！！');
-  eventBanner('🎊 恭喜你正式出道！');
+  game.fans = 1000;
+  addLog('🎉 恭喜出道！获得1000初始粉丝！');
+  eventBanner('🎉 恭喜出道！');
   toast('🎉 恭喜出道！');
-  // 解锁家人
-  const mom = game.wxContacts.find(c=>c.id==='mom');
-  if (mom) mom.hidden = false;
-  addLog('妈妈发来祝贺微信！');
+  
+  // 发送祝贺消息
   if (!game.wxMessages['妈妈']) game.wxMessages['妈妈'] = [];
-  game.wxMessages['妈妈'].push({from:'other', text:'宝贝！看到你出道了！妈妈好骄傲！🎉'});
-  const momContact = game.wxContacts.find(c=>c.id==='mom');
-  if (momContact) { momContact.lastMsg = '宝贝！看到你出道了！妈妈好骄傲！🎉'; momContact.msgCount++; }
+  game.wxMessages['妈妈'].push({from:'other', text:'宝贝恭喜出道！妈妈为你骄傲！'});
+  const mom = game.wxContacts.find(c => c.id === 'mom');
+  if (mom) { mom.lastMsg = '宝贝恭喜出道！妈妈为你骄傲！'; mom.msgCount = 1; }
+  
   updateUI(); saveGame(); closeModal();
 }
 
-// ========== 热搜 ==========
-function renderHotList() {
-  const topics = [
-    {rank:1,title:'某顶流塌房全过程',tag:'hot',tagText:'爆'},
-    {rank:2,title:'选秀节目黑幕曝光',tag:'hot',tagText:'热'},
-    {rank:3,title:'新生代偶像营业日常',tag:'new',tagText:'新'},
-    {rank:4,title:'粉丝为偶像应援太卷了',tag:'hot',tagText:'热'},
-    {rank:5,title:'经纪公司又出事',tag:'hot',tagText:'热'},
-    {rank:6,title:'演唱会门票秒空',tag:'friend',tagText:'娱'},
-    {rank:7,title:'偶像剧CP感讨论',tag:'new',tagText:'新'},
-    {rank:8,title:'练习生宿舍日常',tag:'new',tagText:'新'},
-    {rank:9,title:'偶像时尚穿搭合集',tag:'friend',tagText:'服'},
-    {rank:10,title:'娱乐圈八卦周刊',tag:'hot',tagText:'热'},
+// ========== 娱乐 ==========
+function showEntertainment() {
+  let html = '<div class="option-list">';
+  const items = [
+    {key:'outdoor',name:'户外运动',icon:'🏃',cost:0,stamina:20,desc:'放松心情'},
+    {key:'movie',name:'看电影',icon:'🎬',cost:50,stamina:25,desc:'疲惫-20，心情+8'},
+    {key:'gym',name:'健身房',icon:'💪',cost:100,stamina:20,desc:'疲惫-10，舞蹈+3'},
+    {key:'karaoke',name:'KTV唱歌',icon:'🎤',cost:60,stamina:30,desc:'疲惫-10，心情+6'},
+    {key:'massage',name:'按摩放松',icon:'💆',cost:100,stamina:15,desc:'疲惫-30，心情+10'},
+    {key:'club',name:'夜店派对',icon:'🪩',cost:200,stamina:30,desc:'高风险！可能塌房！'},
+    {key:'scandal_party',name:'私人派对',icon:'🍷',cost:500,stamina:40,desc:'极度危险！35%塌房率！'},
   ];
-  if (game.hotWeibo) topics.unshift({rank:0,title:'🔥 你冲上热搜了！',tag:'hot',tagText:'爆',isYou:true});
-  const html = topics.map(t => `<div class="hot-item" onclick="${t.isYou?'game.hotWeibo=false;renderHotList()':''}">
-    <span class="hot-rank ${t.rank<=3?'top'+t.rank:''}">${t.rank||'🔥'}</span>
-    <span class="hot-title" style="${t.isYou?'color:#ff4757;font-weight:700':''}">${t.title}</span>
-    ${t.tagText?'<span class="hot-tag tag-'+t.tag+'">'+t.tagText+'</span>':''}
-  </div>`).join('');
-  document.getElementById('hotList').innerHTML = html;
+  
+  items.forEach(item => {
+    const disabled = game.stamina < item.stamina || (item.cost > 0 && game.money < item.cost) ? 'opacity:0.5;cursor:not-allowed' : '';
+    const riskTag = item.risk ? '<span style="color:#e07070;font-size:10px">⚠️高风险</span>' : '';
+    html += `<div class="option-item" style="${disabled}" onclick="doEntertainment('${item.key}')">
+      <div>
+        <span class="option-name">${item.icon} ${item.name}</span>
+        ${riskTag}
+      </div>
+      <span class="option-cost">${item.cost > 0 ? '💰'+item.cost : '免费'} | 体力${item.stamina}</span>
+    </div>`;
+  });
+  html += '</div>';
+  
+  showModal('🎮 娱乐活动', html);
 }
 
-// ========== 私信 ==========
-function generateRandomPM() {
-  const types = [
-    {from:'fan',avatar:'💖',names:['小可爱','追星少女','星星眼','小甜豆','追星达人'],msgs:['加油！你最棒了！','新歌超好听！','今天也爱你！','永远支持你！','期待你的新作品！','你是最棒的！','我要为你打call一辈子！']},
-    {from:'sasa',avatar:'😡',names:['私生饭001','跟踪狂','私生3号'],msgs:['你在哪里？','我知道你家地址','别躲了','跟了你一路了','你怎么不回我','我只是想见你一面']},
-    {from:'hate',avatar:'💀',names:['专业黑','路人甲','娱乐圈评论家'],msgs:['就这水平也能出道？','别来丢人了','蹭热度的吧','长得也就那样','演技太烂了']},
-  ];
-  const type = types[rand(0,types.length-1)];
-  const name = type.names[rand(0,type.names.length-1)];
-  const msg = type.msgs[rand(0,type.msgs.length-1)];
-  game.pmList.unshift({id:Date.now(),type:type.from,name,avatar:type.avatar,content:msg,time:'刚刚'});
-  if (game.pmList.length > 20) game.pmList.pop();
-  game.pmUnread = Math.min(game.pmUnread+1, 99);
-  saveGame();
-}
-function renderPMList() {
-  if (game.pmList.length === 0) { document.getElementById('pmList').innerHTML = '<div style="text-align:center;padding:20px;opacity:0.4;font-size:13px">暂无私信</div>'; return; }
-  const html = game.pmList.slice(0,10).map(p => `<div class="option-item" onclick="showPM(${p.id})">
-    <div style="display:flex;align-items:center;gap:7px">
-      <span style="font-size:16px">${p.avatar}</span>
-      <span style="font-size:12px;font-weight:600">${p.name}</span>
-    </div>
-    <span style="font-size:10px;opacity:0.4">${p.time}</span>
-  </div>`).join('');
-  document.getElementById('pmList').innerHTML = html;
-}
-function showPM(id) {
-  const pm = game.pmList.find(p=>p.id===id);
-  if (!pm) return;
-  game.pmUnread = Math.max(0, game.pmUnread-1);
-  let options = '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:8px">';
-  if (pm.type==='fan') {
-    options += '<button class="btn-small" style="background:#6c5ce7" onclick="replyPM('+id+',\'thanks\')">😊 感谢</button>';
-    options += '<button class="btn-small" style="background:#e84393" onclick="replyPM('+id+',\'love\')">💕 爱你</button>';
-  } else if (pm.type==='sasa') {
-    options += '<button class="btn-small" style="background:#ff6b35" onclick="replyPM('+id+',\'warn\')">⚠️ 警告</button>';
-    options += '<button class="btn-small" style="background:#555" onclick="replyPM('+id+',\'block\')">🚫 拉黑</button>';
-  } else {
-    options += '<button class="btn-small" style="background:#555" onclick="ignorePM('+id+')">🤐 无视</button>';
-    options += '<button class="btn-small" style="background:#e17055" onclick="replyPM('+id+',\'fight\')">💪 回应</button>';
+function doEntertainment(key) {
+  const ent = ENTERTAINMENT_COSTS[key];
+  if (!ent) return;
+  if (game.stamina < ent.stamina) { toast('体力不足！'); return; }
+  if (ent.money > 0 && game.money < ent.money) { toast('金币不足！'); return; }
+  
+  game.stamina -= ent.stamina;
+  if (ent.money > 0) game.money -= ent.money;
+  game.fatigue = Math.max(0, game.fatigue + ent.fatigueChange);
+  game.mood = Math.min(100, game.mood + ent.moodChange);
+  
+  if (ent.skill === 'dance') game.dance += 3;
+  if (ent.skill === 'vocal') game.vocal += 3;
+  
+  // 高风险娱乐触发公关危机
+  if (ent.risk && Math.random() < ent.scandalChance) {
+    triggerPublicCrisis();
   }
-  options += '</div>';
-  showModal(pm.name, `<div style="padding:4px">
-    <div style="font-size:40px;margin-bottom:8px;text-align:center">${pm.avatar}</div>
-    <div style="font-size:14px;opacity:0.8;margin-bottom:12px;line-height:1.5">${pm.content}</div>
-    ${options}
-  </div>`);
-  updateBadges();
-}
-function replyPM(id, type) {
-  const pm = game.pmList.find(p=>p.id===id);
-  if (!pm) return;
-  if (type==='thanks') { game.mood=Math.min(100,game.mood+3); toast('收到暖心支持！'); }
-  else if (type==='love') { game.mood=Math.min(100,game.mood+5); if(game.debuted) game.fans+=rand(100,500); toast('粉丝激动坏了！'); }
-  else if (type==='warn') { toast('已警告对方'); if(Math.random()<0.3){ eventBanner('⚠️ 私生发飙！'); game.mood-=5; }}
-  else if (type==='block') { toast('已拉黑'); }
-  else if (type==='fight') {
-    if(Math.random()<0.5){ game.mood-=15; if(game.debuted) game.fans=Math.max(0,game.fans-rand(1000,3000)); toast('引发争议...'); addLog('回应黑粉，舆论分化'); }
-    else { game.mood+=10; if(game.debuted) game.fans+=rand(500,2000); toast('大部分人站你这边！'); }
-  }
-  game.pmList = game.pmList.filter(p=>p.id!==id);
-  updateUI(); saveGame(); renderPMList(); closeModal();
-}
-function ignorePM(id) {
-  game.pmList = game.pmList.filter(p=>p.id!==id);
-  game.pmUnread = Math.max(0, game.pmUnread-1);
-  updateUI(); saveGame(); renderPMList(); closeModal();
+  
+  addLog(`${key === 'outdoor' ? '户外运动' : key === 'movie' ? '看电影' : key === 'gym' ? '健身房' : key === 'karaoke' ? 'KTV' : key === 'massage' ? '按摩' : key === 'club' ? '夜店派对' : '私人派对'}，疲惫${ent.fatigueChange > 0 ? '+' : ''}${ent.fatigueChange}，心情${ent.moodChange > 0 ? '+' : ''}${ent.moodChange}`);
+  toast('放松了一下~');
+  updateUI(); saveGame(); closeModal();
 }
 
 // ========== 发微博 ==========
-function showWeibo() { switchTab('plus'); }
-function updateCharCount() { document.getElementById('charCount').textContent = document.getElementById('weiboText').value.length; }
+function showWeibo() {
+  switchTab('plus', document.querySelector('.center-tab').parentElement);
+}
+
+function updateCharCount() {
+  const text = document.getElementById('weiboText').value;
+  document.getElementById('charCount').textContent = text.length;
+}
+
 function postWeibo() {
   const text = document.getElementById('weiboText').value.trim();
   if (!text) { toast('内容不能为空'); return; }
-  const likes = game.debuted ? rand(100, Math.min(10000, game.fans * 0.1)) : rand(0,10);
-  const comments = game.debuted ? rand(5, Math.min(500, game.fans * 0.005)) : rand(0,3);
-  const forwards = game.debuted ? rand(2, Math.min(200, game.fans * 0.002)) : rand(0,2);
-  game.weibos.unshift({text,time:new Date().toLocaleString('zh-CN',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}),likes,comments,forwards});
-  if (game.weibos.length > 20) game.weibos.pop();
+  
+  const likes = rand(500, 2000); // 增加点赞量
+  const forwards = rand(100, 500); // 增加转发量
+  const comments = rand(50, 150);
+  
+  game.weibos.unshift({
+    text,
+    time: new Date().toLocaleString('zh-CN'),
+    likes,
+    forwards,
+    comments,
+    commentList: generateComments()
+  });
+  
+  if (Math.random() < 0.3) {
+    game.fans += rand(100, 500);
+    game.hotWeibo = true;
+    game.hotWeiboDays = 2;
+  }
+  
   document.getElementById('weiboText').value = '';
-  document.getElementById('charCount').textContent = '0';
-  if (Math.random() < 0.15) {
-    game.hotWeibo = true; game.hotWeiboDays = 2;
-    if (game.debuted) { game.fans += rand(10000,50000); }
-    addLog('微博引爆热搜！'+(game.debuted?'粉丝+'+formatNum(rand(10000,50000)):''));
-    toast('🔥 微博引爆热搜！'+(game.debuted?'粉丝+'+formatNum(rand(10000,50000)):''));
-    eventBanner('🔥 你的微博冲上热搜！'); renderHotList();
-  } else {
-    if (game.debuted) { game.fans += rand(100,2000); toast('发布成功！粉丝+'+formatNum(rand(100,2000))); }
-    else { toast('发布成功！'); }
-  }
-  updateUI(); saveGame(); renderMyWeibos();
+  updateCharCount();
+  addLog('发布微博，获得点赞' + likes);
+  toast('发布成功！');
+  renderMyWeibos();
+  updateUI(); saveGame();
 }
+
+function generateComments() {
+  const names = ['小甜心', '追星少女', '星星糖', '爱豆小迷弟', '娱乐圈观察', '永远支持', '路人甲'];
+  const texts = ['太棒了！', '永远支持你！', '加油！', '好喜欢这个！', '期待更多作品', '太优秀了', '打卡！'];
+  const comments = [];
+  for (let i = 0; i < 5; i++) {
+    comments.push({
+      name: names[rand(0, names.length - 1)],
+      text: texts[rand(0, texts.length - 1)]
+    });
+  }
+  return comments;
+}
+
 function renderMyWeibos() {
-  if (game.weibos.length === 0) { document.getElementById('myWeibos').innerHTML = '<div style="text-align:center;padding:16px;opacity:0.4;font-size:13px">还没发过微博...</div>'; return; }
-  document.getElementById('myWeibos').innerHTML = game.weibos.slice(0,5).map(w => `<div class="weibo-card">
-    <div class="weibo-text">${w.text}</div>
-    <div class="weibo-meta">
-      <span class="weibo-like">❤️ ${w.likes}</span>
-      <span>💬 ${w.comments}</span>
-      <span>🔄 ${w.forwards}</span>
-      <span style="margin-left:auto;opacity:0.3;font-size:10px">${w.time}</span>
-    </div>
-  </div>`).join('');
-}
-
-// ========== 消息页 ==========
-function switchMsgTab(tab, btn) {
-  document.querySelectorAll('.msg-tab').forEach(t => t.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-  document.getElementById('wxList').style.display = tab==='wx'?'block':'none';
-  document.getElementById('smsList').style.display = tab==='sms'?'block':'none';
-  if (tab==='sms') { game.smsUnread = 0; updateBadges(); saveGame(); }
-}
-function renderWXList() {
-  const contacts = game.wxContacts.filter(c => !c.hidden);
-  if (contacts.length === 0) { document.getElementById('wxList').innerHTML = '<div style="text-align:center;padding:20px;opacity:0.4">暂无联系人</div>'; return; }
-  const html = contacts.map(c => `<div class="msg-item" onclick="openWXChat('${c.id}')">
-    <div class="msg-avatar" style="background:${c.id==='manager'?'#6c5ce7':c.id==='assistant'?'#2ed573':c.id==='senior'?'#fdcb6e':c.id==='mom'?'#ff6b81':'#a29bfe'}">
-      ${c.avatarData ? '<img src="'+c.avatarData+'" style="width:100%;height:100%;object-fit:cover">' : c.avatar}
-    </div>
-    <div class="msg-info">
-      <div class="msg-name">${c.name} ${c.msgCount>0?'<span style="background:#ff4757;color:#fff;font-size:9px;padding:1px 5px;border-radius:8px;margin-left:4px">'+c.msgCount+'</span>':''}</div>
-      <div class="msg-preview">${c.lastMsg}</div>
-    </div>
-  </div>`).join('');
-  document.getElementById('wxList').innerHTML = '<div class="msg-list">'+html+'</div>';
-}
-function openWXChat(contactId) {
-  wxActiveContact = contactId;
-  const contact = game.wxContacts.find(c=>c.id===contactId);
-  if (!contact) return;
-  contact.msgCount = 0;
-  updateBadges(); saveGame();
-  const msgs = game.wxMessages[contact.name]||[];
-  renderWXChatBody(contact, msgs);
-}
-function renderWXChatBody(contact, msgs) {
-  const canEdit = game.relationships.find(r=>r.id===contactId&&r.canEdit);
-  const rel = game.relationships.find(r=>r.id===contactId);
-  const bodyHtml = `<div class="wx-chat-header">
-    <button class="wx-back" onclick="openWXChat('${contact.id}')">‹</button>
-    <span class="wx-contact-name">${contact.name}</span>
-    ${canEdit||rel?'<button class="wx-contact-edit" onclick="showContactProfile(\''+contact.id+'\')">✏️</button>':''}
-  </div>
-  <div class="wx-messages" id="wxMsgArea">${msgs.map(m=>`<div class="wx-msg ${m.from}"><div class="wx-bubble">${m.text}</div></div>`).join('')}</div>
-  <div class="wx-input-bar">
-    <input class="wx-input" id="wxInput" placeholder="输入消息..." onkeypress="if(event.key==='Enter')sendWXMsg('${contact.id}')">
-    <button class="wx-send" onclick="sendWXMsg('${contact.id}')">发送</button>
-  </div>`;
-  document.getElementById('modalTitle').textContent = contact.name;
-  document.getElementById('modalBody').innerHTML = bodyHtml;
-  document.getElementById('modalBody').className = 'modal-body wx-modal';
-  document.getElementById('modalOverlay').classList.add('show');
-  setTimeout(()=>{ const area=document.getElementById('wxMsgArea'); if(area) area.scrollTop=area.scrollHeight; }, 100);
-}
-function sendWXMsg(contactId) {
-  const input = document.getElementById('wxInput');
-  if (!input) return;
-  const text = input.value.trim();
-  if (!text) return;
-  const contact = game.wxContacts.find(c=>c.id===contactId);
-  if (!contact) return;
-  if (!game.wxMessages[contact.name]) game.wxMessages[contact.name] = [];
-  game.wxMessages[contact.name].push({from:'self', text});
-  contact.lastMsg = text;
-  contact.msgCount = 0;
-  // 增加好感度
-  const rel = game.relationships.find(r=>r.id===contactId);
-  if (rel) { rel.value = Math.min(100, rel.value + 1); }
-  // 经纪人特殊处理
-  if (contactId === 'manager') rel.value = Math.min(100, rel.value + 1);
-  // NPC回复（随机延迟）
-  const replies = getNPCReplies(contactId);
-  setTimeout(()=>{
-    if (replies.length) {
-      const rep = replies[rand(0, replies.length-1)];
-      game.wxMessages[contact.name].push({from:'other', text:rep});
-      contact.lastMsg = rep;
-      contact.lastMsgTime = 0;
-      contact.msgCount = 1;
-      renderWXChatMessages(contactId);
-      updateBadges(); saveGame();
-    }
-  }, 1500+Math.random()*2500);
-  renderWXChatMessages(contactId);
-  input.value = '';
-  saveGame(); renderWXList();
-}
-function getNPCReplies(contactId) {
-  const r = {
-    manager:['好的收到，我安排一下','知道了，最近行程比较满','嗯，辛苦了','没问题，我来处理','你最近表现很好，继续保持！'],
-    assistant:['明白！我马上去办','收到，王姐交代过了','好的好的','我这就去做！'],
-    senior:['加油！','好好努力，期待你','年轻人有冲劲','有空来我录音棚坐坐'],
-    mom:['宝贝记得按时吃饭','妈妈给你寄了点营养品','照顾好自己','要努力但也要注意身体哦'],
-  };
-  if (contactId.startsWith('new_')) return ['你好！', '很高兴认识你', '期待以后合作', '有缘再见！'];
-  return r[contactId] || ['收到'];
-}
-function renderWXChatMessages(contactId) {
-  const contact = game.wxContacts.find(c=>c.id===contactId);
-  if (!contact) return;
-  const msgs = game.wxMessages[contact.name]||[];
-  const area = document.getElementById('wxMsgArea');
-  if (area) { area.innerHTML = msgs.map(m=>`<div class="wx-msg ${m.from}"><div class="wx-bubble">${m.text}</div></div>`).join(''); area.scrollTop = area.scrollHeight; }
-}
-
-// ========== 短信 ==========
-function generateRandomSMS() {
-  const sms = [
-    {from:'10688888888',content:'【银行】您的账户余额查询请点击：https://bank.example.com',type:'verify'},
-    {from:'10699999999',content:'【验证码】您的验证码为'+rand(100000,999999)+'，切勿告知他人',type:'verify'},
-    {from:'138****5566',content:'我知道你今天去哪了，跟踪你很久了，出来见一面吧，不然我就去你家门口等',type:'sasa'},
-    {from:'170****9900',content:'你最近表现不太好，公司在考虑是否要...',type:'notice'},
-    {from:'Unknown',content:'就这水平也能出道？别出来丢人了，先天不足后天又不努力',type:'hate'},
-    {from:'185****2211',content:'【外卖】您的订单已送达，请注意查收',type:'verify'},
-  ];
-  const s = sms[rand(0,sms.length-1)];
-  if (!game.smsBlocked.includes(s.from)) {
-    game.smsList.unshift({...s,time:'刚刚',id:Date.now()});
-    if (game.smsList.length > 30) game.smsList.pop();
-    game.smsUnread++;
-    saveGame();
-  }
-}
-function renderSMSList() {
-  const unblocked = game.smsList.filter(s => !game.smsBlocked.includes(s.from));
-  if (unblocked.length === 0) {
-    document.getElementById('smsList').innerHTML = '<div style="text-align:center;padding:20px;opacity:0.4;font-size:13px">暂无短信（全部已拦截）</div>';
+  const container = document.getElementById('myWeibos');
+  if (!game.weibos.length) {
+    container.innerHTML = '还没发过微博...';
     return;
   }
-  const html = unblocked.map(s => {
-    const typeLabel = s.type==='sasa'?'<span style="background:#ff4757;font-size:9px;padding:1px 5px;border-radius:5px;color:#fff;margin-left:4px">私生</span>':s.type==='hate'?'<span style="background:#555;font-size:9px;padding:1px 5px;border-radius:5px;color:#fff;margin-left:4px">黑粉</span>':'';
-    return `<div class="sms-item" onclick="showSMSDetail(${s.id})">
-      <div class="sms-from">
-        <span>${s.from} ${typeLabel}</span>
-        <div class="sms-from-right">
-          <span style="font-size:10px;opacity:0.4">${s.time}</span>
-          ${s.type!=='verify'?'<button class="sms-block-btn" onclick="event.stopPropagation();blockSMSFrom(\''+s.from+'\')">拦截</button>':''}
-        </div>
+  
+  container.innerHTML = game.weibos.slice(0, 5).map(w => `
+    <div class="weibo-card">
+      <div class="weibo-text">${w.text}</div>
+      <div style="font-size:10px;opacity:0.4;margin-bottom:6px">${w.time}</div>
+      <div class="weibo-meta">
+        <span class="weibo-like">❤️ ${formatNum(w.likes)}</span>
+        <span>🔄 ${formatNum(w.forwards)}</span>
+        <span>💬 ${formatNum(w.comments)}</span>
       </div>
-      <div class="sms-content">${s.content}</div>
-    </div>`;
-  }).join('');
-  document.getElementById('smsList').innerHTML = '<div style="padding:4px">'+html+'</div>';
-}
-function showSMSDetail(id) {
-  const sms = game.smsList.find(s=>s.id===id);
-  if (!sms) return;
-  game.smsUnread = Math.max(0, game.smsUnread-1);
-  let actions = '';
-  if (sms.type==='sasa') {
-    actions = '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:8px">';
-    actions += '<button class="btn-small" style="background:#e84393" onclick="blockSMSFrom(\''+sms.from+'\')">🚫 拉黑号码</button>';
-    actions += '<button class="btn-small" style="background:#6c5ce7" onclick="replySMS('+sms.id+')">📩 回复警告</button>';
-    actions += '</div>';
-  } else if (sms.type==='hate') {
-    actions = '<div style="display:flex;gap:5px;margin-top:8px"><button class="btn-small" style="background:#555" onclick="closeModal()">关闭</button></div>';
-  } else {
-    actions = '<button class="btn-small" style="background:#555;margin-top:8px" onclick="closeModal()">关闭</button>';
-  }
-  showModal('短信 — '+sms.from, `<div style="padding:4px">
-    <div style="font-size:11px;opacity:0.5;margin-bottom:8px">${sms.time}</div>
-    <div style="font-size:13px;line-height:1.6">${sms.content}</div>
-    ${actions}
-  </div>`);
-  updateBadges();
-}
-function blockSMSFrom(from) {
-  if (!game.smsBlocked.includes(from)) game.smsBlocked.push(from);
-  game.smsList = game.smsList.filter(s=>s.from!==from);
-  toast('已拦截来自 '+from+' 的短信');
-  updateUI(); saveGame(); renderSMSList(); closeModal();
-}
-function replySMS(id) {
-  const sms = game.smsList.find(s=>s.id===id);
-  if (!sms) return;
-  toast('已回复：别再骚扰我，否则报警');
-  if (Math.random()<0.3) { eventBanner('⚠️ 私生收到警告后发飙！'); game.mood-=5; }
-  updateUI(); saveGame(); closeModal();
-}
-
-// ========== 我的页面 ==========
-function handleAvatarUpload(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const data = e.target.result;
-    game.avatarData = data;
-    saveGame();
-    updateUI();
-    toast('头像已更新！');
-  };
-  reader.readAsDataURL(file);
-}
-
-function showEditProfile() {
-  const avatarOpts = AVATAR_EMOJIS.map(a => `<div class="avatar-opt ${!game.avatarData&&game.playerName!=='未设置'&&game.playerName.includes(a)?'selected':''}" onclick="selectAvatarEmoji('${a}',this)">${a}</div>`).join('');
-  const styleOpts = STYLE_OPTIONS.map(s => `<option value="${s}" ${game.style===s?'selected':''}>${s}</option>`).join('');
-  let relOptions = `<option value="单身" ${game.relationship==='单身'?'selected':''}>单身</option>`;
-  if (game.debuted) {
-    relOptions += `<option value="恋爱中" ${game.relationship==='恋爱中'?'selected':''}>💕 恋爱中（秘密）</option>`;
-    relOptions += `<option value="已婚" ${game.relationship==='已婚'?'selected':''}>💍 隐婚</option>`;
-  }
-  const colorPicker = `<div class="color-picker-custom">
-    <input type="color" id="colorPicker" value="${game.supportColor}" onchange="previewColor(this.value)">
-    <span style="font-size:11px;opacity:0.6">自定义颜色</span>
-  </div>`;
-  showModal('编辑资料', `
-    <div class="form-group">
-      <label class="form-label">头像</label>
-      <div style="font-size:11px;opacity:0.5;margin-bottom:4px">点击右上角从相册选择，或选一个emoji</div>
-      <div class="avatar-grid">${avatarOpts}</div>
+      ${w.commentList && w.commentList.length > 0 ? `
+        <div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(107,91,122,0.1)">
+          ${w.commentList.map(c => `<div style="font-size:11px;margin-bottom:4px"><b>${c.name}:</b> ${c.text}</div>`).join('')}
+        </div>
+      ` : ''}
     </div>
-    <div class="form-group"><label class="form-label">昵称</label><input class="form-input" id="edit-name" value="${game.playerName}" maxlength="12"></div>
-    <div class="form-group"><label class="form-label">性别</label><select class="form-select" id="edit-gender"><option value="男" ${game.gender==='男'?'selected':''}>男</option><option value="女" ${game.gender==='女'?'selected':''}>女</option></select></div>
-    <div class="form-group"><label class="form-label">风格定位</label><select class="form-select" id="edit-style">${styleOpts}</select></div>
-    <div class="form-group"><label class="form-label">应援色</label><div class="color-picker-wrap" id="colorWrap"></div>${colorPicker}</div>
-    <div class="form-group"><label class="form-label">恋爱状况</label><select class="form-select" id="edit-rel">${relOptions}</select></div>
-    <button class="action-btn btn-primary" onclick="saveProfile()">保存</button>
-  `);
-  renderColorPicker();
-}
-function renderColorPicker() {
-  const colors = ['#fd79a8','#e84393','#a29bfe','#6c5ce7','#2ed573','#fdcb6e','#e17055','#74b9ff','#ff6b6b','#55efc4','#00cec9','#fab1a0','#fd79a8','#e17055','#0984e3','#6c5ce7','#00b894','#fdcb6e','#e84393','#a29bfe'];
-  const html = colors.map(c => `<div class="color-picker-swatch ${game.supportColor===c?'selected':''}" style="background:${c}" onclick="selectColorSwatch('${c}',this)"></div>`).join('');
-  document.getElementById('colorWrap').innerHTML = html;
-}
-function selectColorSwatch(color, el) {
-  document.querySelectorAll('.color-picker-swatch').forEach(x=>x.classList.remove('selected'));
-  el.classList.add('selected');
-  document.getElementById('colorPicker').value = color;
-  window._editColor = color;
-}
-function previewColor(color) {
-  window._editColor = color;
-  document.querySelectorAll('.color-picker-swatch').forEach(x=>x.classList.remove('selected'));
-}
-function selectAvatarEmoji(emoji, el) {
-  document.querySelectorAll('.avatar-opt').forEach(x=>x.classList.remove('selected'));
-  el.classList.add('selected');
-  window._editAvatar = emoji;
-}
-function saveProfile() {
-  game.playerName = document.getElementById('edit-name').value.trim() || '练习生';
-  game.gender = document.getElementById('edit-gender').value;
-  game.style = document.getElementById('edit-style').value;
-  game.relationship = document.getElementById('edit-rel').value;
-  if (window._editAvatar) { game.avatarData = null; game.playerName = window._editAvatar + ' ' + (document.getElementById('edit-name').value.trim()||'练习生'); }
-  if (window._editColor) game.supportColor = window._editColor;
-  if (game.debuted && game.relationship!=='单身' && game.banActive) toast('⚠️ 限制令期间！小心被曝光！');
-  saveGame(); updateUI(); closeModal(); toast('资料已保存');
+  `).join('');
 }
 
+// ========== 微博热搜 ==========
+function renderHotList() {
+  const list = document.getElementById('hotList');
+  const hotTopics = [
+    {rank:1,title:'某爱豆官宣恋情',tag:'hot'},
+    {rank:2,title:'练习生淘汰赛今晚开启',tag:'new'},
+    {rank:3,title:'粉丝自发应援活动',tag:'friend'},
+    {rank:4,title:'音乐平台新歌榜',tag:'hot'},
+    {rank:5,title:'偶像运动会即将开幕',tag:''},
+  ];
+  
+  list.innerHTML = hotTopics.map(h => `
+    <div class="hot-item">
+      <span class="hot-rank ${h.rank<=3?'top'+h.rank:''}">${h.rank}</span>
+      <span class="hot-title">${h.title}</span>
+      ${h.tag ? `<span class="hot-tag tag-${h.tag}">${h.tag==='hot'?'热':h.tag==='new'?'新':'友'}</span>` : ''}
+    </div>
+  `).join('');
+}
+
+// ========== 私信 ==========
+function renderPMList() {
+  const list = document.getElementById('pmList');
+  const pmNames = ['小甜心', '追星少女', '星星糖', '爱豆小迷弟', '路人甲', '娱乐博主', '资深粉丝'];
+  const pmTexts = [
+    '姐姐/哥哥好棒！',
+    '永远支持你！',
+    '今天的舞台太帅了！',
+    '期待你的新作品！',
+    '加油！我们一直在！',
+  ];
+  
+  if (game.pmList.length === 0) {
+    list.innerHTML = '<div style="padding:10px;text-align:center;opacity:0.5;font-size:12px">暂无私信</div>';
+    return;
+  }
+  
+  list.innerHTML = game.pmList.slice(0, 5).map((pm, i) => `
+    <div style="padding:8px 14px;border-bottom:1px solid rgba(107,91,122,0.1);cursor:pointer" onclick="openPM(${i})">
+      <div style="font-size:12px;font-weight:600;margin-bottom:2px">${pm.from}</div>
+      <div style="font-size:11px;opacity:0.5">${pm.text}</div>
+    </div>
+  `).join('');
+}
+
+function openPM(idx) {
+  const pm = game.pmList[idx];
+  if (!pm) return;
+  toast(`${pm.from}: ${pm.text}`);
+}
+
+function generateRandomPM() {
+  const pmNames = ['小甜心', '追星少女', '星星糖', '爱豆小迷弟', '路人甲', '娱乐博主', '资深粉丝', '黑粉小明'];
+  const pmTexts = [
+    '姐姐/哥哥好棒！',
+    '永远支持你！',
+    '今天的舞台太帅了！',
+    '期待你的新作品！',
+    '加油！我们一直在！',
+    '好喜欢你啊！',
+    '可以要签名吗？',
+    '你就是个垃圾！', // 黑粉
+    '滚出娱乐圈！', // 黑粉
+  ];
+  
+  const name = pmNames[rand(0, pmNames.length - 1)];
+  const isHater = name === '黑粉小明' || pmTexts[pmTexts.length - 1].includes('垃圾') || pmTexts[pmTexts.length - 1].includes('滚');
+  
+  game.pmList.unshift({
+    from: name,
+    text: pmTexts[rand(0, pmTexts.length - 1)],
+    isHater: isHater,
+    time: 0
+  });
+  
+  if (isHater) {
+    game.fans = Math.max(0, game.fans - 10);
+  }
+  
+  game.pmUnread++;
+  renderPMList();
+}
+
+// ========== 短信生成 ==========
+function generateRandomSMS() {
+  const smsList = [
+    {from:'10086',text:'您的月套餐已更新...'},
+    {from:'顺丰快递',text:'您的快递已送达驿站...'},
+    {from:'妈妈',text:'宝贝什么时候回家吃饭？'},
+    {from:'王姐',text:'明天下午有个试镜，别忘了'},
+  ];
+  
+  const sms = smsList[rand(0, smsList.length - 1)];
+  if (!game.smsBlocked.includes(sms.from)) {
+    game.smsList.unshift({...sms, time: 0});
+    game.smsUnread++;
+    renderSMSList();
+  }
+}
+
+// ========== 随机事件 ==========
+function generateRandomEvent() {
+  const events = [
+    {text:'✨ 收到神秘礼物！心情+10',effect:()=>{ game.mood=Math.min(100,game.mood+10); }},
+    {text:'🌟 被前辈夸奖！声乐+3',effect:()=>{ game.vocal+=3; }},
+    {text:'💃 突然想跳舞！舞蹈+3',effect:()=>{ game.dance+=3; }},
+    {text:'😴 美美睡了一觉，体力恢复+50',effect:()=>{ const maxSt=game.debuted?STAMINA_MAX:TRAINEES_MAX_STAMINA; game.stamina=Math.min(maxSt,game.stamina+50); }},
+    {text:'🤔 思考人生，心情-5',effect:()=>{ game.mood=Math.max(0,game.mood-5); }},
+    {text:'😫 有点累，疲惫+5',effect:()=>{ game.fatigue=Math.min(100,game.fatigue+5); }},
+    {text:'💰 捡到钱了！金币+500',effect:()=>{ game.money+=500; }},
+    {text:'📱 收到粉丝打赏！金币+200',effect:()=>{ if(game.debuted) game.money+=200; }},
+    // 新认识朋友事件
+    {text:'🎉 参加活动认识了新朋友！',effect:()=>{ 
+      if (game.newContacts.length < 5) {
+        const names = ['小林', '小陈', '小雨', '小张', '小李'];
+        const avatars = ['👦', '👧', '🧑', '👱‍♀️', '👱'];
+        const newId = 'new_' + Date.now();
+        const newContact = {
+          id: newId,
+          name: names[rand(0, names.length - 1)],
+          avatar: avatars[rand(0, avatars.length - 1)],
+          avatarData: null,
+          lastMsg: '很高兴认识你！',
+          lastMsgTime: 0,
+          msgCount: 1,
+          replyWait: false,
+          lastSentTime: 0
+        };
+        game.newContacts.push(newContact);
+        game.wxMessages[newContact.name] = [{from:'other', text:'很高兴认识你！'}];
+        game.relationships.push({
+          id: newId,
+          name: newContact.name,
+          role: '新朋友',
+          value: 30,
+          avatar: newContact.avatar,
+          avatarData: null,
+          canEdit: true,
+          canDate: true
+        });
+      }
+    }},
+  ];
+  const ev = events[rand(0,events.length-1)];
+  ev.effect();
+  addLog(ev.text);
+  updateUI(); saveGame();
+}
+
+// ========== 认识新朋友 ==========
+function addNewFriend(name, avatar) {
+  const newId = 'new_' + Date.now();
+  const newContact = {
+    id: newId,
+    name: name,
+    avatar: avatar || '👤',
+    avatarData: null,
+    lastMsg: '很高兴认识你！',
+    lastMsgTime: 0,
+    msgCount: 1,
+    replyWait: false,
+    lastSentTime: 0
+  };
+  game.newContacts.push(newContact);
+  game.wxMessages[name] = [{from:'other', text:'很高兴认识你！'}];
+  game.relationships.push({
+    id: newId,
+    name: name,
+    role: '新朋友',
+    value: 30,
+    avatar: avatar || '👤',
+    avatarData: null,
+    canEdit: true,
+    canDate: true
+  });
+  renderWXList();
+  saveGame();
+}
+
+// ========== 联系人资料编辑 ==========
 function showContactProfile(contactId) {
-  const contact = game.wxContacts.find(c=>c.id===contactId);
+  const contact = game.wxContacts.find(c=>c.id===contactId) || game.newContacts.find(c=>c.id===contactId);
   const rel = game.relationships.find(r=>r.id===contactId);
   if (!contact) return;
+  
   const avatarOpts = AVATAR_EMOJIS.map(a => `<div class="avatar-opt ${contact.avatar===a?'selected':''}" onclick="setContactAvatar('${contactId}','${a}',this)">${a}</div>`).join('');
+  const genderSelect = rel && rel.canEdit ? `
+    <div class="form-group">
+      <label class="form-label">性别</label>
+      <select class="form-select" id="c-gender">
+        <option value="男" ${contact.gender==='男'?'selected':''}>男</option>
+        <option value="女" ${contact.gender==='女'?'selected':''}>女</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">年龄</label>
+      <input class="form-input" id="c-age" type="number" value="${contact.age || 20}" min="15" max="60">
+    </div>
+  ` : '';
+  
+  const dateBtn = rel&&rel.canDate&&rel.value>=100&&game.relationship==='单身'&&!contact.hidden?`
+    <div style="background:#c490c4;border-radius:12px;padding:14px;margin-bottom:10px;text-align:center">
+      <div style="font-size:13px;font-weight:700;margin-bottom:8px">好感度达到100！</div>
+      <button class="btn-small" style="background:#fff;color:#c490c4;margin:2px" onclick="confessTo('${contactId}')">💕 告白</button>
+      <button class="btn-small" style="background:rgba(255,255,255,0.2);color:#fff;margin:2px" onclick="befriend('${contactId}')">🤝 做朋友</button>
+    </div>
+  ` : '';
+  
   showModal(contact.name + ' — 编辑资料', `
     <div class="form-group"><label class="form-label">头像</label><div class="avatar-grid">${avatarOpts}</div></div>
     <div class="form-group"><label class="form-label">姓名</label><input class="form-input" id="c-name" value="${contact.name}"></div>
-    ${rel&&rel.canEdit?'<div class="form-group"><label class="form-label">性别</label><select class="form-select" id="c-gender"><option value="男">男</option><option value="女">女</option></select></div>':''}
-    ${rel&&rel.canDate&&rel.value>=100?'<div style="background:#e84393;border-radius:12px;padding:14px;margin-bottom:10px;text-align:center"><div style="font-size:13px;font-weight:700;margin-bottom:8px">好感度达到100！</div><button class="btn-small" style="background:#fff;color:#e84393;margin:2px" onclick="confessTo(\''+contactId+'\')">💕 告白</button><button class="btn-small" style="background:rgba(255,255,255,0.2);color:#fff;margin:2px" onclick="befriend(\''+contactId+'\')">🤝 做朋友</button></div>':''}
-    <div class="form-group"><label class="form-label">好感度</label><div style="display:flex;align-items:center;gap:8px"><div style="flex:1;height:6px;background:#2a2a4a;border-radius:3px;overflow:hidden"><div style="height:6px;width:${rel?rel.value:0}%;background:linear-gradient(90deg,#e84393,#fd79a8)"></div></div><span style="font-size:12px;color:#fd79a8">${rel?rel.value:0}</span></div></div>
+    ${genderSelect}
+    ${dateBtn}
+    <div class="form-group">
+      <label class="form-label">好感度</label>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="flex:1;height:6px;background:#e8e0f0;border-radius:3px;overflow:hidden"><div style="height:6px;width:${rel?rel.value:0}%;background:linear-gradient(90deg,#c490c4,#d4b0d4)"></div></div>
+        <span style="font-size:12px;color:#c490c4">${rel?rel.value:0}</span>
+      </div>
+    </div>
     <button class="action-btn btn-primary" onclick="saveContactProfile('${contactId}')">保存</button>
   `);
 }
+
 function setContactAvatar(contactId, emoji, el) {
   document.querySelectorAll('.avatar-opt').forEach(x=>x.classList.remove('selected'));
   el.classList.add('selected');
   window._contactAvatar = emoji;
 }
+
 function saveContactProfile(contactId) {
-  const contact = game.wxContacts.find(c=>c.id===contactId);
+  const contact = game.wxContacts.find(c=>c.id===contactId) || game.newContacts.find(c=>c.id===contactId);
   if (!contact) return;
+  
   if (window._contactAvatar) { contact.avatar = window._contactAvatar; contact.avatarData = null; }
+  
   const newName = document.getElementById('c-name').value.trim();
   if (newName) {
     const oldName = contact.name;
     contact.name = newName;
-    // 迁移消息记录
     if (game.wxMessages[oldName]) { game.wxMessages[newName] = game.wxMessages[oldName]; delete game.wxMessages[oldName]; }
   }
+  
+  if (document.getElementById('c-gender')) contact.gender = document.getElementById('c-gender').value;
+  if (document.getElementById('c-age')) contact.age = parseInt(document.getElementById('c-age').value) || 20;
+  
   const rel = game.relationships.find(r=>r.id===contactId);
-  if (rel) rel.name = contact.name;
+  if (rel) {
+    rel.name = contact.name;
+    rel.avatar = contact.avatar;
+  }
+  
   saveGame(); updateUI(); renderWXList(); closeModal(); toast('保存成功');
 }
+
 function confessTo(contactId) {
-  const contact = game.wxContacts.find(c=>c.id===contactId);
+  const contact = game.wxContacts.find(c=>c.id===contactId) || game.newContacts.find(c=>c.id===contactId);
   const rel = game.relationships.find(r=>r.id===contactId);
   if (!contact||!rel) return;
+  
   if (game.banActive) {
     toast('⚠️ 限制令期间！偷偷恋爱有风险！');
   }
+  
   if (Math.random() < 0.7) {
     game.relationship = '恋爱中';
     addLog('💕 和' + contact.name + '在一起了！（秘密恋爱中）');
     toast('💕 告白成功！祝幸福！');
     rel.value = 100;
-    // 发微信消息
     if (!game.wxMessages[contact.name]) game.wxMessages[contact.name] = [];
     game.wxMessages[contact.name].push({from:'other', text:'我也喜欢你！我们秘密在一起吧 ❤️'});
     contact.lastMsg = '我也喜欢你！我们秘密在一起吧 ❤️';
@@ -1488,6 +1939,7 @@ function confessTo(contactId) {
   }
   updateUI(); saveGame(); closeModal();
 }
+
 function befriend(contactId) {
   toast('你们决定做一辈子的好朋友！');
   const rel = game.relationships.find(r=>r.id===contactId);
@@ -1495,9 +1947,9 @@ function befriend(contactId) {
   updateUI(); saveGame(); closeModal();
 }
 
+// ========== 好感关系 ==========
 function showRelationships() {
   const html = game.relationships.map(r => {
-    const contact = game.wxContacts.find(c=>c.id===r.id);
     const canDate = r.canDate && r.value >= 100;
     return `<div class="rel-item">
       <div class="rel-avatar-wrap">${r.avatarData?'<img src="'+r.avatarData+'" style="width:100%;height:100%;object-fit:cover">':r.avatar}</div>
@@ -1511,6 +1963,8 @@ function showRelationships() {
     <div style="font-size:10px;opacity:0.4;text-align:center;margin-top:4px">和经纪人打好关系很重要！好感度影响通告安排</div>
   `);
 }
+
+// ========== 团队 ==========
 function showTeam() {
   if (game.solo) {
     showModal('团队设置', `<div style="text-align:center;padding:8px">
@@ -1522,7 +1976,7 @@ function showTeam() {
   const body = game.members.map((m,i)=>`<div class="member-item">
     <div class="member-avatar-sm">${m.avatar}</div>
     <div class="member-info"><div class="member-name-sm">${m.name}</div><div class="member-role">${m.role} · ${m.age}岁</div></div>
-    <button class="btn-small" style="background:#3a3a5a" onclick="editMember(${i})">编辑</button>
+    <button class="btn-small" style="background:#e8e0f0;color:#6b5b7a" onclick="editMember(${i})">编辑</button>
   </div>`).join('');
   showModal('团队成员', `<div style="margin-bottom:10px">${body}</div><button class="action-btn btn-secondary" onclick="closeModal()">关闭</button>`);
 }
@@ -1542,6 +1996,8 @@ function saveMember(idx) {
 }
 function showTeamName() { showModal('团队名称', `<div class="form-group"><label class="form-label">团队名</label><input class="form-input" id="team-name-input" value="${game.teamName}" placeholder="给你的团队起个名字"></div><button class="action-btn btn-primary" onclick="saveTeamName()">保存</button>`); }
 function saveTeamName() { game.teamName=document.getElementById('team-name-input').value.trim()||''; saveGame(); closeModal(); toast('团队名已保存'); }
+
+// ========== 直播 ==========
 function showLive() {
   showModal('📺 直播', `<div style="text-align:center;padding:8px">
     <div style="font-size:40px;margin-bottom:8px">📺</div>
@@ -1553,24 +2009,37 @@ function doLive() {
   if (!game.debuted) { toast('出道后才能直播'); closeModal(); return; }
   if (game.stamina < 8) { toast('体力不足！'); closeModal(); return; }
   game.stamina -= 8;
-  const fanGain = rand(1000, 10000);
+  const fanGain = rand(500, 3000);
   game.fans += fanGain;
-  const likes = rand(200, 5000);
   addLog('直播获得' + formatNum(fanGain) + '新粉丝！');
   toast('直播结束！粉丝+' + formatNum(fanGain));
   updateUI(); saveGame(); closeModal();
 }
+
+// ========== 恋爱限制令 ==========
 function showBanInfo() {
   showModal('🚫 恋爱限制令', `<div style="text-align:center;padding:8px">
     <div style="font-size:40px;margin-bottom:8px">🚫</div>
-    ${game.banActive ? `<div style="font-size:14px;font-weight:700;margin-bottom:6px">恋爱限制令生效中</div><div style="font-size:11px;opacity:0.6;margin-bottom:10px">限制令期间请勿公开恋爱关系<br>偷偷恋爱有被曝光的风险！</div>` : `<div style="font-size:14px;font-weight:700;color:#2ed573;margin-bottom:6px">限制令已解除</div><div style="font-size:11px;opacity:0.6">可以自由恋爱了</div>`}
+    ${game.banActive ? `<div style="font-size:14px;font-weight:700;margin-bottom:6px">恋爱限制令生效中</div><div style="font-size:11px;opacity:0.6;margin-bottom:10px">限制令期间请勿公开恋爱关系<br>偷偷恋爱有被曝光的风险！</div>` : `<div style="font-size:14px;font-weight:700;color:#70a060;margin-bottom:6px">限制令已解除</div><div style="font-size:11px;opacity:0.6">可以自由恋爱了</div>`}
     <button class="action-btn btn-secondary" onclick="closeModal()">知道了</button>
   </div>`);
 }
+
+// ========== 游戏日志 ==========
 function showGameLog() {
-  const body = game.news.length ? game.news.map(n=>`<div style="padding:4px 0;font-size:11px;border-bottom:1px solid rgba(255,255,255,0.05)">${n.time} - ${n.text}</div>`).join('') : '<div style="text-align:center;padding:20px;opacity:0.4">暂无日志</div>';
+  const body = game.news.length ? game.news.map(n=>`<div style="padding:4px 0;font-size:11px;border-bottom:1px solid rgba(107,91,122,0.1)">${n.time} - ${n.text}</div>`).join('') : '<div style="text-align:center;padding:20px;opacity:0.4">暂无日志</div>';
   showModal('游戏日志', `<div style="max-height:400px;overflow-y:auto">${body}</div><button class="action-btn btn-secondary" onclick="closeModal()" style="margin-top:10px">关闭</button>`);
 }
+
+function addLog(text) {
+  game.news.unshift({
+    time: new Date().toLocaleTimeString('zh-CN', {hour:'2-digit', minute:'2-digit'}),
+    text
+  });
+  if (game.news.length > 50) game.news.pop();
+}
+
+// ========== 重置 ==========
 function resetGame() {
   showModal('确认重置', `<div style="text-align:center;padding:8px">
     <div style="font-size:40px;margin-bottom:8px">⚠️</div><div style="margin-bottom:12px;font-size:13px">确定要重新开始吗？当前进度将被清空！</div>
@@ -1595,31 +2064,99 @@ function showInitialSetup() {
 function startNewGame(initialMoney) {
   game = makeDefaultState(initialMoney);
   saveGame();
-  updateUI(); renderHotList(); renderPMList(); renderWXList(); renderSMSList(); renderMyWeibos(); checkConcert();
+  updateUI(); renderHotList(); renderPMList(); renderWXList(); renderSMSList(); renderMyWeibos(); checkConcert(); renderBubbleList();
   closeModal();
   toast('新游戏开始！祝游戏愉快！');
 }
 
-// ========== 随机事件 ==========
-function generateRandomEvent() {
-  const events = [
-    {text:'✨ 收到神秘礼物！心情+10',effect:()=>{ game.mood=Math.min(100,game.mood+10); }},
-    {text:'🌟 被前辈夸奖！声乐+3',effect:()=>{ game.vocal+=3; }},
-    {text:'💃 突然想跳舞！舞蹈+3',effect:()=>{ game.dance+=3; }},
-    {text:'😴 美美睡了一觉，体力恢复+50',effect:()=>{ const maxSt=game.debuted?STAMINA_MAX:TRAINEES_MAX_STAMINA; game.stamina=Math.min(maxSt,game.stamina+50); }},
-    {text:'🤔 思考人生，心情-5',effect:()=>{ game.mood=Math.max(0,game.mood-5); }},
-    {text:'😫 有点累，疲惫+5',effect:()=>{ game.fatigue=Math.min(100,game.fatigue+5); }},
-    {text:'💰 捡到钱了！金币+500',effect:()=>{ game.money+=500; }},
-    {text:'📱 收到粉丝打赏！金币+200',effect:()=>{ if(game.debuted) game.money+=200; }},
-  ];
-  const ev = events[rand(0,events.length-1)];
-  ev.effect();
-  addLog(ev.text);
-  updateUI(); saveGame();
+// ========== 编辑资料 ==========
+function showEditProfile() {
+  const avatarOpts = AVATAR_EMOJIS.map(a => `<div class="avatar-opt ${game.avatar===a?'selected':''}" onclick="selectAvatar('${a}',this)">${a}</div>`).join('');
+  const colorSwatches = ['#fd79a8','#a29bfe','#74b9ff','#55efc4','#ffeaa7','#ff7675','#636e72','#d63031','#e84393','#6c5ce7'].map(c => `<div class="color-picker-swatch ${game.supportColor===c?'selected':''}" style="background:${c}" onclick="selectColor('${c}',this)"></div>`).join('');
+  
+  showModal('👤 编辑资料', `
+    <div class="form-group"><label class="form-label">头像</label><div class="avatar-grid">${avatarOpts}</div></div>
+    <div class="form-group"><label class="form-label">姓名</label><input class="form-input" id="edit-name" value="${game.playerName}"></div>
+    <div class="form-group"><label class="form-label">性别</label><select class="form-select" id="edit-gender"><option value="男" ${game.gender==='男'?'selected':''}>男</option><option value="女" ${game.gender==='女'?'selected':''}>女</option></select></div>
+    <div class="form-group"><label class="form-label">应援色</label><div class="color-picker-wrap">${colorSwatches}</div></div>
+    <div class="form-group"><label class="form-label">风格</label><select class="form-select" id="edit-style">${STYLE_OPTIONS.map(s=>`<option value="${s}" ${game.style===s?'selected':''}>${s}</option>`).join('')}</select></div>
+    <button class="action-btn btn-primary" onclick="saveProfile()">保存</button>
+  `);
+}
+function selectAvatar(emoji, el) {
+  document.querySelectorAll('.avatar-opt').forEach(x=>x.classList.remove('selected'));
+  el.classList.add('selected');
+  window._editAvatar = emoji;
+}
+function selectColor(color, el) {
+  document.querySelectorAll('.color-picker-swatch').forEach(x=>x.classList.remove('selected'));
+  el.classList.add('selected');
+  window._editColor = color;
+}
+function saveProfile() {
+  if (window._editAvatar) { game.avatar = window._editAvatar; game.avatarData = null; }
+  if (window._editColor) game.supportColor = window._editColor;
+  game.playerName = document.getElementById('edit-name').value.trim()||'练习生';
+  game.gender = document.getElementById('edit-gender').value;
+  game.style = document.getElementById('edit-style').value;
+  if (game.debuted && game.relationship!=='单身' && game.banActive) toast('⚠️ 限制令期间！小心被曝光！');
+  saveGame(); updateUI(); closeModal(); toast('资料已保存');
+}
+
+// ========== 头像上传 ==========
+function handleAvatarUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    game.avatarData = e.target.result;
+    saveGame();
+    updateUI();
+    toast('头像已更换');
+  };
+  reader.readAsDataURL(file);
+}
+
+// ========== 模态框 ==========
+function showModal(title, content, isChat) {
+  document.getElementById('modalTitle').textContent = title;
+  const body = document.getElementById('modalBody');
+  body.innerHTML = content;
+  if (isChat) {
+    document.getElementById('modalContent').classList.add('wx-modal');
+  } else {
+    document.getElementById('modalContent').classList.remove('wx-modal');
+  }
+  document.getElementById('modalOverlay').classList.add('show');
+  body.scrollTop = 0;
+}
+function closeModal(e) {
+  if (e && e.target !== document.getElementById('modalOverlay')) return;
+  document.getElementById('modalOverlay').classList.remove('show');
+  wxActiveContact = null;
+}
+function eventBanner(text) {
+  const banner = document.getElementById('eventBanner');
+  banner.textContent = text;
+  banner.classList.add('show');
+  setTimeout(() => banner.classList.remove('show'), 3000);
+}
+function toast(text) {
+  const t = document.getElementById('toast');
+  t.textContent = text;
+  t.classList.remove('show');
+  void t.offsetWidth;
+  t.classList.add('show');
 }
 
 // ========== 工具 ==========
 function rand(min, max) { return Math.floor(Math.random()*(max-min+1))+min; }
+function pad(n) { return n < 10 ? '0' + n : n; }
+function formatNum(n) {
+  if (n >= 100000000) return (n/100000000).toFixed(1) + '亿';
+  if (n >= 10000) return (n/10000).toFixed(1) + '万';
+  return n.toString();
+}
 
 // ========== 密码锁 ==========
 function initLock() { window._lockPwd = GAME_PASSWORD; }
