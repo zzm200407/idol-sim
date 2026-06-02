@@ -170,7 +170,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue'
 .sms-from-right{display:flex;align-items:center;gap:5px}
 .sms-block-btn{color:#e07070;font-size:10px;cursor:pointer;text-decoration:underline;background:none;border:none}
 .sms-content{font-size:12px;line-height:1.5}
-.weibo-card{background:#fff;border-radius:12px;padding:11px;margin-bottom:7px}
+.weibo-card{background:#f5f0fa;border-radius:12px;padding:11px;margin-bottom:7px}
 .weibo-text{font-size:13px;line-height:1.5;margin-bottom:6px;word-break:break-all}
 .weibo-meta{display:flex;gap:14px;font-size:11px;opacity:0.5;margin-top:4px}
 .weibo-like{color:#e07070}
@@ -231,6 +231,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue'
 .bubble-content{flex:1}
 .bubble-name{font-size:10px;color:#a090b0;margin-bottom:2px}
 .bubble-text{font-size:12px;line-height:1.4;background:#f5f0fa;padding:6px 10px;border-radius:10px;display:inline-block;max-width:90%}
+.bubble-msg.self{flex-direction:row-reverse}
+.bubble-msg.self .bubble-name{text-align:right}
+.bubble-msg.self .bubble-text{background:#b8a9d4;color:#fff}
 .bubble-input-bar{display:flex;gap:6px;padding:8px 12px;background:#f5f0fa;border-radius:12px;margin-top:8px}
 .bubble-input{flex:1;background:#fff;border:none;border-radius:18px;padding:7px 12px;color:#6b5b7a;font-size:12px;outline:none}
 .bubble-send{background:#b8a9d4;border:none;color:#fff;padding:5px 12px;border-radius:18px;font-size:12px;cursor:pointer}
@@ -1036,15 +1039,17 @@ function blockSMS(name) {
 // ========== 泡泡群聊 ==========
 function renderBubbleList() {
   const list = document.getElementById('bubbleList');
-  const msgs = game.bubbleMessages.map(m => `
-    <div class="bubble-msg">
-      <div class="bubble-avatar">${m.fanAvatar}</div>
+  const msgs = game.bubbleMessages.map(m => {
+    const isPlayer = m.fanId === 'player';
+    return `
+    <div class="bubble-msg ${isPlayer ? 'self' : ''}">
+      <div class="bubble-avatar">${isPlayer ? '🎤' : m.fanAvatar}</div>
       <div class="bubble-content">
-        <div class="bubble-name">${m.fanName}</div>
+        <div class="bubble-name">${isPlayer ? '你' : m.fanName}</div>
         <div class="bubble-text">${m.text}</div>
       </div>
     </div>
-  `).join('');
+  `}).join('');
   
   list.innerHTML = `
     <div class="bubble-group">
@@ -1072,7 +1077,7 @@ function sendBubbleMsg() {
   game.bubbleMessages.push({
     fanId:'player',
     fanName:game.playerName,
-    fanAvatar:'🎤',
+    fanAvatar: game.avatar || '🎤',
     text:text,
     time:0
   });
@@ -1207,12 +1212,12 @@ function showJobs() {
   if (!game.debuted) { toast('出道后解锁！'); return; }
   
   const jobs = [
-    {id:'variety',name:'综艺节目',icon:'🎬',desc:'录制综艺节目',fans:200,fee:3000,req:{variety:ACTING_VARIETY_REQUIREMENT},reqText:'综艺感100+'},
-    {id:'drama',name:'电视剧拍摄',icon:'🎥',desc:'参与电视剧角色',fans:500,fee:8000,req:{acting:ACTING_VARIETY_REQUIREMENT},reqText:'演技100+'},
-    {id:'movie',name:'电影拍摄',icon:'🎞️',desc:'参与电影角色',fans:1000,fee:15000,req:{acting:ACTING_VARIETY_REQUIREMENT},reqText:'演技100+'},
-    {id:'commercial',name:'广告代言',icon:'📺',desc:'拍摄商业广告',fans:100,fee:2000,req:{},reqText:'无限制'},
-    {id:'event',name:'线下活动',icon:'🎪',desc:'出席品牌活动',fans:150,fee:2500,req:{},reqText:'无限制'},
-    {id:'music',name:'音乐节目',icon:'🎵',desc:'录制歌曲/舞台',fans:300,fee:4000,req:{},reqText:'无限制'},
+    {id:'variety',name:'综艺节目',icon:'🎬',desc:'录制综艺节目',fans:2000,fee:3000,fatigue:25,req:{variety:ACTING_VARIETY_REQUIREMENT},reqText:'综艺感100+'},
+    {id:'drama',name:'电视剧拍摄',icon:'🎥',desc:'参与电视剧角色',fans:5000,fee:8000,fatigue:30,req:{acting:ACTING_VARIETY_REQUIREMENT},reqText:'演技100+'},
+    {id:'movie',name:'电影拍摄',icon:'🎞️',desc:'参与电影角色',fans:10000,fee:15000,fatigue:35,req:{acting:ACTING_VARIETY_REQUIREMENT},reqText:'演技100+'},
+    {id:'commercial',name:'广告代言',icon:'📺',desc:'拍摄商业广告',fans:2000,fee:2000,fatigue:15,req:{},reqText:'无限制'},
+    {id:'event',name:'线下活动',icon:'🎪',desc:'出席品牌活动',fans:2500,fee:2500,fatigue:18,req:{},reqText:'无限制'},
+    {id:'music',name:'音乐节目',icon:'🎵',desc:'录制歌曲/舞台',fans:3000,fee:4000,fatigue:20,req:{},reqText:'无限制'},
   ];
   
   let html = '<div class="option-list">';
@@ -1242,12 +1247,12 @@ function showJobs() {
 
 function takeJob(jobId) {
   const jobs = {
-    variety:{name:'综艺节目',icon:'🎬',fans:200,fee:3000},
-    drama:{name:'电视剧拍摄',icon:'🎥',fans:500,fee:8000},
-    movie:{name:'电影拍摄',icon:'🎞️',fans:1000,fee:15000},
-    commercial:{name:'广告代言',icon:'📺',fans:100,fee:2000},
-    event:{name:'线下活动',icon:'🎪',fans:150,fee:2500},
-    music:{name:'音乐节目',icon:'🎵',fans:300,fee:4000},
+    variety:{name:'综艺节目',icon:'🎬',fans:2000,fee:3000,fatigue:25},
+    drama:{name:'电视剧拍摄',icon:'🎥',fans:5000,fee:8000,fatigue:30},
+    movie:{name:'电影拍摄',icon:'🎞️',fans:10000,fee:15000,fatigue:35},
+    commercial:{name:'广告代言',icon:'📺',fans:2000,fee:2000,fatigue:15},
+    event:{name:'线下活动',icon:'🎪',fans:2500,fee:2500,fatigue:18},
+    music:{name:'音乐节目',icon:'🎵',fans:3000,fee:4000,fatigue:20},
   };
   
   const job = jobs[jobId];
@@ -1256,25 +1261,89 @@ function takeJob(jobId) {
   if (game.stamina < 20) { toast('体力不足！'); return; }
   
   game.stamina -= 20;
+  game.fatigue = Math.min(100, game.fatigue + job.fatigue);
   game.fans += job.fans;
   
   // 记录收入用于分红
   game.jobEarnings.push({type:jobId, fee:job.fee, day:game.day});
   
-  addLog(`${job.icon} ${job.name}完成，粉丝+${job.fans}，收入已记录分红`);
+  // 通告完成后有30%概率认识新朋友
+  if (Math.random() < 0.3) {
+    meetNewFriendFromJob();
+  }
+  
+  addLog(`${job.icon} ${job.name}完成，粉丝+${job.fans}，疲惫+${job.fatigue}，收入已记录分红`);
   toast(`${job.name}完成！粉丝+${job.fans}！`);
+  checkFatigue();
   updateUI(); saveGame(); closeModal();
+}
+
+function meetNewFriendFromJob() {
+  const names = ['小林', '小陈', '小雨', '小张', '小李', '小王', '小赵', '小孙'];
+  const avatars = ['👦', '👧', '🧑', '👱‍♀️', '👱', '🤵', '👰', '🧔'];
+  const newId = 'new_' + Date.now();
+  const name = names[rand(0, names.length - 1)];
+  const avatar = avatars[rand(0, avatars.length - 1)];
+  
+  const newContact = {
+    id: newId,
+    name: name,
+    avatar: avatar,
+    avatarData: null,
+    lastMsg: '通过通告认识你，很高兴！',
+    lastMsgTime: 0,
+    msgCount: 1,
+    replyWait: false,
+    lastSentTime: 0
+  };
+  game.newContacts.push(newContact);
+  game.wxMessages[name] = [{from:'other', text:'通过通告认识你，很高兴！'}];
+  game.relationships.push({
+    id: newId,
+    name: name,
+    role: '通告认识',
+    value: 30,
+    avatar: avatar,
+    avatarData: null,
+    canEdit: true,
+    canDate: true
+  });
+  addLog('🎉 通过通告认识了新朋友 ' + name + '！');
+  toast('🎉 认识了新朋友 ' + name + '！');
+  renderWXList();
+}
+
+function checkFatigue() {
+  if (game.fatigue >= 100) {
+    showWarning('😫 疲惫过度！', '你的疲惫值已达100，需要强制休息2天！', '好的');
+    game.fatigue = 60;
+    game.day += 2;
+  } else if (game.fatigue >= 80) {
+    showWarning('⚠️ 疲惫警告', '你的疲惫值已达80，请注意休息！', '知道了');
+  }
 }
 
 // ========== 品牌代言 ==========
 function showBrandEndorsement() {
+  const now = new Date().getTime();
+  // 检查代言是否到期（30天后自动解除）
+  game.brandEndorsements = game.brandEndorsements.filter(e => {
+    if (e.endTime && now > e.endTime) {
+      const b = BRANDS.find(x => x.id === e.brandId);
+      addLog('✨ ' + (b ? b.name : '品牌') + '代言到期，已自动解除');
+      toast('✨ 代言到期，已自动解除');
+      return false;
+    }
+    return true;
+  });
+  
   let html = '<div class="option-list">';
   
   // 当前代言
   if (game.brandEndorsements.length > 0) {
     html += '<div style="font-size:11px;opacity:0.6;margin-bottom:6px">当前代言</div>';
-    game.brandEndorsements.forEach(bId => {
-      const b = BRANDS.find(x => x.id === bId);
+    game.brandEndorsements.forEach(e => {
+      const b = BRANDS.find(x => x.id === e.brandId);
       if (b) {
         const fee = Math.floor(b.fee * (1 + game.fans / 100000));
         html += `<div class="option-item" style="background:rgba(184,169,212,0.2)">
@@ -1283,13 +1352,13 @@ function showBrandEndorsement() {
         </div>`;
       }
     });
-    html += '<div style="font-size:10px;opacity:0.4;margin:6px 0">最多同时代言2个品牌</div>';
+    html += '<div style="font-size:10px;opacity:0.4;margin:6px 0">最多同时代言2个品牌，签约30天后自动解除</div>';
   }
   
   // 可邀请代言的品牌
   html += '<div style="font-size:11px;opacity:0.6;margin-bottom:6px">可邀请代言</div>';
   BRANDS.forEach(b => {
-    if (game.brandEndorsements.includes(b.id)) return; // 已代言跳过
+    if (game.brandEndorsements.find(e => e.brandId === b.id)) return; // 已代言跳过
     const favor = game.brandFavorability[b.id] || 0;
     const canInvite = favor >= 60 && game.fans >= b.minFans && game.brandEndorsements.length < 2;
     const fee = Math.floor(b.fee * (1 + game.fans / 100000));
@@ -1320,14 +1389,16 @@ function takeEndorsement(brandId) {
   if (!brand) return;
   if (game.brandEndorsements.length >= 2) { toast('最多同时代言2个品牌！'); return; }
   
-  game.brandEndorsements.push(brandId);
+  // 签约一个月后到期（30天）
+  const endTime = new Date().getTime() + 30 * 24 * 60 * 60 * 1000;
+  game.brandEndorsements.push({brandId: brandId, endTime: endTime});
   const fee = Math.floor(brand.fee * (1 + game.fans / 100000));
   
   // 记录代言收入
   game.jobEarnings.push({type:'endorsement', brandId:brandId, fee:fee, day:game.day});
   
-  addLog(`✨ 签约${brand.name}，代言费已记录`);
-  toast(`✨ 签约${brand.name}成功！`);
+  addLog(`✨ 签约${brand.name}，代言费已记录，30天后自动解除`);
+  toast(`✨ 签约${brand.name}成功！30天后自动解除`);
   updateUI(); saveGame(); closeModal();
 }
 
@@ -1455,6 +1526,8 @@ function holdConcert() {
 
 // ========== 分红提现 ==========
 function withdrawDividend() {
+  const today = new Date().getDate();
+  if (today !== 15 && today !== 30) { toast('分红只能在每月15号和30号提现'); return; }
   if (game.pendingDividend <= 0) { toast('没有可提现的分红'); return; }
   
   const amount = game.pendingDividend;
@@ -1980,7 +2053,46 @@ function showTeam() {
   </div>`).join('');
   showModal('团队成员', `<div style="margin-bottom:10px">${body}</div><button class="action-btn btn-secondary" onclick="closeModal()">关闭</button>`);
 }
-function switchToTeam() { game.solo=false; game.members=[{name:'队友A',role:'主舞',age:20,avatar:'💃'},{name:'队友B',role:'rapper',age:21,avatar:'🎧'}]; saveGame(); updateUI(); closeModal(); showTeam(); toast('团队已组建！'); }
+function switchToTeam() { 
+  game.solo=false; 
+  game.members=[{name:'队友A',role:'主舞',age:20,avatar:'💃'},{name:'队友B',role:'rapper',age:21,avatar:'🎧'}]; 
+  // 添加团队成员到微信联系人
+  addMemberToContacts();
+  saveGame(); updateUI(); closeModal(); showTeam(); toast('团队已组建！'); 
+}
+
+function addMemberToContacts() {
+  game.members.forEach((m, idx) => {
+    const memberId = 'member_' + idx;
+    // 检查是否已存在
+    if (!game.wxContacts.find(c => c.id === memberId)) {
+      game.wxContacts.push({
+        id: memberId,
+        name: m.name,
+        avatar: m.avatar,
+        avatarData: null,
+        lastMsg: '团队成员',
+        lastMsgTime: 0,
+        msgCount: 0,
+        replyWait: false,
+        lastSentTime: 0
+      });
+      game.wxMessages[m.name] = [{from:'other', text:'一起加油！'}];
+    }
+  });
+}
+
+function updateTeamContacts() {
+  // 更新微信联系人的团队成员信息
+  game.members.forEach((m, idx) => {
+    const memberId = 'member_' + idx;
+    const contact = game.wxContacts.find(c => c.id === memberId);
+    if (contact) {
+      contact.name = m.name;
+      contact.avatar = m.avatar;
+    }
+  });
+}
 function editMember(idx) {
   const m = game.members[idx];
   showModal('编辑成员', `<div class="form-group"><label class="form-label">姓名</label><input class="form-input" id="m-name" value="${m.name}"></div>
@@ -1992,6 +2104,7 @@ function saveMember(idx) {
   game.members[idx].name=document.getElementById('m-name').value||'队友';
   game.members[idx].role=document.getElementById('m-role').value||'成员';
   game.members[idx].age=parseInt(document.getElementById('m-age').value)||20;
+  updateTeamContacts();
   saveGame(); closeModal(); showTeam();
 }
 function showTeamName() { showModal('团队名称', `<div class="form-group"><label class="form-label">团队名</label><input class="form-input" id="team-name-input" value="${game.teamName}" placeholder="给你的团队起个名字"></div><button class="action-btn btn-primary" onclick="saveTeamName()">保存</button>`); }
