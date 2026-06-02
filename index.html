@@ -169,9 +169,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue'
 .sms-from{font-size:11px;opacity:0.5;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center}
 .sms-from-right{display:flex;align-items:center;gap:5px}
 .sms-block-btn{color:#e07070;font-size:10px;cursor:pointer;text-decoration:underline;background:none;border:none}
-.sms-content{font-size:12px;line-height:1.5}
+.sms-content{font-size:12px;line-height:1.5;color:#333}
 .weibo-card{background:#f5f0fa;border-radius:12px;padding:11px;margin-bottom:7px}
-.weibo-text{font-size:13px;line-height:1.5;margin-bottom:6px;word-break:break-all}
+.weibo-text{font-size:13px;line-height:1.5;margin-bottom:6px;word-break:break-all;color:#333}
 .weibo-meta{display:flex;gap:14px;font-size:11px;opacity:0.5;margin-top:4px}
 .weibo-like{color:#e07070}
 .weibo-editor{background:#fff;border-radius:12px;padding:12px;margin-bottom:10px}
@@ -230,7 +230,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue'
 .bubble-avatar{width:28px;height:28px;border-radius:50%;background:#e8e0f0;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
 .bubble-content{flex:1}
 .bubble-name{font-size:10px;color:#a090b0;margin-bottom:2px}
-.bubble-text{font-size:12px;line-height:1.4;background:#f5f0fa;padding:6px 10px;border-radius:10px;display:inline-block;max-width:90%}
+.bubble-text{font-size:12px;line-height:1.4;background:#f5f0fa;padding:6px 10px;border-radius:10px;display:inline-block;max-width:90%;color:#333}
 .bubble-msg.self{flex-direction:row-reverse}
 .bubble-msg.self .bubble-name{text-align:right}
 .bubble-msg.self .bubble-text{background:#b8a9d4;color:#fff}
@@ -249,11 +249,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue'
 </head>
 <body>
 <div class="lock-screen" id="lockScreen">
+  <div class="lock-time" id="lockTime">00:00</div>
+  <div class="lock-date" id="lockDate">1月1日 星期三</div>
   <div class="lock-icon">🔒</div>
-  <div class="lock-title">爱豆模拟器</div>
-  <div class="lock-sub" id="lockDate"></div>
+  <div class="lock-dots" id="lockDots">
+    <div class="lock-dot" id="lockDot0"></div>
+    <div class="lock-dot" id="lockDot1"></div>
+    <div class="lock-dot" id="lockDot2"></div>
+    <div class="lock-dot" id="lockDot3"></div>
+  </div>
   <div class="lock-input-wrap">
-    <input class="lock-input" id="lockInput" type="password" maxlength="8" placeholder="●●●●" onkeypress="if(event.key==='Enter')checkLock()">
+    <input class="lock-input" id="lockInput" type="password" maxlength="4" placeholder="输入密码" oninput="updateLockDots(this.value)" onkeypress="if(event.key==='Enter')checkLock()">
     <button class="lock-btn" onclick="checkLock()">解锁</button>
   </div>
   <div class="lock-error" id="lockError"></div>
@@ -307,7 +313,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue'
       <div class="countdown-card" id="dividendCard" style="display:none">
         <div class="countdown-title">💰 待领取分红</div>
         <div class="countdown-time" id="dividendAmount">¥0</div>
-        <button class="action-btn btn-primary" style="margin-top:8px" onclick="withdrawDividend()">提现</button>
+        <div style="font-size:10px;opacity:0.5;margin-bottom:6px">每月15号、30号可提现</div>
+        <button class="action-btn btn-primary" style="margin-top:4px" onclick="withdrawDividend()">提现</button>
       </div>
       
       <div class="countdown-card" id="countdownCard">
@@ -739,8 +746,15 @@ function updateStatusBar() {
 function updateUI() {
   const maxSt = game.debuted ? STAMINA_MAX : TRAINEES_MAX_STAMINA;
   const month = Math.floor(game.day / 30) + 1;
-  document.getElementById('dayDisplay').textContent = game.day;
-  document.getElementById('monthDisplay').textContent = month + '月';
+  // 计算年月日
+  const totalDays = game.day - 1;
+  const year = Math.floor(totalDays / 365) + 1;
+  const daysInYear = totalDays % 365;
+  const month = Math.floor(daysInYear / 30) + 1;
+  const day = (daysInYear % 30) + 1;
+  
+  document.getElementById('dayDisplay').textContent = '第' + year + '年' + month + '月' + day + '日';
+  document.getElementById('monthDisplay').textContent = '';
   document.getElementById('playerName').textContent = game.playerName;
   document.getElementById('playerId').textContent = game.playerId;
   if (game.avatarData) {
@@ -765,11 +779,17 @@ function updateUI() {
     document.getElementById('salaryDisplay').style.display = 'none';
   }
   
-  // 分红卡片
-  if (game.debuted && game.pendingDividend > 0) {
+  // 分红卡片（出道后才显示）
+  if (game.debuted) {
     document.getElementById('dividendCard').style.display = 'block';
     document.getElementById('dividendCard').classList.add('show');
-    document.getElementById('dividendAmount').textContent = '¥' + formatNum(game.pendingDividend);
+    if (game.pendingDividend > 0) {
+      document.getElementById('dividendAmount').textContent = '¥' + formatNum(game.pendingDividend);
+      document.getElementById('dividendAmount').style.color = '#c490c4';
+    } else {
+      document.getElementById('dividendAmount').textContent = '暂无待领取';
+      document.getElementById('dividendAmount').style.color = '#999';
+    }
   } else {
     document.getElementById('dividendCard').style.display = 'none';
   }
@@ -1318,6 +1338,19 @@ function checkFatigue() {
     showWarning('😫 疲惫过度！', '你的疲惫值已达100，需要强制休息2天！', '好的');
     game.fatigue = 60;
     game.day += 2;
+    game.stamina = Math.max(game.stamina, 100); // 休息后体力恢复一些
+  } else if (game.fatigue >= 80) {
+    showWarning('⚠️ 疲惫警告', '你的疲惫值已达80，请注意休息！', '知道了');
+  }
+}
+
+// 每次操作后检查疲惫值（练习生也生效）
+function checkFatigueAfterAction() {
+  if (game.fatigue >= 100) {
+    showWarning('😫 疲惫过度！', '你的疲惫值已达100，需要强制休息2天！', '好的');
+    game.fatigue = 60;
+    game.day += 2;
+    game.stamina = Math.max(game.stamina, 100);
   } else if (game.fatigue >= 80) {
     showWarning('⚠️ 疲惫警告', '你的疲惫值已达80，请注意休息！', '知道了');
   }
@@ -1565,6 +1598,8 @@ function showAssessment() {
   if (game.debuted) return;
   showModal('🏆 出道考核', `
     <div style="text-align:center;padding:8px">
+      <div style='margin:8px 0;font-size:11px;color:#6b5b7a;font-weight:600'>📊 练习生排行榜</div>
+      <div style='max-height:180px;overflow-y:auto;margin-bottom:8px'>${rankHtml}</div>
       <div style="font-size:40px;margin-bottom:8px">🏆</div>
       <div style="margin-bottom:10px">声乐和舞蹈都要达到300才能出道！</div>
       <div class="detail-card" style="margin-bottom:10px">
@@ -1780,7 +1815,33 @@ function renderPMList() {
 function openPM(idx) {
   const pm = game.pmList[idx];
   if (!pm) return;
-  toast(`${pm.from}: ${pm.text}`);
+  
+  showModal('私信 - ' + pm.from, \``
+    <div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:12px">
+      <div style="font-size:11px;color:#999;margin-bottom:8px">${pm.from}</div>
+      <div style="font-size:14px;line-height:1.6;color:#333">${pm.text}</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">回复内容</label>
+      <input class="form-input" id="pmReplyInput" placeholder="输入回复内容...">
+    </div>
+    <button class="action-btn btn-primary" onclick="sendPMReply(${idx})">发送回复</button>
+    <button class="action-btn btn-secondary" onclick="closeModal()">关闭</button>
+  `);
+}
+}
+
+\nfunction sendPMReply(idx) {
+  const input = document.getElementById('pmReplyInput');
+  if (!input || !input.value.trim()) {
+    toast('请输入回复内容');
+    return;
+  }
+  const reply = input.value.trim();
+  game.pmList[idx].replied = true;
+  addLog('回复了' + game.pmList[idx].from + '的私信: ' + reply);
+  toast('回复已发送！');
+  closeModal();
 }
 
 function generateRandomPM() {
@@ -1960,6 +2021,43 @@ function setContactAvatar(contactId, emoji, el) {
   document.querySelectorAll('.avatar-opt').forEach(x=>x.classList.remove('selected'));
   el.classList.add('selected');
   window._contactAvatar = emoji;
+}
+
+function choosePhotoForContact(contactId) {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+      const dataUrl = evt.target.result;
+      // 应用到当前编辑的联系人的头像
+      const contact = game.wxContacts.find(c=>c.id===contactId) || game.newContacts.find(c=>c.id===contactId);
+      if (contact) {
+        contact.avatarData = dataUrl;
+        contact.avatar = ''; // 清除emoji头像
+        // 更新关系中的头像
+        const rel = game.relationships.find(r=>r.id===contactId);
+        if (rel) {
+          rel.avatarData = dataUrl;
+          rel.avatar = '';
+        }
+        saveGame();
+        // 更新当前modal中的头像显示
+        const avatarEl = document.querySelector('.modal-body .mine-avatar');
+        if (avatarEl) {
+          avatarEl.innerHTML = \`<img src="\${dataUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">\`;
+          avatarEl.style.background = 'none';
+        }
+        toast('头像已更新！');
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+  input.click();
 }
 
 function saveContactProfile(contactId) {
@@ -2273,6 +2371,30 @@ function formatNum(n) {
 
 // ========== 密码锁 ==========
 function initLock() { window._lockPwd = GAME_PASSWORD; }
+function updateLockTime() {
+  const now = new Date();
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const month = now.getMonth() + 1;
+  const date = now.getDate();
+  const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+  const weekday = weekdays[now.getDay()];
+  
+  const timeEl = document.getElementById('lockTime');
+  const dateEl = document.getElementById('lockDate');
+  if (timeEl) timeEl.textContent = hours + ':' + minutes;
+  if (dateEl) dateEl.textContent = month + '月' + date + '日 ' + weekday;
+}
+
+function updateLockDots(val) {
+  for (let i = 0; i < 4; i++) {
+    const dot = document.getElementById('lockDot' + i);
+    if (dot) {
+      dot.classList.toggle('filled', i < val.length);
+    }
+  }
+}
+
 function checkLock() {
   const val = document.getElementById('lockInput').value.trim();
   if (val === window._lockPwd) {
@@ -2281,10 +2403,24 @@ function checkLock() {
     if (saved) { init(); }
     else { showInitialSetup(); }
   } else {
-    document.getElementById('lockError').textContent = '密码错误，请重试';
+    document.getElementById('lockError').textContent = '密码错误';
     document.getElementById('lockInput').value = '';
-    document.getElementById('lockInput').focus();
+    updateLockDots('');
+    // 震动效果
+    for (let i = 0; i < 4; i++) {
+      const dot = document.getElementById('lockDot' + i);
+      if (dot) {
+        dot.classList.add('error');
+        setTimeout(() => dot.classList.remove('error'), 400);
+      }
+    }
   }
+}
+
+function initLock() {
+  updateLockTime();
+  setInterval(updateLockTime, 1000);
+  updateLockDots('');
 }
 initLock();
 document.getElementById('lockInput').focus();
