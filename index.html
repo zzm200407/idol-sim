@@ -257,8 +257,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue'
       <div class="lock-dot" id="lockDot1"></div>
       <div class="lock-dot" id="lockDot2"></div>
       <div class="lock-dot" id="lockDot3"></div>
-      <div class="lock-dot" id="lockDot4"></div>
-      <div class="lock-dot" id="lockDot5"></div>
     </div>
   </div>
   <div class="lock-middle">
@@ -482,7 +480,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue'
 
 <script>
 // ========== 全局配置 ==========
-const GAME_PASSWORD = '050628';
+const GAME_PASSWORD = '0506';
 const STAMINA_MAX = 500;
 const TRAINEES_MAX_STAMINA = 200;
 const INITIAL_MONEY_OPTIONS = [3000, 6000, 8000, 10000];
@@ -2409,7 +2407,7 @@ function updateLockTime() {
 }
 
 function updateLockDots(val) {
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < 4; i++) {
     const dot = document.getElementById('lockDot' + i);
     if (dot) {
       dot.classList.toggle('filled', i < val.length);
@@ -2419,10 +2417,10 @@ function updateLockDots(val) {
 
 let _lockInputValue = '';
 function lockKeyPress(num) {
-  if (_lockInputValue.length < 6) {
+  if (_lockInputValue.length < 4) {
     _lockInputValue += num;
     updateLockDots(_lockInputValue);
-    if (_lockInputValue.length === 6) {
+    if (_lockInputValue.length === 4) {
       setTimeout(checkLock, 100);
     }
   }
@@ -2445,7 +2443,7 @@ function checkLock() {
     _lockInputValue = '';
     updateLockDots('');
     // 震动效果
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 4; i++) {
       const dot = document.getElementById('lockDot' + i);
       if (dot) {
         dot.classList.add('error');
