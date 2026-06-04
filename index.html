@@ -1546,10 +1546,10 @@ async function callAIAPI(sender, playerName, message, type) {
         'Authorization': 'Bearer ' + game.apiKey
       },
       body: JSON.stringify({
-        model: 'deepseek-ai/DeepSeek-V2.5', // 默认模型，可根据API调整
+        model: game.apiModel || 'deepseek-ai/DeepSeek-V2.5',
         messages: messages,
-        max_tokens: 200,
-        temperature: 0.8
+        max_tokens: 150,
+        temperature: 0.9
       })
     });
     
@@ -1762,6 +1762,7 @@ function makeDefaultState(initialMoney) {
     totalSales:0, // 累计销售额（用于分红计算）
     apiEndpoint:'', // 自定义API地址
     apiKey:'', // API密钥
+    apiModel:'deepseek-ai/DeepSeek-V2.5', // 模型名称
     totalEarnings:0, // 累计收益
     // 通告收入记录
     jobEarnings:[],
@@ -3452,9 +3453,9 @@ function showAPISettings() {
 function saveAPISettings() {
   game.apiEndpoint = document.getElementById('api-endpoint').value.trim();
   game.apiKey = document.getElementById('api-key').value.trim();
+  game.apiModel = document.getElementById('api-model')?.value.trim() || 'deepseek-ai/DeepSeek-V2.5';
   saveGame();
-  toast('API设置已保存');
-  closeModal();
+  toast('✓ API设置已保存');
 }
 
 async function testAPI() {
@@ -3479,7 +3480,7 @@ async function testAPI() {
         'Authorization': 'Bearer ' + key
       },
       body: JSON.stringify({
-        model: 'deepseek-ai/DeepSeek-V2.5',
+        model: game.apiModel || 'deepseek-ai/DeepSeek-V2.5',
         messages: [
           {role: 'system', content: '你是一个测试助手'},
           {role: 'user', content: '你好，这是测试消息'}
