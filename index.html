@@ -721,20 +721,75 @@ function smartReply(sender, playerName, message) {
 async function getSmartReply(sender, playerName, message, type) {
   // 如果配置了API，调用API
   if (game.apiEndpoint && game.apiKey) {
+    console.log('[AI-API] 正在调用API...');
     try {
       const reply = await callAIAPI(sender, playerName, message, type);
       if (reply) {
-        console.log('[AI-API] 成功获取回复:', reply);
+        console.log('[AI-API] ✓ API回复:', reply);
+        // 临时显示API调用成功提示
+        showAPICallTip('✓ AI回复已获取', 'success');
         return reply;
+      } else {
+        console.log('[AI-API] ✗ API未返回有效内容，使用本地回复');
+        showAPICallTip('⚠ API未返回内容，使用本地回复', 'warning');
       }
     } catch (e) {
-      console.log('[AI-API] 调用失败:', e);
+      console.log('[AI-API] ✗ API调用失败:', e.message);
+      showAPICallTip('✗ API调用失败: ' + e.message, 'error');
     }
+  } else {
+    console.log('[AI-LOCAL] 未配置API，使用本地回复');
   }
   
   // 本地智能回复
-  console.log('[AI-LOCAL] 使用本地回复，sender:', sender, 'message:', message);
   return getLocalReply(sender, playerName, message, type);
+}
+
+// 显示API调用状态提示
+function showAPICallTip(msg, type) {
+  const colors = {
+    'success': '#70a060',
+    'warning': '#e0a030', 
+    'error': '#e07070'
+  };
+  
+  // 创建提示元素
+  const tip = document.createElement('div');
+  tip.id = 'api-tip';
+  tip.style.cssText = `
+    position: fixed;
+    top: 60px;
+    right: 10px;
+    background: ${colors[type]};
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 12px;
+    z-index: 99999;
+    animation: fadeIn 0.3s;
+    max-width: 280px;
+  `;
+  tip.innerHTML = `<strong>API:</strong> ${msg}`;
+  
+  // 添加动画样式
+  if (!document.getElementById('api-tip-style')) {
+    const style = document.createElement('style');
+    style.id = 'api-tip-style';
+    style.innerHTML = `@keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } } @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }`;
+    document.head.appendChild(style);
+  }
+  
+  // 移除旧提示
+  const old = document.getElementById('api-tip');
+  if (old) old.remove();
+  
+  document.body.appendChild(tip);
+  
+  // 3秒后消失
+  setTimeout(() => {
+    tip.style.animation = 'fadeOut 0.3s';
+    setTimeout(() => tip.remove(), 300);
+  }, 3000);
 }
 
 // 本地智能回复
