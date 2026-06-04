@@ -485,6 +485,235 @@ const ENTERTAINMENT_COSTS = {
   scandal_party:{stamina:40,money:500,fatigueChange:-5,moodChange:15,skill:null,risk:true,scandalChance:0.35}, // 高风险
 };
 
+
+// ========== AI智能聊天系统 ==========
+// 粉丝角色库
+const FAN_ROLES = {
+  // 真爱粉
+  love: {
+    names: ['小甜心', '追星少女', '星星糖', '小迷妹', '爱永远', '星星眼'],
+    templates: [
+      '姐姐/哥哥今天状态好好！',
+      '永远支持你！',
+      '你是我的光！',
+      '加油！我们一起走花路！',
+      '期待你的新作品！',
+      '太棒了！给你100分！',
+      '我永远是你的粉丝！',
+    ]
+  },
+  // 路人粉
+  casual: {
+    names: ['路人甲', '小明', '小红的同学', '隔壁老王'],
+    templates: [
+      '还行吧',
+      '关注一下',
+      '感觉还不错',
+      '有空看看',
+      '最近挺火的',
+      '了解一下',
+    ]
+  },
+  // 黑粉
+  hater: {
+    names: ['黑粉小明', '键盘侠', '喷子甲'],
+    templates: [
+      '就这水平？',
+      '滚出娱乐圈！',
+      '什么垃圾',
+      '太假了吧',
+      '炒作！',
+      '恶心',
+    ]
+  }
+};
+
+// NPC性格
+const NPC_PERSONALITIES = {
+  '经纪人王姐': { style: 'professional', replies: ['明天有个重要通告', '最近表现不错', '好好休息，明天有安排'] },
+  '小助理阿涛': { style: 'cute', replies: ['哥/姐我已经安排好了', '需要我做什么？', '随时叫我！'] },
+  '前辈周哥': { style: 'gentle', replies: ['加油弟弟/妹妹', '慢慢来，别急', '你很有潜力'] },
+  '妈妈': { style: 'warm', replies: ['注意身体啊', '什么时候回家', '妈妈想你'] },
+  '小甜心': { style: 'love', replies: ['永远爱你！', '你最棒！', '我的宝贝！'] },
+  '追星少女': { style: 'cute', replies: ['好激动！', '太帅了吧！', '呜呜呜好好看'] },
+  '星星糖': { style: 'sweet', replies: ['✨闪亮登场✨', '给闪闪的你', '一起发光吧'] },
+  '爱豆小迷弟': { style: 'fan', replies: ['哥太厉害了', '膜拜大佬', '我要向你学习'] },
+  '路人甲': { style: 'casual', replies: ['哦', '还行', '知道了'] },
+  '娱乐博主': { style: 'media', replies: ['独家消息来了', '据知情人士透露', '本台最新报道'] },
+  '资深粉丝': { style: 'old', replies: ['看着你一路走来', '老粉飘过', '初心不变'] },
+  '黑粉小明': { style: 'hate', replies: ['就这？', '糊弄谁呢', '别装了'] }
+};
+
+// 智能回复函数
+function getSmartReply(sender, playerName, context, type) {
+  // 如果配置了API，调用API
+  if (game.apiEndpoint && game.apiKey) {
+    return callAIAPI(sender, playerName, context, type);
+  }
+  
+  // 否则使用预设智能回复
+  return getLocalReply(sender, playerName, context, type);
+}
+
+// 本地智能回复
+function getLocalReply(sender, playerName, context, type) {
+  const personality = NPC_PERSONALITIES[sender];
+  
+  if (personality) {
+    // 有预设性格的NPC
+    const replies = personality.replies;
+    return replies[Math.floor(Math.random() * replies.length)];
+  }
+  
+  // 普通粉丝
+  const role = Math.random();
+  let fanType = 'love';
+  if (role > 0.6) fanType = 'casual';
+  if (role > 0.85) fanType = 'hater';
+  
+  const fanData = FAN_ROLES[fanType];
+  const templates = fanData.templates;
+  
+  // 根据内容生成相关回复
+  let reply = templates[Math.floor(Math.random() * templates.length)];
+  
+  // 添加互动元素
+  if (type === 'weibo_comment') {
+    reply = '💬 ' + reply;
+  }
+  
+  return reply;
+}
+
+// 调用AI API
+async function callAIAPI(sender, playerName, context, type) {
+  try {
+    const response = await fetch(game.apiEndpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + game.apiKey
+      },
+      body: JSON.stringify({
+        sender: sender,
+        playerName: playerName,
+        context: context,
+        type: type,
+        gameState: {
+          day: game.day,
+          fans: game.fans,
+          debut: game.debuted
+        }
+      })
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      return data.reply || getLocalReply(sender, playerName, context, type);
+    }
+  } catch (e) {
+    console.log('API调用失败，使用本地回复');
+  }
+  return getLocalReply(sender, playerName, context, type);
+}
+
+// 生成动态微博热搜
+function generateDynamicHotList() {
+  if (game.apiEndpoint && game.apiKey) {
+    // 有API时调用API生成
+    return generateAPIHotList();
+  }
+  
+  // 本地生成
+  const hotTopics = [
+    { title: playerName + '新歌发布！', hot: 95, tag: 'hot' },
+    { title: playerName + '演唱会门票秒空', hot: 92, tag: 'hot' },
+    { title: '粉丝偶遇' + playerName, hot: 88, tag: 'new' },
+    { title: playerName + '演技获赞', hot: 85, tag: 'hot' },
+    { title: '如何评价' + playerName + '的舞台', hot: 80, tag: 'hot' },
+    { title: playerName + '代言翻车？', hot: 75, tag: 'hot' },
+    { title: '恭喜' + playerName + '出道', hot: 70, tag: 'new' },
+    { title: playerName + '最新路透照', hot: 65, tag: 'new' },
+    { title: '为什么' + playerName + '这么火', hot: 60, tag: 'hot' },
+    { title: '粉丝应援' + playerName, hot: 55, tag: 'friend' },
+  ];
+  
+  // 根据游戏状态调整热搜
+  if (game.debuted) {
+    hotTopics[0].title = playerName + '新歌发布！';
+    hotTopics[1].title = playerName + '演唱会门票秒空';
+  }
+  
+  return hotTopics;
+}
+
+function generateAPIHotList() {
+  // 使用API生成热搜
+  const baseHot = generateDynamicHotList();
+  return baseHot;
+}
+
+// 生成动态微博评论
+function generateDynamicWeiboComments(weiboContent) {
+  const playerName = game.playerName;
+  const comments = [];
+  
+  // 真爱粉评论
+  comments.push({
+    name: '小甜心',
+    avatar: '💕',
+    text: '永远支持' + playerName + '！最棒的！💕',
+    likes: Math.floor(Math.random() * 500) + 100
+  });
+  
+  comments.push({
+    name: '追星少女',
+    avatar: '🌸',
+    text: '姐姐/哥哥说的太对了！',
+    likes: Math.floor(Math.random() * 300) + 50
+  });
+  
+  // 根据微博内容生成相关评论
+  if (weiboContent.includes('歌') || weiboContent.includes('音乐')) {
+    comments.push({
+      name: '音乐达人',
+      avatar: '🎵',
+      text: '新歌什么时候出？等不及了！',
+      likes: Math.floor(Math.random() * 200) + 30
+    });
+  }
+  
+  if (weiboContent.includes('演唱会')) {
+    comments.push({
+      name: '星星糖',
+      avatar: '⭐',
+      text: '抢票攻略有没有！',
+      likes: Math.floor(Math.random() * 400) + 80
+    });
+  }
+  
+  // 路人评论
+  comments.push({
+    name: '路人甲',
+    avatar: '👤',
+    text: '还行吧，关注了',
+    likes: Math.floor(Math.random() * 50) + 10
+  });
+  
+  // 黑粉（偶尔）
+  if (Math.random() > 0.7) {
+    comments.push({
+      name: '键盘侠',
+      avatar: '😒',
+      text: '就这水平？',
+      likes: Math.floor(Math.random() * 20)
+    });
+  }
+  
+  return comments;
+}
+
+
 const AVATAR_EMOJIS = ['🙎‍♂️','🙍‍♀️','🧑‍🎤','👨‍🎤','👩‍🎤','🎤','🌟','🔥','💎','🎵','💜','🖤','🤍','💖','🩷','🩵','💛','🧡','💚','🩵','🩶','🤎','🧡','💜','🩷','💙','💛'];
 const STYLE_OPTIONS = ['全能偶像','唱跳歌手','实力演员','综艺达人','创作才子','舞台王者','清新治愈','冷酷 rapper'];
 
@@ -1918,11 +2147,23 @@ function sendPMReply(idx) {
   if (!pm) return;
   const text = document.getElementById('pm-reply-input').value.trim();
   if (!text) { toast('请输入内容'); return; }
+  
   // 在微信中收到回复
   if (!game.wxMessages[pm.from]) game.wxMessages[pm.from] = [];
   game.wxMessages[pm.from].push({from:'self', text:'我: ' + text});
   addLog('💬 回复了' + pm.from + '的私信');
-  toast('回复已发送');
+  
+  // AI生成真实回复（异步）
+  setTimeout(() => {
+    const reply = getSmartReply(pm.from, game.playerName, text, 'private_message');
+    game.wxMessages[pm.from].push({from:'other', text: reply});
+    pm.text = reply; // 更新私信显示
+    pm.time = 0;
+    renderPMList();
+    toast('💬 ' + pm.from + '回复了你');
+    saveGame();
+  }, 1500);
+  
   closeModal();
 }
 
@@ -1971,12 +2212,19 @@ function generateRandomPM() {
 
 // ========== 短信生成 ==========
 function generateRandomSMS() {
-  const smsList = [
-    {from:'10086',text:'您的月套餐已更新...'},
-    {from:'顺丰快递',text:'您的快递已送达驿站...'},
-    {from:'妈妈',text:'宝贝什么时候回家吃饭？'},
-    {from:'王姐',text:'明天下午有个试镜，别忘了'},
+  const playerName = game.playerName;
+  const day = game.day;
+  const smsTemplates = [
+    {from:'10086',text:'您好，您的月套餐已更新，当前余额查询请回复...'},
+    {from:'顺丰速运',text:'【顺丰】您的快递已到达，请凭取件码签收'},
+    {from:'妈妈',text: playerName + '，今天回家吃饭吗？妈妈做了你爱吃的'},
+    {from:'王姐',text: '明天下午2点有个试镜，别睡过头了！地址发你'},
+    {from:'快递驿站',text: '您的包裹已到，存放至快递柜，请及时取件'},
+    {from:'银行',text: '您的账户于' + day + '日入账...元，余额...元'},
+    {from:'外卖',text: '您的订单已送达，祝您用餐愉快~'},
+    {from:'朋友小李',text: '周末聚一下？好久没见了'},
   ];
+  const smsList = smsTemplates;
   
   const sms = smsList[rand(0, smsList.length - 1)];
   if (!game.smsBlocked.includes(sms.from)) {
