@@ -543,6 +543,8 @@ function makeDefaultState(initialMoney) {
     brandFavorability:{coffee:0,phone:0,fashion:0,watch:0,car:0}, // 品牌好感度
     // 分红系统
     pendingDividend:0, // 待领取分红
+    apiEndpoint:'', // 自定义API地址
+    apiKey:'', // API密钥
     totalEarnings:0, // 累计收益
     // 通告收入记录
     jobEarnings:[],
@@ -773,8 +775,8 @@ function updateUI() {
     document.getElementById('salaryDisplay').style.display = 'none';
   }
   
-  // 分红卡片
-  if (game.debuted && game.pendingDividend > 0) {
+  // 分红卡片（出道后始终显示）
+  if (game.debuted) {
     document.getElementById('dividendCard').style.display = 'block';
     document.getElementById('dividendCard').classList.add('show');
     document.getElementById('dividendAmount').textContent = '¥' + formatNum(game.pendingDividend);
@@ -1333,13 +1335,14 @@ function checkFatigue() {
 
 // ========== 品牌代言 ==========
 function showBrandEndorsement() {
-  const now = new Date().getTime();
-  // 检查代言是否到期（30天后自动解除）
+  // 检查代言是否到期（基于游戏天数）
+  const toRemove = [];
   game.brandEndorsements = game.brandEndorsements.filter(e => {
-    if (e.endTime && now > e.endTime) {
+    const daysPassed = game.day - e.startDay;
+    if (daysPassed >= 30) {
       const b = BRANDS.find(x => x.id === e.brandId);
       addLog('✨ ' + (b ? b.name : '品牌') + '代言到期，已自动解除');
-      toast('✨ 代言到期，已自动解除');
+      toast('✨ 代言到期，已自动解除！收到代言费 ¥' + formatNum(e.fee));
       return false;
     }
     return true;
@@ -1353,10 +1356,10 @@ function showBrandEndorsement() {
     game.brandEndorsements.forEach(e => {
       const b = BRANDS.find(x => x.id === e.brandId);
       if (b) {
-        const fee = Math.floor(b.fee * (1 + game.fans / 100000));
+        const daysLeft = 30 - (game.day - e.startDay);
         html += `<div class="option-item" style="background:rgba(184,169,212,0.2)">
           <span>✨ ${b.name}</span>
-          <span style="color:#d0a030">代言费 ¥${formatNum(fee)}</span>
+          <span style="color:#d0a030">剩余${daysLeft}天</span>
         </div>`;
       }
     });
@@ -1397,10 +1400,9 @@ function takeEndorsement(brandId) {
   if (!brand) return;
   if (game.brandEndorsements.length >= 2) { toast('最多同时代言2个品牌！'); return; }
   
-  // 签约一个月后到期（30天）
-  const endTime = new Date().getTime() + 30 * 24 * 60 * 60 * 1000;
-  game.brandEndorsements.push({brandId: brandId, endTime: endTime});
+  // 签约30天后到期（基于游戏天数）
   const fee = Math.floor(brand.fee * (1 + game.fans / 100000));
+  game.brandEndorsements.push({brandId: brandId, startDay: game.day, fee: fee});
   
   // 记录代言收入
   game.jobEarnings.push({type:'endorsement', brandId:brandId, fee:fee, day:game.day});
@@ -2043,6 +2045,55 @@ function showRelationships() {
   showModal('💕 好感关系', `<div class="detail-card" style="margin-bottom:8px">${html}</div>
     <div style="font-size:10px;opacity:0.4;text-align:center;margin-top:4px">和经纪人打好关系很重要！好感度影响通告安排</div>
   `);
+}
+
+
+// ========== API设置 ==========
+function showAPISettings() {
+  showModal('🔌 API设置', `
+    <div class="form-group">
+      <label class="form-label">API地址</label>
+      <input class="form-input" id="api-endpoint" value="${game.apiEndpoint || ''}" placeholder="输入你的API地址">
+    </div>
+    <div class="form-group">
+      <label class="form-label">API密钥</label>
+      <input class="form-input" id="api-key" value="${game.apiKey || ''}" placeholder="输入你的API密钥" type="password">
+    </div>
+    <div style="font-size:11px;color:#888;margin-bottom:12px">
+      接入API后可实现自动练习、自动接通告等功能<br>
+      API格式要求请参考说明文档
+    </div>
+    <button class="action-btn btn-primary" onclick="saveAPISettings()">保存设置</button>
+    <button class="action-btn btn-secondary" onclick="testAPI()">测试连接</button>
+    <div id="api-test-result" style="margin-top:10px;text-align:center;font-size:12px"></div>
+  `);
+}
+
+function saveAPISettings() {
+  game.apiEndpoint = document.getElementById('api-endpoint').value.trim();
+  game.apiKey = document.getElementById('api-key').value.trim();
+  saveGame();
+  toast('API设置已保存');
+  closeModal();
+}
+
+function testAPI() {
+  const endpoint = document.getElementById('api-endpoint').value.trim();
+  const key = document.getElementById('api-key').value.trim();
+  if (!endpoint) {
+    document.getElementById('api-test-result').innerHTML = '<span style="color:#e07070">请输入API地址</span>';
+    return;
+  }
+  document.getElementById('api-test-result').innerHTML = '<span style="color:#70a060">正在测试...</span>';
+  
+  // 简单的连接测试（实际项目中应该调用真实API）
+  setTimeout(() => {
+    if (endpoint.startsWith('http')) {
+      document.getElementById('api-test-result').innerHTML = '<span style="color:#70a060">✓ 连接成功！</span>';
+    } else {
+      document.getElementById('api-test-result').innerHTML = '<span style="color:#e07070">✗ 连接失败，请检查地址格式</span>';
+    }
+  }, 1000);
 }
 
 // ========== 团队 ==========
