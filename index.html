@@ -543,6 +543,7 @@ function makeDefaultState(initialMoney) {
     brandFavorability:{coffee:0,phone:0,fashion:0,watch:0,car:0}, // 品牌好感度
     // 分红系统
     pendingDividend:0, // 待领取分红
+    totalSales:0, // 累计销售额（用于分红计算）
     apiEndpoint:'', // 自定义API地址
     apiKey:'', // API密钥
     totalEarnings:0, // 累计收益
@@ -1034,7 +1035,14 @@ function renderSMSList() {
 }
 
 function openSMS(idx) {
-  toast(game.smsList[idx].text);
+  const sms = game.smsList[idx];
+  if (!sms) return;
+  showModal('📱 ' + sms.from, `
+    <div style="padding:10px 0">
+      <div style="font-size:12px;opacity:0.5;margin-bottom:10px">${sms.time}天前</div>
+      <div style="font-size:14px;line-height:1.6">${sms.text}</div>
+    </div>
+  `);
 }
 
 function blockSMS(name) {
@@ -1343,6 +1351,9 @@ function showBrandEndorsement() {
       const b = BRANDS.find(x => x.id === e.brandId);
       addLog('✨ ' + (b ? b.name : '品牌') + '代言到期，已自动解除');
       toast('✨ 代言到期，已自动解除！收到代言费 ¥' + formatNum(e.fee));
+      // 代言费直接给玩家，但也要记录用于分红统计
+      game.money += e.fee;
+      game.totalSales += e.fee;
       return false;
     }
     return true;
@@ -1412,7 +1423,31 @@ function takeEndorsement(brandId) {
   updateUI(); saveGame(); closeModal();
 }
 
+
+// ========== 演唱会筹备练习 ==========
+function practiceConcertSong(idx) {
+  if (game.stamina < 20) { toast('体力不足！'); return; }
+  if (concertSongProgress[idx] >= 100) { toast('这首歌已经准备好了！'); return; }
+  game.stamina -= 20;
+  concertSongProgress[idx] = Math.min(100, concertSongProgress[idx] + 15);
+  addLog('🎵 练习了《' + ['星光', '追梦', '绽放'][idx] + '》(' + concertSongProgress[idx] + '%)');
+  saveGame(); updateUI(); showConcert();
+}
+
+function practiceConcertDance(idx) {
+  if (game.stamina < 20) { toast('体力不足！'); return; }
+  if (concertDanceProgress[idx] >= 100) { toast('这支舞已经准备好了！'); return; }
+  game.stamina -= 20;
+  concertDanceProgress[idx] = Math.min(100, concertDanceProgress[idx] + 15);
+  addLog('💃 练习了《' + ['舞动青春', '狂野节拍'][idx] + '》(' + concertDanceProgress[idx] + '%)');
+  saveGame(); updateUI(); showConcert();
+}
+
 // ========== 演唱会 ==========
+// 演唱会筹备状态
+const concertSongProgress = [0, 0, 0]; // 3首歌的进度
+const concertDanceProgress = [0, 0]; // 2支舞的进度
+
 function showConcert() {
   if (!game.debuted) {
     toast('出道后才能举办演唱会！');
@@ -1764,25 +1799,22 @@ function renderHotList() {
 
 // ========== 私信 ==========
 function renderPMList() {
-  const list = document.getElementById('pmList');
-  const pmNames = ['小甜心', '追星少女', '星星糖', '爱豆小迷弟', '路人甲', '娱乐博主', '资深粉丝'];
-  const pmTexts = [
-    '姐姐/哥哥好棒！',
-    '永远支持你！',
-    '今天的舞台太帅了！',
-    '期待你的新作品！',
-    '加油！我们一直在！',
-  ];
-  
   if (game.pmList.length === 0) {
-    list.innerHTML = '<div style="padding:10px;text-align:center;opacity:0.5;font-size:12px">暂无私信</div>';
+    document.getElementById('pmList').innerHTML = '<div style="padding:10px;text-align:center;opacity:0.5;font-size:12px">暂无私信</div>';
     return;
   }
   
-  list.innerHTML = game.pmList.slice(0, 5).map((pm, i) => `
-    <div style="padding:8px 14px;border-bottom:1px solid rgba(107,91,122,0.1);cursor:pointer" onclick="openPM(${i})">
-      <div style="font-size:12px;font-weight:600;margin-bottom:2px">${pm.from}</div>
-      <div style="font-size:11px;opacity:0.5">${pm.text}</div>
+  document.getElementById('pmList').innerHTML = game.pmList.slice(0, 5).map((pm, i) => `
+    <div style="padding:8px 14px;border-bottom:1px solid rgba(107,91,122,0.1);cursor:pointer;display:flex;align-items:center;gap:8px" onclick="openPM(${i})">
+      <div style="width:32px;height:32px;border-radius:50%;background:#d4c8e8;display:flex;align-items:center;justify-content:center;font-size:14px">${pm.from[0]}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:600;margin-bottom:2px;display:flex;align-items:center;gap:4px">
+          ${pm.from}
+          ${pm.isHater ? '<span style="font-size:9px;background:#e07070;color:#fff;padding:1px 4px;border-radius:3px">黑粉</span>' : ''}
+        </div>
+        <div style="font-size:11px;opacity:0.5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${pm.text}</div>
+      </div>
+      <button class="btn-small" style="background:#e8e0f0;color:#6b5b7a" onclick="event.stopPropagation();openPMReply(${i})">回复</button>
     </div>
   `).join('');
 }
@@ -1790,7 +1822,51 @@ function renderPMList() {
 function openPM(idx) {
   const pm = game.pmList[idx];
   if (!pm) return;
-  toast(`${pm.from}: ${pm.text}`);
+  showModal('💬 ' + pm.from, `
+    <div style="padding:10px 0">
+      <div style="font-size:12px;opacity:0.5;margin-bottom:10px">${pm.time}天前</div>
+      <div style="font-size:14px;line-height:1.6;margin-bottom:16px">${pm.text}</div>
+      <button class="action-btn btn-primary" onclick="openPMReply(${idx});closeModal();">💬 回复</button>
+      <button class="action-btn btn-secondary" onclick="blockPM('${pm.from}');closeModal();">🚫 拉黑</button>
+    </div>
+  `);
+}
+
+function openPMReply(idx) {
+  const pm = game.pmList[idx];
+  if (!pm) return;
+  showModal('💬 回复 ' + pm.from, `
+    <div style="padding:10px 0">
+      <div style="font-size:12px;opacity:0.6;margin-bottom:8px">对方：${pm.text}</div>
+      <input class="form-input" id="pm-reply-input" placeholder="输入回复内容" style="margin-bottom:10px">
+      <button class="action-btn btn-primary" onclick="sendPMReply(${idx})">发送</button>
+    </div>
+  `);
+  setTimeout(() => document.getElementById('pm-reply-input')?.focus(), 100);
+}
+
+function sendPMReply(idx) {
+  const pm = game.pmList[idx];
+  if (!pm) return;
+  const text = document.getElementById('pm-reply-input').value.trim();
+  if (!text) { toast('请输入内容'); return; }
+  // 在微信中收到回复
+  if (!game.wxMessages[pm.from]) game.wxMessages[pm.from] = [];
+  game.wxMessages[pm.from].push({from:'self', text:'我: ' + text});
+  addLog('💬 回复了' + pm.from + '的私信');
+  toast('回复已发送');
+  closeModal();
+}
+
+function blockPM(name) {
+  if (!game.pmBlocked) game.pmBlocked = [];
+  if (!game.pmBlocked.includes(name)) {
+    game.pmBlocked.push(name);
+    game.pmList = game.pmList.filter(pm => pm.from !== name);
+    saveGame();
+    renderPMList();
+    toast('已拉黑 ' + name);
+  }
 }
 
 function generateRandomPM() {
@@ -2267,7 +2343,7 @@ function selectColor(color, el) {
 }
 function saveProfile() {
   if (window._editAvatar) { game.avatar = window._editAvatar; game.avatarData = null; }
-  if (window._editColor) game.supportColor = window._editColor;
+  game.supportColor = document.getElementById('edit-color').value || '#b8a9d4';
   game.playerName = document.getElementById('edit-name').value.trim()||'练习生';
   game.gender = document.getElementById('edit-gender').value;
   game.style = document.getElementById('edit-style').value;
