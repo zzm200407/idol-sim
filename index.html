@@ -487,106 +487,179 @@ const ENTERTAINMENT_COSTS = {
 
 
 // ========== AI智能聊天系统 ==========
-// 粉丝角色库
-const FAN_ROLES = {
-  // 真爱粉
-  love: {
-    names: ['小甜心', '追星少女', '星星糖', '小迷妹', '爱永远', '星星眼'],
-    templates: [
-      '姐姐/哥哥今天状态好好！',
-      '永远支持你！',
-      '你是我的光！',
-      '加油！我们一起走花路！',
-      '期待你的新作品！',
-      '太棒了！给你100分！',
-      '我永远是你的粉丝！',
-    ]
+
+// NPC性格与回复库
+const NPC_REPLIES = {
+  '经纪人王姐': {
+    keywords: ['通告', '工作', '安排', '赚钱', '通告', '活动'],
+    warmReplies: ['好的，有合适的通告我会第一时间告诉你！', '最近有几个品牌在谈，耐心等一下', '辛苦了，好好休息，明天有个重要通告'],
+    casualReplies: ['知道了', '好的', '没问题'],
   },
-  // 路人粉
-  casual: {
-    names: ['路人甲', '小明', '小红的同学', '隔壁老王'],
-    templates: [
-      '还行吧',
-      '关注一下',
-      '感觉还不错',
-      '有空看看',
-      '最近挺火的',
-      '了解一下',
-    ]
+  '小助理阿涛': {
+    keywords: ['安排', '行程', '帮忙', '谢谢', '辛苦'],
+    warmReplies: ['放心吧哥/姐，我都安排好了！', '随时待命！', '已经搞定了，放心吧！'],
+    casualReplies: ['收到！', '好的', 'OK'],
   },
-  // 黑粉
-  hater: {
-    names: ['黑粉小明', '键盘侠', '喷子甲'],
-    templates: [
-      '就这水平？',
-      '滚出娱乐圈！',
-      '什么垃圾',
-      '太假了吧',
-      '炒作！',
-      '恶心',
-    ]
+  '前辈周哥': {
+    keywords: ['谢谢', '前辈', '学习', '加油', '努力', '舞台'],
+    warmReplies: ['加油弟弟/妹妹，舞台上的你最有魅力', '慢慢来，别给自己太大压力', '记住，真实最重要'],
+    casualReplies: ['嗯', '好', '加油'],
+  },
+  '妈妈': {
+    keywords: ['回家', '吃饭', '身体', '担心', '妈妈', '想', '累'],
+    warmReplies: ['注意身体啊，别太累了', '什么时候回来？妈妈给你做好吃的', '宝贝辛苦了，要好好休息'],
+    casualReplies: ['好的妈妈', '知道了', '嗯'],
+  },
+  '小甜心': {
+    keywords: ['爱', '喜欢', '棒', '加油', '支持', '永远', '最好'],
+    warmReplies: ['我也爱你！永远支持你！💕', '你是最棒的！我们一直都在！', '冲冲冲！永远做你的后盾！'],
+    casualReplies: ['嗯嗯！', '加油！'],
+  },
+  '追星少女': {
+    keywords: ['好看', '帅', '漂亮', '新歌', '演唱会', '期待'],
+    warmReplies: ['呜呜呜太激动了！', '期待新歌！期待演唱会！', '太帅了吧！！！尖叫！！！'],
+    casualReplies: ['好棒', '嗯嗯'],
+  },
+  '星星糖': {
+    keywords: ['星星', '闪亮', '发光', '梦想'],
+    warmReplies: ['一起发光吧！✨', '你是最闪亮的那颗星！', '闪闪发光的样子真好看~'],
+    casualReplies: ['✨✨', '嗯嗯'],
+  },
+  '爱豆小迷弟': {
+    keywords: ['厉害', '崇拜', '学习', '努力'],
+    warmReplies: ['哥/姐你太厉害了！', '我要向你学习！', '膜拜大佬！'],
+    casualReplies: ['👍', '666'],
+  },
+  '路人甲': {
+    keywords: [],
+    warmReplies: ['哦', '知道了', '还行'],
+    casualReplies: ['嗯', '好'],
+  },
+  '娱乐博主': {
+    keywords: ['爆料', '新闻', '采访', '报道'],
+    warmReplies: ['独家消息，敬请期待！', '据可靠消息...', '本台最新报道，稍后发布！'],
+    casualReplies: ['好的', '收到'],
+  },
+  '资深粉丝': {
+    keywords: ['老粉', '初心', '一路', '陪伴'],
+    warmReplies: ['从练习生就开始关注你了，初心不变', '看着你一步步成长，真的很骄傲', '老粉飘过，一路相伴'],
+    casualReplies: ['嗯', '加油'],
+  },
+  '黑粉小明': {
+    keywords: [],
+    warmReplies: ['切，就这？', '炒作吧', '无语'],
+    casualReplies: ['呵呵', '随便'],
   }
 };
 
-// NPC性格
-const NPC_PERSONALITIES = {
-  '经纪人王姐': { style: 'professional', replies: ['明天有个重要通告', '最近表现不错', '好好休息，明天有安排'] },
-  '小助理阿涛': { style: 'cute', replies: ['哥/姐我已经安排好了', '需要我做什么？', '随时叫我！'] },
-  '前辈周哥': { style: 'gentle', replies: ['加油弟弟/妹妹', '慢慢来，别急', '你很有潜力'] },
-  '妈妈': { style: 'warm', replies: ['注意身体啊', '什么时候回家', '妈妈想你'] },
-  '小甜心': { style: 'love', replies: ['永远爱你！', '你最棒！', '我的宝贝！'] },
-  '追星少女': { style: 'cute', replies: ['好激动！', '太帅了吧！', '呜呜呜好好看'] },
-  '星星糖': { style: 'sweet', replies: ['✨闪亮登场✨', '给闪闪的你', '一起发光吧'] },
-  '爱豆小迷弟': { style: 'fan', replies: ['哥太厉害了', '膜拜大佬', '我要向你学习'] },
-  '路人甲': { style: 'casual', replies: ['哦', '还行', '知道了'] },
-  '娱乐博主': { style: 'media', replies: ['独家消息来了', '据知情人士透露', '本台最新报道'] },
-  '资深粉丝': { style: 'old', replies: ['看着你一路走来', '老粉飘过', '初心不变'] },
-  '黑粉小明': { style: 'hate', replies: ['就这？', '糊弄谁呢', '别装了'] }
-};
-
-// 智能回复函数
-function getSmartReply(sender, playerName, context, type) {
-  // 如果配置了API，调用API
-  if (game.apiEndpoint && game.apiKey) {
-    return callAIAPI(sender, playerName, context, type);
+// 根据关键词匹配回复
+function matchKeywordReply(sender, message) {
+  const npc = NPC_REPLIES[sender];
+  if (!npc) return null;
+  
+  const msg = message.toLowerCase();
+  
+  // 检查关键词
+  for (const keyword of npc.keywords) {
+    if (msg.includes(keyword)) {
+      const replies = npc.warmReplies;
+      return replies[Math.floor(Math.random() * replies.length)];
+    }
   }
   
-  // 否则使用预设智能回复
-  return getLocalReply(sender, playerName, context, type);
+  // 默认回复
+  const replies = npc.casualReplies;
+  return replies[Math.floor(Math.random() * replies.length)];
+}
+
+// 智能回复函数
+async function getSmartReply(sender, playerName, message, type) {
+  // 如果配置了API，调用API
+  if (game.apiEndpoint && game.apiKey) {
+    try {
+      const reply = await callAIAPI(sender, playerName, message, type);
+      if (reply) return reply;
+    } catch (e) {
+      console.log('API调用失败，使用本地回复');
+    }
+  }
+  
+  // 本地智能回复
+  return getLocalReply(sender, playerName, message, type);
 }
 
 // 本地智能回复
-function getLocalReply(sender, playerName, context, type) {
-  const personality = NPC_PERSONALITIES[sender];
+function getLocalReply(sender, playerName, message, type) {
+  // 先尝试关键词匹配
+  const keywordReply = matchKeywordReply(sender, message);
+  if (keywordReply) return keywordReply;
   
-  if (personality) {
-    // 有预设性格的NPC
-    const replies = personality.replies;
-    return replies[Math.floor(Math.random() * replies.length)];
+  // 根据消息内容智能回复
+  const msg = message.toLowerCase();
+  
+  // 问好类
+  if (msg.includes('你好') || msg.includes('hi') || msg.includes('hello')) {
+    return ['你好呀！', '嗨~', '你好！'][Math.floor(Math.random() * 3)];
   }
   
-  // 普通粉丝
-  const role = Math.random();
-  let fanType = 'love';
-  if (role > 0.6) fanType = 'casual';
-  if (role > 0.85) fanType = 'hater';
-  
-  const fanData = FAN_ROLES[fanType];
-  const templates = fanData.templates;
-  
-  // 根据内容生成相关回复
-  let reply = templates[Math.floor(Math.random() * templates.length)];
-  
-  // 添加互动元素
-  if (type === 'weibo_comment') {
-    reply = '💬 ' + reply;
+  // 感谢类
+  if (msg.includes('谢谢') || msg.includes('感谢')) {
+    return ['不客气！', '应该的！', '嘿嘿~'][Math.floor(Math.random() * 3)];
   }
   
-  return reply;
+  // 问工作类
+  if (msg.includes('工作') || msg.includes('通告') || msg.includes('安排')) {
+    return ['最近工作挺忙的，但都顺利！', '工作的事交给王姐安排~'][Math.floor(Math.random() * 2)];
+  }
+  
+  // 问近况类
+  if (msg.includes('最近') || msg.includes('怎么样') || msg.includes('如何')) {
+    return ['挺好的，每天都在进步！', '还不错，继续努力中~'][Math.floor(Math.random() * 2)];
+  }
+  
+  // 问演唱会类
+  if (msg.includes('演唱会') || msg.includes('门票')) {
+    return ['演唱会在筹备中！期待和大家见面！', '门票到时候记得抢哦~'][Math.floor(Math.random() * 2)];
+  }
+  
+  // 问新歌类
+  if (msg.includes('新歌') || msg.includes('音乐') || msg.includes('专辑')) {
+    return ['新歌在准备中！很快和大家见面！', '敬请期待~'][Math.floor(Math.random() * 2)];
+  }
+  
+  // 问粉丝类
+  if (msg.includes('粉丝') || msg.includes('后援会')) {
+    return ['感谢粉丝们的支持！', '有你们真好！'][Math.floor(Math.random() * 2)];
+  }
+  
+  // 问感情类
+  if (msg.includes('恋爱') || msg.includes('对象') || msg.includes('男/女朋友')) {
+    return ['这个...还是专注事业吧~', '感情的事顺其自然~'][Math.floor(Math.random() * 2)];
+  }
+  
+  // 问累不累
+  if (msg.includes('累') || msg.includes('辛苦')) {
+    return ['有点累但是开心！', '还好，有你们就不累~'][Math.floor(Math.random() * 2)];
+  }
+  
+  // 问晚安/早安
+  if (msg.includes('晚安') || msg.includes('早安')) {
+    return ['晚安~好梦！', '早安！新的一天加油！'][Math.floor(Math.random() * 2)];
+  }
+  
+  // 默认回复
+  const defaultReplies = [
+    '嗯嗯，知道了~',
+    '好的！',
+    '好的好的~',
+    '没问题！',
+    '了解~',
+  ];
+  return defaultReplies[Math.floor(Math.random() * defaultReplies.length)];
 }
 
-// 调用AI API
-async function callAIAPI(sender, playerName, context, type) {
+// 调用AI API（需要在配置了API时使用）
+async function callAIAPI(sender, playerName, message, type) {
   try {
     const response = await fetch(game.apiEndpoint, {
       method: 'POST',
@@ -597,24 +670,28 @@ async function callAIAPI(sender, playerName, context, type) {
       body: JSON.stringify({
         sender: sender,
         playerName: playerName,
-        context: context,
+        message: message,
         type: type,
         gameState: {
           day: game.day,
           fans: game.fans,
-          debut: game.debuted
+          debuted: game.debuted,
+          vocal: game.vocal,
+          dance: game.dance
         }
       })
     });
     
     if (response.ok) {
       const data = await response.json();
-      return data.reply || getLocalReply(sender, playerName, context, type);
+      if (data.reply) {
+        return data.reply;
+      }
     }
   } catch (e) {
-    console.log('API调用失败，使用本地回复');
+    console.log('API调用失败');
   }
-  return getLocalReply(sender, playerName, context, type);
+  return null; // 返回null让调用方使用本地回复
 }
 
 // 生成动态微博热搜
@@ -2153,15 +2230,19 @@ function sendPMReply(idx) {
   game.wxMessages[pm.from].push({from:'self', text:'我: ' + text});
   addLog('💬 回复了' + pm.from + '的私信');
   
-  // AI生成真实回复（异步）
-  setTimeout(() => {
-    const reply = getSmartReply(pm.from, game.playerName, text, 'private_message');
-    game.wxMessages[pm.from].push({from:'other', text: reply});
-    pm.text = reply; // 更新私信显示
-    pm.time = 0;
-    renderPMList();
-    toast('💬 ' + pm.from + '回复了你');
-    saveGame();
+  // AI生成真实回复
+  setTimeout(async () => {
+    try {
+      const reply = await getSmartReply(pm.from, game.playerName, text, 'private_message');
+      game.wxMessages[pm.from].push({from:'other', text: reply});
+      pm.text = reply;
+      pm.time = 0;
+      renderPMList();
+      toast('💬 ' + pm.from + '回复了你');
+      saveGame();
+    } catch (e) {
+      toast('收到新回复~');
+    }
   }, 1500);
   
   closeModal();
