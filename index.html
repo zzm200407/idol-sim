@@ -418,6 +418,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue'
       <div class="menu-card">
         <div class="menu-item" onclick="showEditProfile()"><span class="menu-icon">👤</span><span>编辑资料</span><span class="menu-arrow">›</span></div>
         <div class="menu-item" onclick="showRelationships()"><span class="menu-icon">💕</span><span>好感关系</span><span class="menu-arrow">›</span></div>
+        <div class="menu-item" onclick="showAPISettings()"><span class="menu-icon">🔌</span><span>API设置</span><span class="menu-arrow">›</span></div>
         <div class="menu-item" onclick="showTeam()" id="menu-team"><span class="menu-icon">👥</span><span>团队成员</span><span class="menu-arrow">›</span></div>
         <div class="menu-item" onclick="showTeamName()" id="menu-teamname"><span class="menu-icon">🏷️</span><span>团队名称</span><span class="menu-arrow">›</span></div>
         <div class="menu-item" onclick="showLive()" id="menu-live"><span class="menu-icon">📺</span><span>直播</span><span class="menu-arrow">›</span></div>
@@ -1463,19 +1464,63 @@ function showConcert() {
   }
   
   if (game.concertPlanned) {
-    const progress = Math.max(0, 30 - game.concertDaysLeft);
-    showModal('🎤 演唱会', `
-      <div class="concert-ready">
-        <div class="concert-ready-title">🎤 演唱会筹备中</div>
-        <div class="concert-ready-sub">还剩 ${game.concertDaysLeft} 天</div>
-        <div style="width:100%;height:6px;background:rgba(255,255,255,0.3);border-radius:3px;margin:10px 0">
-          <div style="width:${progress/30*100}%;height:100%;background:#fff;border-radius:3px"></div>
+    const songs = ['《星光》', '《追梦》', '《绽放》'];
+    const dances = ['《舞动青春》', '《狂野节拍》'];
+    const sp = game.concertSongProgress || [0, 0, 0];
+    const dp = game.concertDanceProgress || [0, 0, 0];
+    const allReady = sp.every(p => p >= 80) && dp.every(p => p >= 80);
+    
+    let songItems = songs.map((s, i) => `
+      <div style="display:flex;align-items:center;gap:8px;padding:8px;background:rgba(255,255,255,0.5);border-radius:8px;margin-bottom:6px">
+        <span style="font-size:13px;flex:1">🎵 ${s}</span>
+        <div style="width:80px;height:6px;background:#e8e0f0;border-radius:3px;overflow:hidden">
+          <div style="width:${sp[i]}%;height:100%;background:${sp[i]>=80?'#70a060':'#c490c4'}"></div>
         </div>
-        <button class="btn-small" style="background:rgba(255,255,255,0.3)" onclick="cancelConcert()">取消筹备</button>
+        <span style="font-size:11px;color:${sp[i]>=80?'#70a060':'#888'};width:35px;text-align:right">${sp[i]}%</span>
+        <button class="btn-small" onclick="practiceSong(${i})" ${game.stamina<20?'disabled style=opacity:0.3':''}>练习</button>
       </div>
-      <div style="text-align:center;padding:8px">
-        <button class="action-btn btn-secondary" onclick="closeModal()">继续准备</button>
+    `).join('');
+    
+    let danceItems = dances.map((d, i) => `
+      <div style="display:flex;align-items:center;gap:8px;padding:8px;background:rgba(255,255,255,0.5);border-radius:8px;margin-bottom:6px">
+        <span style="font-size:13px;flex:1">💃 ${d}</span>
+        <div style="width:80px;height:6px;background:#e8e0f0;border-radius:3px;overflow:hidden">
+          <div style="width:${dp[i]}%;height:100%;background:${dp[i]>=80?'#70a060':'#c490c4'}"></div>
+        </div>
+        <span style="font-size:11px;color:${dp[i]>=80?'#70a060':'#888'};width:35px;text-align:right">${dp[i]}%</span>
+        <button class="btn-small" onclick="practiceDance(${i})" ${game.stamina<20?'disabled style=opacity:0.3':''}>练习</button>
       </div>
+    `).join('');
+    
+    let actionHtml = '';
+    if (allReady) {
+      actionHtml = `<div style="background:#d0f0d0;padding:10px;border-radius:8px;text-align:center;margin:10px 0">
+        <div style="color:#2a8a2a;font-weight:bold">✅ 所有曲目已就绪！</div>
+        <button class="action-btn btn-primary" style="margin-top:8px" onclick="closeModal();startConcert();">🎤 提前举办演唱会</button>
+      </div>`;
+    }
+    
+    showModal('🎤 演唱会筹备', `
+      <div style="text-align:center;margin-bottom:12px">
+        <div style="font-size:12px;color:#888">倒计时 <span style="color:#c490c4;font-weight:bold;font-size:16px">${game.concertDaysLeft}</span> 天</div>
+      </div>
+      
+      <div style="margin-bottom:12px">
+        <div style="font-size:11px;color:#888;margin-bottom:6px">🎵 曲目 (全部≥80%即可)</div>
+        ${songItems}
+      </div>
+      
+      <div style="margin-bottom:12px">
+        <div style="font-size:11px;color:#888;margin-bottom:6px">💃 舞蹈</div>
+        ${danceItems}
+      </div>
+      
+      ${actionHtml}
+      
+      <div style="font-size:10px;color:#888;text-align:center;margin-top:10px">
+        每次练习消耗20体力，进度+15%
+      </div>
+      <button class="action-btn btn-secondary" style="margin-top:10px" onclick="closeModal()">返回</button>
     `);
   } else {
     showModal('🎤 演唱会', `
@@ -1490,9 +1535,32 @@ function showConcert() {
   }
 }
 
+
+// ========== 演唱会练习 ==========
+function practiceSong(idx) {
+  if (game.stamina < 20) { toast('体力不足！'); return; }
+  if (!game.concertSongProgress) game.concertSongProgress = [0, 0, 0];
+  if (game.concertSongProgress[idx] >= 100) { toast('这首歌已经准备好了！'); return; }
+  game.stamina -= 20;
+  game.concertSongProgress[idx] = Math.min(100, game.concertSongProgress[idx] + 15);
+  saveGame(); updateUI();
+  showConcert();
+}
+
+function practiceDance(idx) {
+  if (game.stamina < 20) { toast('体力不足！'); return; }
+  if (!game.concertDanceProgress) game.concertDanceProgress = [0, 0, 0];
+  if (game.concertDanceProgress[idx] >= 100) { toast('这支舞已经准备好了！'); return; }
+  game.stamina -= 20;
+  game.concertDanceProgress[idx] = Math.min(100, game.concertDanceProgress[idx] + 15);
+  saveGame(); updateUI();
+  showConcert();
+}
 function planConcert() {
   game.concertPlanned = true;
   game.concertDaysLeft = 30;
+  game.concertSongProgress = [0, 0, 0];
+  game.concertDanceProgress = [0, 0, 0];
   addLog('开始筹备演唱会...');
   toast('演唱会筹备开始！30天后举办！');
   updateUI(); saveGame(); closeModal();
@@ -2326,7 +2394,19 @@ function showEditProfile() {
     <div class="form-group"><label class="form-label">头像</label><div class="avatar-grid">${avatarOpts}</div></div>
     <div class="form-group"><label class="form-label">姓名</label><input class="form-input" id="edit-name" value="${game.playerName}"></div>
     <div class="form-group"><label class="form-label">性别</label><select class="form-select" id="edit-gender"><option value="男" ${game.gender==='男'?'selected':''}>男</option><option value="女" ${game.gender==='女'?'selected':''}>女</option></select></div>
-    <div class="form-group"><label class="form-label">应援色</label><div class="color-picker-wrap">${colorSwatches}</div></div>
+    <div class="form-group"><label class="form-label">应援色</label>
+    <input type="color" id="edit-color" value="${game.supportColor || '#b8a9d4'}" style="width:100%;height:40px;border:2px solid #e8e0f0;border-radius:10px;cursor:pointer;padding:2px">
+    <div style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap">
+      <div style="width:24px;height:24px;border-radius:50%;background:#fd79a8;border:2px solid transparent;cursor:pointer" onclick="document.getElementById('edit-color').value='#fd79a8';this.style.borderColor='#333'"></div>
+      <div style="width:24px;height:24px;border-radius:50%;background:#a29bfe;border:2px solid transparent;cursor:pointer" onclick="document.getElementById('edit-color').value='#a29bfe';this.style.borderColor='#333'"></div>
+      <div style="width:24px;height:24px;border-radius:50%;background:#74b9ff;border:2px solid transparent;cursor:pointer" onclick="document.getElementById('edit-color').value='#74b9ff';this.style.borderColor='#333'"></div>
+      <div style="width:24px;height:24px;border-radius:50%;background:#55efc4;border:2px solid transparent;cursor:pointer" onclick="document.getElementById('edit-color').value='#55efc4';this.style.borderColor='#333'"></div>
+      <div style="width:24px;height:24px;border-radius:50%;background:#ffeaa7;border:2px solid transparent;cursor:pointer" onclick="document.getElementById('edit-color').value='#ffeaa7';this.style.borderColor='#333'"></div>
+      <div style="width:24px;height:24px;border-radius:50%;background:#ff7675;border:2px solid transparent;cursor:pointer" onclick="document.getElementById('edit-color').value='#ff7675';this.style.borderColor='#333'"></div>
+      <div style="width:24px;height:24px;border-radius:50%;background:#636e72;border:2px solid transparent;cursor:pointer" onclick="document.getElementById('edit-color').value='#636e72';this.style.borderColor='#333'"></div>
+      <div style="width:24px;height:24px;border-radius:50%;background:#d63031;border:2px solid transparent;cursor:pointer" onclick="document.getElementById('edit-color').value='#d63031';this.style.borderColor='#333'"></div>
+    </div>
+    </div>
     <div class="form-group"><label class="form-label">风格</label><select class="form-select" id="edit-style">${STYLE_OPTIONS.map(s=>`<option value="${s}" ${game.style===s?'selected':''}>${s}</option>`).join('')}</select></div>
     <button class="action-btn btn-primary" onclick="saveProfile()">保存</button>
   `);
@@ -2343,7 +2423,7 @@ function selectColor(color, el) {
 }
 function saveProfile() {
   if (window._editAvatar) { game.avatar = window._editAvatar; game.avatarData = null; }
-  game.supportColor = document.getElementById('edit-color').value || '#b8a9d4';
+  game.supportColor = document.getElementById('edit-color').value;
   game.playerName = document.getElementById('edit-name').value.trim()||'练习生';
   game.gender = document.getElementById('edit-gender').value;
   game.style = document.getElementById('edit-style').value;
