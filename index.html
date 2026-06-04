@@ -486,90 +486,235 @@ const ENTERTAINMENT_COSTS = {
 };
 
 
-// ========== AI智能聊天系统 ==========
+// ========== AI智能聊天系统 V2 ==========
 
-// NPC性格与回复库
-const NPC_REPLIES = {
+// NPC性格与专属对话库
+const NPC_DIALOGUE = {
   '经纪人王姐': {
-    keywords: ['通告', '工作', '安排', '赚钱', '通告', '活动'],
-    warmReplies: ['好的，有合适的通告我会第一时间告诉你！', '最近有几个品牌在谈，耐心等一下', '辛苦了，好好休息，明天有个重要通告'],
-    casualReplies: ['知道了', '好的', '没问题'],
+    personality: '专业干练，雷厉风行，但关心艺人体力',
+    style: '简短直接，公事公办',
+    dialogues: {
+      'greeting': ['小yu，今天状态怎么样？', '来了，今天有几个事要跟你说'],
+      'work': ['有个综艺邀约，报酬不错，你觉得呢？', '下周的通告我已经排好了，强度有点大'],
+      'rest': ['今天没通告，好好休息吧', '别太拼了，身体是本钱'],
+      'compliment': ['进步很大，继续保持', '这次舞台效果不错，客户很满意'],
+      'worried': ['别给自己太大压力，慢慢来'],
+      'default': ['知道了', '行，我安排一下', '好的']
+    }
   },
   '小助理阿涛': {
-    keywords: ['安排', '行程', '帮忙', '谢谢', '辛苦'],
-    warmReplies: ['放心吧哥/姐，我都安排好了！', '随时待命！', '已经搞定了，放心吧！'],
-    casualReplies: ['收到！', '好的', 'OK'],
+    personality: '勤快老实，话多但靠谱',
+    style: '热情活泼，随叫随到',
+    dialogues: {
+      'greeting': ['哥/姐早！今天有什么需要我跑腿的吗？', '来了来了！'],
+      'help': ['包在我身上！', '放心，这事我门清！'],
+      'thanks': ['客气啥，都是我该做的！'],
+      'busy': ['收到收到！', '我这就去办！'],
+      'default': ['OK！', '没问题！', '明白！']
+    }
   },
   '前辈周哥': {
-    keywords: ['谢谢', '前辈', '学习', '加油', '努力', '舞台'],
-    warmReplies: ['加油弟弟/妹妹，舞台上的你最有魅力', '慢慢来，别给自己太大压力', '记住，真实最重要'],
-    casualReplies: ['嗯', '好', '加油'],
+    personality: '温和慈祥，提携后辈',
+    style: '语重心长，像长辈一样',
+    dialogues: {
+      'greeting': ['小yu啊，最近怎么样？', '孩子，过来坐'],
+      'advice': ['记住，舞台靠的不是花哨，是真诚', '慢慢来，别急着证明什么'],
+      'encourage': ['你很有潜力，继续努力', '我看好你'],
+      'rest': ['累了就歇歇，别逞强'],
+      'default': ['嗯', '加油', '好孩子']
+    }
   },
   '妈妈': {
-    keywords: ['回家', '吃饭', '身体', '担心', '妈妈', '想', '累'],
-    warmReplies: ['注意身体啊，别太累了', '什么时候回来？妈妈给你做好吃的', '宝贝辛苦了，要好好休息'],
-    casualReplies: ['好的妈妈', '知道了', '嗯'],
+    personality: '慈爱唠叨，担心孩子',
+    style: '家常温暖，充满牵挂',
+    dialogues: {
+      'greeting': ['宝贝！怎么这么久不给妈打电话', '想你了，最近吃得好吗'],
+      'concern': ['别太累了啊，钱赚不完的', '天冷了记得加衣服'],
+      'food': ['回来妈给你炖汤', '外卖少吃，不健康'],
+      'miss': ['妈想你了', '什么时候回家看看'],
+      'worried': ['脸色怎么样？有没有好好吃饭？'],
+      'default': ['好的宝贝', '知道了', '嗯']
+    }
   },
   '小甜心': {
-    keywords: ['爱', '喜欢', '棒', '加油', '支持', '永远', '最好'],
-    warmReplies: ['我也爱你！永远支持你！💕', '你是最棒的！我们一直都在！', '冲冲冲！永远做你的后盾！'],
-    casualReplies: ['嗯嗯！', '加油！'],
+    personality: '疯狂追星，感情炽热',
+    style: 'emoji狂魔，尖叫输出',
+    dialogues: {
+      'greeting': ['啊啊啊啊终于回复我了！！！', '呜呜呜好激动！！'],
+      'love': ['我也爱你！！永远爱你！！💕💕', '我的宝！！全宇宙最棒！！'],
+      'support': ['冲鸭！！永远支持你！！', '你是最棒的！我们的骄傲！！'],
+      'concert': ['演唱会！！我一定要去！！尖叫！！', '票给我留！！必须留！！'],
+      'newSong': ['新歌！！快出！！我要循环一百遍！！', '等新歌等到花都谢了！！'],
+      'default': ['嗯嗯嗯！！', '加油加油！！💪', '冲冲冲！！']
+    }
   },
   '追星少女': {
-    keywords: ['好看', '帅', '漂亮', '新歌', '演唱会', '期待'],
-    warmReplies: ['呜呜呜太激动了！', '期待新歌！期待演唱会！', '太帅了吧！！！尖叫！！！'],
-    casualReplies: ['好棒', '嗯嗯'],
+    personality: '活泼可爱，追星狂热',
+    style: '活泼俏皮，小鹿乱撞',
+    dialogues: {
+      'greeting': ['姐姐/哥哥好！！', '今天也好开心！！'],
+      'photo': ['太帅了吧！！救命！！', '这张照片我要当壁纸！！'],
+      'concert': ['演唱会什么时候开！好期待！！', '我要去！！必须去！！'],
+      'daily': ['今天也在好好营业呢~', '开心！又是被偶像治愈的一天！'],
+      'default': ['好棒~', '嗯嗯~', '嘻嘻~']
+    }
   },
   '星星糖': {
-    keywords: ['星星', '闪亮', '发光', '梦想'],
-    warmReplies: ['一起发光吧！✨', '你是最闪亮的那颗星！', '闪闪发光的样子真好看~'],
-    casualReplies: ['✨✨', '嗯嗯'],
+    personality: '文艺小清新，追星理智',
+    style: '温柔细腻，文艺少女',
+    dialogues: {
+      'greeting': ['你好呀~', '今天也要开心哦'],
+      'star': ['你是夜空中最亮的星✨', '一起发光吧~'],
+      'dream': ['有梦想的人最闪耀', '我们都在~'],
+      'encourage': ['你已经很棒了', '慢慢来，不着急~'],
+      'default': ['✨', '嗯嗯~', '好~']
+    }
   },
   '爱豆小迷弟': {
-    keywords: ['厉害', '崇拜', '学习', '努力'],
-    warmReplies: ['哥/姐你太厉害了！', '我要向你学习！', '膜拜大佬！'],
-    casualReplies: ['👍', '666'],
+    personality: '狂热崇拜，追星低龄',
+    style: '疯狂打call，语气夸张',
+    dialogues: {
+      'greeting': ['哥！！', '大佬！！'],
+      'adore': ['哥/姐你太牛了！！', '我要是有你一半厉害就好了！'],
+      'learn': ['教教我！！', '怎么才能像你一样厉害！！'],
+      'support': ['冲冲冲！！顶你！！', '永远支持你！！'],
+      'default': ['👍👍👍', '666！！', '牛！！']
+    }
   },
   '路人甲': {
-    keywords: [],
-    warmReplies: ['哦', '知道了', '还行'],
-    casualReplies: ['嗯', '好'],
+    personality: '普通围观，路人心态',
+    style: '随意淡定',
+    dialogues: {
+      'greeting': ['你好'],
+      'default': ['哦', '嗯', '行吧', '还好']
+    }
   },
   '娱乐博主': {
-    keywords: ['爆料', '新闻', '采访', '报道'],
-    warmReplies: ['独家消息，敬请期待！', '据可靠消息...', '本台最新报道，稍后发布！'],
-    casualReplies: ['好的', '收到'],
+    personality: '消息灵通，追热点的媒体人',
+    style: '八卦满满，抢新闻',
+    dialogues: {
+      'greeting': ['收到线报！', '独家消息！'],
+      'news': ['据可靠消息...', '内部人士透露...'],
+      'exclusive': ['这个料我先爆为敬', '独家！独家！'],
+      'default': ['收到', '行']
+    }
   },
   '资深粉丝': {
-    keywords: ['老粉', '初心', '一路', '陪伴'],
-    warmReplies: ['从练习生就开始关注你了，初心不变', '看着你一步步成长，真的很骄傲', '老粉飘过，一路相伴'],
-    casualReplies: ['嗯', '加油'],
+    personality: '老粉情怀，陪伴多年',
+    style: '感慨回忆，初心不改',
+    dialogues: {
+      'greeting': ['老粉报到！', '从练习生就在了'],
+      'memory': ['还记得你第一次舞台吗？我都在', '初心不变，一路陪伴'],
+      'growth': ['看着你成长真的很骄傲', '这孩子真的长大了'],
+      'support': ['老粉永远在', '不离不弃'],
+      'default': ['嗯', '加油', '老粉飘过~']
+    }
   },
   '黑粉小明': {
-    keywords: [],
-    warmReplies: ['切，就这？', '炒作吧', '无语'],
-    casualReplies: ['呵呵', '随便'],
+    personality: '阴阳怪气，键盘侠',
+    style: '冷嘲热讽，杠精',
+    dialogues: {
+      'greeting': ['呵', '又来了'],
+      'mock': ['就这？', '呵呵', '就这水平？', '也不知道在红什么'],
+      'sarcasm': ['炒作吧', '营销咖', '立人设'],
+      'default': ['随便', '爱谁谁', '哦']
+    }
   }
 };
 
-// 根据关键词匹配回复
-function matchKeywordReply(sender, message) {
-  const npc = NPC_REPLIES[sender];
-  if (!npc) return null;
+// 消息意图识别
+function detectIntent(message, sender) {
+  const msg = message.toLowerCase().trim();
   
-  const msg = message.toLowerCase();
+  // 问好类
+  if (/^(你好|hi|hello|嗨|在吗|在嘛|哈喽|嗨嗨)/.test(msg)) {
+    return 'greeting';
+  }
   
-  // 检查关键词
-  for (const keyword of npc.keywords) {
-    if (msg.includes(keyword)) {
-      const replies = npc.warmReplies;
-      return replies[Math.floor(Math.random() * replies.length)];
-    }
+  // 感谢类
+  if (/^(谢谢|感谢|多谢|谢啦|谢了)/.test(msg)) {
+    return 'thanks';
+  }
+  
+  // 帮助类
+  if (/^(帮我|麻烦|能不能|可以帮我|帮我一下|拜托)/.test(msg)) {
+    return 'help';
+  }
+  
+  // 关心类
+  if (/^(累不累|辛苦吗|最近怎么样|还好吗|身体怎么样)/.test(msg)) {
+    return 'concern';
+  }
+  
+  // 工作类
+  if (/通告|工作|行程|安排|活动/.test(msg)) {
+    return 'work';
+  }
+  
+  // 休息类
+  if (/休息|睡觉|累了|疲惫|想休息/.test(msg)) {
+    return 'rest';
+  }
+  
+  // 鼓励类
+  if (/加油|努力|支持|棒|厉害|佩服|崇拜/.test(msg)) {
+    return 'encourage';
+  }
+  
+  // 演唱会类
+  if (/演唱会|门票|票|开唱/.test(msg)) {
+    return 'concert';
+  }
+  
+  // 新歌类
+  if (/新歌|专辑|音乐|发歌/.test(msg)) {
+    return 'newSong';
+  }
+  
+  // 想念类
+  if (/想你了|想你了|想你|好想你/.test(msg)) {
+    return 'miss';
+  }
+  
+  // 担心类
+  if (/担心|害怕|紧张|焦虑|不安/.test(msg)) {
+    return 'worried';
+  }
+  
+  // 建议类
+  if (/建议|觉得|意见|怎么样|你觉得呢/.test(msg)) {
+    return 'advice';
+  }
+  
+  // 日常类
+  if (/吃饭|干嘛|在干什么|今天/.test(msg)) {
+    return 'daily';
+  }
+  
+  // 夸赞类
+  if (/帅|漂亮|好看|美|棒|厉害|牛|赞/.test(msg)) {
+    return 'compliment';
+  }
+  
+  return 'default';
+}
+
+// 智能回复选择
+function smartReply(sender, playerName, message) {
+  const npc = NPC_DIALOGUE[sender];
+  if (!npc) return '嗯嗯';
+  
+  const intent = detectIntent(message, sender);
+  const dialogues = npc.dialogues;
+  
+  // 优先匹配意图
+  if (dialogues[intent] && dialogues[intent].length > 0) {
+    const replies = dialogues[intent];
+    return replies[Math.floor(Math.random() * replies.length)];
   }
   
   // 默认回复
-  const replies = npc.casualReplies;
-  return replies[Math.floor(Math.random() * replies.length)];
+  return dialogues.default[Math.floor(Math.random() * dialogues.default.length)];
 }
 
 // 智能回复函数
@@ -590,72 +735,8 @@ async function getSmartReply(sender, playerName, message, type) {
 
 // 本地智能回复
 function getLocalReply(sender, playerName, message, type) {
-  // 先尝试关键词匹配
-  const keywordReply = matchKeywordReply(sender, message);
-  if (keywordReply) return keywordReply;
-  
-  // 根据消息内容智能回复
-  const msg = message.toLowerCase();
-  
-  // 问好类
-  if (msg.includes('你好') || msg.includes('hi') || msg.includes('hello')) {
-    return ['你好呀！', '嗨~', '你好！'][Math.floor(Math.random() * 3)];
-  }
-  
-  // 感谢类
-  if (msg.includes('谢谢') || msg.includes('感谢')) {
-    return ['不客气！', '应该的！', '嘿嘿~'][Math.floor(Math.random() * 3)];
-  }
-  
-  // 问工作类
-  if (msg.includes('工作') || msg.includes('通告') || msg.includes('安排')) {
-    return ['最近工作挺忙的，但都顺利！', '工作的事交给王姐安排~'][Math.floor(Math.random() * 2)];
-  }
-  
-  // 问近况类
-  if (msg.includes('最近') || msg.includes('怎么样') || msg.includes('如何')) {
-    return ['挺好的，每天都在进步！', '还不错，继续努力中~'][Math.floor(Math.random() * 2)];
-  }
-  
-  // 问演唱会类
-  if (msg.includes('演唱会') || msg.includes('门票')) {
-    return ['演唱会在筹备中！期待和大家见面！', '门票到时候记得抢哦~'][Math.floor(Math.random() * 2)];
-  }
-  
-  // 问新歌类
-  if (msg.includes('新歌') || msg.includes('音乐') || msg.includes('专辑')) {
-    return ['新歌在准备中！很快和大家见面！', '敬请期待~'][Math.floor(Math.random() * 2)];
-  }
-  
-  // 问粉丝类
-  if (msg.includes('粉丝') || msg.includes('后援会')) {
-    return ['感谢粉丝们的支持！', '有你们真好！'][Math.floor(Math.random() * 2)];
-  }
-  
-  // 问感情类
-  if (msg.includes('恋爱') || msg.includes('对象') || msg.includes('男/女朋友')) {
-    return ['这个...还是专注事业吧~', '感情的事顺其自然~'][Math.floor(Math.random() * 2)];
-  }
-  
-  // 问累不累
-  if (msg.includes('累') || msg.includes('辛苦')) {
-    return ['有点累但是开心！', '还好，有你们就不累~'][Math.floor(Math.random() * 2)];
-  }
-  
-  // 问晚安/早安
-  if (msg.includes('晚安') || msg.includes('早安')) {
-    return ['晚安~好梦！', '早安！新的一天加油！'][Math.floor(Math.random() * 2)];
-  }
-  
-  // 默认回复
-  const defaultReplies = [
-    '嗯嗯，知道了~',
-    '好的！',
-    '好的好的~',
-    '没问题！',
-    '了解~',
-  ];
-  return defaultReplies[Math.floor(Math.random() * defaultReplies.length)];
+  // 使用新的智能对话系统
+  return smartReply(sender, playerName, message);
 }
 
 // 调用AI API（需要在配置了API时使用）
@@ -672,12 +753,16 @@ async function callAIAPI(sender, playerName, message, type) {
         playerName: playerName,
         message: message,
         type: type,
+        npcPersonality: NPC_DIALOGUE[sender]?.personality || '普通玩家',
+        conversationHistory: getRecentMessages(sender),
         gameState: {
           day: game.day,
           fans: game.fans,
           debuted: game.debuted,
           vocal: game.vocal,
-          dance: game.dance
+          dance: game.dance,
+          acting: game.acting || 0,
+          variety: game.variety || 0
         }
       })
     });
@@ -691,7 +776,20 @@ async function callAIAPI(sender, playerName, message, type) {
   } catch (e) {
     console.log('API调用失败');
   }
-  return null; // 返回null让调用方使用本地回复
+  return null;
+}
+
+// 获取最近的对话历史
+function getRecentMessages(sender) {
+  const key = 'chat_' + sender;
+  const history = localStorage.getItem(key);
+  if (history) {
+    try {
+      const msgs = JSON.parse(history);
+      return msgs.slice(-5); // 最近5条
+    } catch(e) {}
+  }
+  return [];
 }
 
 // 生成动态微博热搜
@@ -734,38 +832,30 @@ function generateAPIHotList() {
 function generateDynamicWeiboComments(weiboContent) {
   const playerName = game.playerName;
   const comments = [];
+  const fans = ['小甜心', '追星少女', '星星糖', '资深粉丝', '爱豆小迷弟', '路人甲', '黑粉小明'];
+  const avatars = {'小甜心':'💕', '追星少女':'🌸', '星星糖':'⭐', '资深粉丝':'🎖️', '爱豆小迷弟':'😎', '路人甲':'👤', '黑粉小明':'😒'};
   
-  // 真爱粉评论
+  // 生成5-8条评论
+  const commentCount = 5 + Math.floor(Math.random() * 4);
+  
+  // 先确保有真爱粉
+  const trueFans = ['小甜心', '追星少女', '星星糖', '资深粉丝'];
+  const trueFan = trueFans[rand(0, trueFans.length - 1)];
   comments.push({
-    name: '小甜心',
-    avatar: '💕',
-    text: '永远支持' + playerName + '！最棒的！💕',
+    name: trueFan,
+    avatar: avatars[trueFan],
+    text: smartReply(trueFan, playerName, weiboContent),
     likes: Math.floor(Math.random() * 500) + 100
   });
   
-  comments.push({
-    name: '追星少女',
-    avatar: '🌸',
-    text: '姐姐/哥哥说的太对了！',
-    likes: Math.floor(Math.random() * 300) + 50
-  });
-  
-  // 根据微博内容生成相关评论
-  if (weiboContent.includes('歌') || weiboContent.includes('音乐')) {
+  // 再添加几个粉丝评论
+  for (let i = 1; i < Math.min(commentCount - 2, 4); i++) {
+    const fan = trueFans[rand(0, trueFans.length - 1)];
     comments.push({
-      name: '音乐达人',
-      avatar: '🎵',
-      text: '新歌什么时候出？等不及了！',
-      likes: Math.floor(Math.random() * 200) + 30
-    });
-  }
-  
-  if (weiboContent.includes('演唱会')) {
-    comments.push({
-      name: '星星糖',
-      avatar: '⭐',
-      text: '抢票攻略有没有！',
-      likes: Math.floor(Math.random() * 400) + 80
+      name: fan,
+      avatar: avatars[fan],
+      text: smartReply(fan, playerName, weiboContent),
+      likes: Math.floor(Math.random() * 300) + 50
     });
   }
   
@@ -773,16 +863,16 @@ function generateDynamicWeiboComments(weiboContent) {
   comments.push({
     name: '路人甲',
     avatar: '👤',
-    text: '还行吧，关注了',
+    text: smartReply('路人甲', playerName, weiboContent),
     likes: Math.floor(Math.random() * 50) + 10
   });
   
-  // 黑粉（偶尔）
+  // 偶尔有黑粉（30%概率）
   if (Math.random() > 0.7) {
     comments.push({
-      name: '键盘侠',
+      name: '黑粉小明',
       avatar: '😒',
-      text: '就这水平？',
+      text: smartReply('黑粉小明', playerName, weiboContent),
       likes: Math.floor(Math.random() * 20)
     });
   }
@@ -1295,21 +1385,20 @@ function sendWXMsg() {
 }
 
 function generateWXReply(contact) {
-  const replies = [
-    '好的收到！',
-    '没问题！',
-    '期待你更好的表现~',
-    '注意休息哦',
-    '加油！',
-    '今天辛苦了',
-    '有通告我会第一时间通知你',
-    '好好练习，期待出道！',
-  ];
-  const text = replies[rand(0, replies.length - 1)];
-  game.wxMessages[contact.name].push({from:'other', text});
-  contact.lastMsg = text;
+  // 获取历史消息上下文
+  const msgHistory = game.wxMessages[contact.name] || [];
+  const lastPlayerMsg = msgHistory.length > 0 ? msgHistory[msgHistory.length - 1].text : '';
+  
+  // 使用智能回复系统
+  const reply = smartReply(contact.name, game.playerName, lastPlayerMsg);
+  
+  game.wxMessages[contact.name].push({from:'other', text:reply});
+  contact.lastMsg = reply;
   contact.lastMsgTime = 0;
   contact.replyWait = false;
+  
+  // 保存历史记录到localStorage供API使用
+  localStorage.setItem('chat_' + contact.name, JSON.stringify(msgHistory));
   
   saveGame();
   
@@ -1411,26 +1500,27 @@ function sendBubbleMsg() {
   saveGame();
   renderBubbleList();
   
-  // 粉丝随机回复
+  // 粉丝智能回复（多个粉丝随机回复）
   setTimeout(() => {
-    const fanReplies = [
-      {name:'小甜心', avatar:'💕', text:'姐姐/哥哥说得对！'},
-      {name:'追星少女', avatar:'🌸', text:'好喜欢这个！'},
-      {name:'星星糖', avatar:'⭐', text:'永远支持你！'},
-      {name:'爱笑的我', avatar:'😊', text:'今天也要加油~'},
-      {name:'小迷弟', avatar:'😎', text:'太帅了！'},
-    ];
-    const r = fanReplies[rand(0, fanReplies.length - 1)];
-    game.bubbleMessages.push({
-      fanId:r.name,
-      fanName:r.name,
-      fanAvatar:r.avatar,
-      text:r.text,
-      time:0
-    });
+    // 随机1-2个粉丝回复
+    const replyCount = Math.random() > 0.6 ? 2 : 1;
+    const fans = ['小甜心', '追星少女', '星星糖', '爱豆小迷弟'];
+    const fanAvatars = {'小甜心':'💕', '追星少女':'🌸', '星星糖':'⭐', '爱豆小迷弟':'😎'};
+    
+    for (let i = 0; i < replyCount; i++) {
+      const fan = fans[rand(0, fans.length - 1)];
+      const reply = smartReply(fan, game.playerName, text);
+      game.bubbleMessages.push({
+        fanId: fan,
+        fanName: fan,
+        fanAvatar: fanAvatars[fan],
+        text: reply,
+        time: 0
+      });
+    }
     saveGame();
     renderBubbleList();
-  }, 1500);
+  }, 1000 + Math.random() * 1000);
 }
 
 // ========== 练习 ==========
@@ -2260,30 +2350,28 @@ function blockPM(name) {
 }
 
 function generateRandomPM() {
-  const pmNames = ['小甜心', '追星少女', '星星糖', '爱豆小迷弟', '路人甲', '娱乐博主', '资深粉丝', '黑粉小明'];
-  const pmTexts = [
-    '姐姐/哥哥好棒！',
-    '永远支持你！',
-    '今天的舞台太帅了！',
-    '期待你的新作品！',
-    '加油！我们一直在！',
-    '好喜欢你啊！',
-    '可以要签名吗？',
-    '你就是个垃圾！', // 黑粉
-    '滚出娱乐圈！', // 黑粉
+  const pmTypes = [
+    {name: '小甜心', isHater: false, intent: 'love'},
+    {name: '追星少女', isHater: false, intent: 'support'},
+    {name: '星星糖', isHater: false, intent: 'dream'},
+    {name: '爱豆小迷弟', isHater: false, intent: 'adore'},
+    {name: '资深粉丝', isHater: false, intent: 'memory'},
+    {name: '路人甲', isHater: false, intent: 'greeting'},
+    {name: '黑粉小明', isHater: true, intent: 'mock'},
   ];
   
-  const name = pmNames[rand(0, pmNames.length - 1)];
-  const isHater = name === '黑粉小明' || pmTexts[pmTexts.length - 1].includes('垃圾') || pmTexts[pmTexts.length - 1].includes('滚');
+  const type = pmTypes[rand(0, pmTypes.length - 1)];
+  const topic = game.debuted ? '出道后的日常' : '练习生生活';
+  const text = smartReply(type.name, game.playerName, topic);
   
   game.pmList.unshift({
-    from: name,
-    text: pmTexts[rand(0, pmTexts.length - 1)],
-    isHater: isHater,
+    from: type.name,
+    text: text,
+    isHater: type.isHater,
     time: 0
   });
   
-  if (isHater) {
+  if (type.isHater) {
     game.fans = Math.max(0, game.fans - 10);
   }
   
