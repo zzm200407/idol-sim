@@ -723,13 +723,17 @@ async function getSmartReply(sender, playerName, message, type) {
   if (game.apiEndpoint && game.apiKey) {
     try {
       const reply = await callAIAPI(sender, playerName, message, type);
-      if (reply) return reply;
+      if (reply) {
+        console.log('[AI-API] 成功获取回复:', reply);
+        return reply;
+      }
     } catch (e) {
-      console.log('API调用失败，使用本地回复');
+      console.log('[AI-API] 调用失败:', e);
     }
   }
   
   // 本地智能回复
+  console.log('[AI-LOCAL] 使用本地回复，sender:', sender, 'message:', message);
   return getLocalReply(sender, playerName, message, type);
 }
 
@@ -741,6 +745,8 @@ function getLocalReply(sender, playerName, message, type) {
 
 // 调用AI API（需要在配置了API时使用）
 async function callAIAPI(sender, playerName, message, type) {
+  console.log('[API调用]', {sender, message, type, endpoint: game.apiEndpoint});
+  
   try {
     const response = await fetch(game.apiEndpoint, {
       method: 'POST',
@@ -767,14 +773,21 @@ async function callAIAPI(sender, playerName, message, type) {
       })
     });
     
-    if (response.ok) {
-      const data = await response.json();
-      if (data.reply) {
-        return data.reply;
-      }
+    if (!response.ok) {
+      console.log('[API错误] HTTP', response.status);
+      return null;
+    }
+    
+    const data = await response.json();
+    console.log('[API响应]', data);
+    
+    if (data.reply) {
+      return data.reply;
+    } else {
+      console.log('[API错误] 响应没有reply字段');
     }
   } catch (e) {
-    console.log('API调用失败');
+    console.log('[API异常]', e.message);
   }
   return null;
 }
