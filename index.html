@@ -2204,13 +2204,13 @@ function sendWXMsg() {
   }, 3000 + Math.random() * 1000);
 }
 
-function generateWXReply(contact) {
+async function generateWXReply(contact) {
   // 获取历史消息上下文
   const msgHistory = game.wxMessages[contact.name] || [];
   const lastPlayerMsg = msgHistory.length > 0 ? msgHistory[msgHistory.length - 1].text : '';
   
   // 使用智能回复系统
-  const reply = smartReply(contact.name, game.playerName, lastPlayerMsg);
+  const reply = await getSmartReply(contact.name, game.playerName, lastPlayerMsg, 'wechat');
   
   game.wxMessages[contact.name].push({from:'other', text:reply});
   contact.lastMsg = reply;
@@ -2329,7 +2329,7 @@ function sendBubbleMsg() {
     
     for (let i = 0; i < replyCount; i++) {
       const fan = fans[rand(0, fans.length - 1)];
-      const reply = smartReply(fan, game.playerName, text);
+      const reply = await getSmartReply(fan, game.playerName, text, 'bubble');
       game.bubbleMessages.push({
         fanId: fan,
         fanName: fan,
@@ -3006,7 +3006,7 @@ function postWeibo() {
     likes,
     forwards,
     comments,
-    commentList: generateComments()
+    commentList: await generateComments(text)
   });
   
   if (Math.random() < 0.3) {
@@ -3023,20 +3023,17 @@ function postWeibo() {
   updateUI(); saveGame();
 }
 
-function generateComments() {
-  const names = ['小甜心', '追星少女', '星星糖', '爱豆小迷弟', '娱乐圈观察', '永远支持', '路人甲'];
-  const texts = ['太棒了！', '永远支持你！', '加油！', '好喜欢这个！', '期待更多作品', '太优秀了', '打卡！'];
+
+async function generateComments(weiboContent) {
+  const names = ['小甜心', '追星少女', '星星糖', '资深粉丝', '爱豆小迷弟', '路人甲', '黑粉小明'];
   const comments = [];
   for (let i = 0; i < 5; i++) {
-    comments.push({
-      name: names[rand(0, names.length - 1)],
-      text: texts[rand(0, texts.length - 1)]
-    });
+    const name = names[rand(0, names.length - 1)];
+    const text = await getSmartReply(name, game.playerName, weiboContent, 'weibo_comment');
+    comments.push({ name, text });
   }
   return comments;
 }
-
-function renderMyWeibos() {
   const container = document.getElementById('myWeibos');
   if (!game.weibos.length) {
     container.innerHTML = '还没发过微博...';
@@ -3169,7 +3166,7 @@ function blockPM(name) {
   }
 }
 
-function generateRandomPM() {
+async function generateRandomPM() { {
   const pmTypes = [
     {name: '小甜心', isHater: false, intent: 'love'},
     {name: '追星少女', isHater: false, intent: 'support'},
@@ -3182,7 +3179,7 @@ function generateRandomPM() {
   
   const type = pmTypes[rand(0, pmTypes.length - 1)];
   const topic = game.debuted ? '出道后的日常' : '练习生生活';
-  const text = smartReply(type.name, game.playerName, topic);
+  const text = await getSmartReply(type.name, game.playerName, topic, 'weibo_hot');
   
   game.pmList.unshift({
     from: type.name,
