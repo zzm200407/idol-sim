@@ -3756,12 +3756,17 @@ function formatNum(n) {
   return n.toString();
 }
 
-// 自动启动游戏
-document.addEventListener('DOMContentLoaded', function() {
-  const saved = localStorage.getItem('idolCurrent');
-  if (saved) { init(); }
-  else { showInitialSetup(); }
-});
+// 自动启动游戏 - 直接在脚本末尾调用
+(function() {
+  try {
+    const saved = localStorage.getItem('idolCurrent');
+    console.log('[游戏] 启动中, saved:', saved ? '有存档' : '无存档');
+    if (saved) { init(); }
+    else { showInitialSetup(); }
+  } catch(e) {
+    console.error('[游戏] 启动失败:', e);
+  }
+})();
 </script>
 </body>
 </html>
