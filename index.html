@@ -3779,6 +3779,8 @@ function formatNum(n) {
 // ========== 密码锁 ==========
 function initLock() { 
   window._lockPwd = GAME_PASSWORD; 
+  console.log('[Lock] 密码已设置为:', window._lockPwd);
+  
   // 确保按钮在所有设备上都能点击
   const btn = document.getElementById('lockBtn');
   if (btn) {
@@ -3792,23 +3794,30 @@ function initLock() {
       e.stopPropagation();
       checkLock();
     });
+    // 额外：直接用onclick确保触发
+    btn.onclick = function() { checkLock(); };
+  } else {
+    console.log('[Lock] 警告: 找不到lockBtn元素');
   }
 }
 function checkLock() {
-  const val = document.getElementById('lockInput').value.trim();
-  if (val === window._lockPwd) {
-    document.getElementById('lockScreen').classList.add('hide');
+  const inputEl = document.getElementById('lockInput');
+  const val = inputEl ? inputEl.value : '';
+  const trimmed = val.trim();
+  console.log('[Lock] 输入值:', trimmed, '| 密码:', window._lockPwd, '| 匹配:', trimmed === window._lockPwd);
+  
+  if (trimmed === window._lockPwd) {
+    document.getElementById('lockScreen').style.display = 'none';
     const saved = localStorage.getItem('idolCurrent');
+    console.log('[Lock] 解锁成功，saved:', saved ? '有存档' : '无存档');
     if (saved) { init(); }
     else { showInitialSetup(); }
   } else {
     document.getElementById('lockError').textContent = '密码错误，请重试';
-    document.getElementById('lockInput').value = '';
-    document.getElementById('lockInput').focus();
+    if (inputEl) { inputEl.value = ''; inputEl.focus(); }
   }
 }
 initLock();
-document.getElementById('lockInput').focus();
 document.getElementById('lockInput').focus();
 </script>
 </body>
