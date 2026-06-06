@@ -139,16 +139,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue'
 .event-banner{position:absolute;top:44px;left:0;right:0;background:linear-gradient(135deg,#c490c4,#d4b0d4);padding:9px 14px;font-size:13px;font-weight:600;z-index:50;display:none;animation:slideDown 0.3s ease;color:#fff}
 .event-banner.show{display:block}
 @keyframes slideDown{from{transform:translateY(-100%)}to{transform:translateY(0)}}
-.lock-screen{position:absolute;top:0;left:0;right:0;bottom:0;background:#f5f0fa;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:#6b5b7a}
-.lock-screen.hide{display:none}
-.lock-icon{font-size:46px;margin-bottom:4px}
-.lock-title{font-size:18px;font-weight:700}
-.lock-sub{font-size:11px;opacity:0.4}
-.lock-input-wrap{display:flex;gap:8px;align-items:center}
-.lock-input{width:150px;background:#fff;border:2px solid #e8e0f0;border-radius:10px;padding:9px 12px;color:#6b5b7a;font-size:18px;text-align:center;letter-spacing:6px;outline:none}
-.lock-input:focus{border-color:#b8a9d4}
-.lock-btn{background:linear-gradient(135deg,#b8a9d4,#d4c8e8);border:none;color:#fff;padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer}
-.lock-error{color:#e07070;font-size:11px;height:14px}
 .wx-modal{padding:0!important}
 .wx-chat-header{display:flex;align-items:center;gap:8px;padding:10px 14px;background:#f5f0fa;border-bottom:1px solid #e8e0f0}
 .wx-back{background:none;border:none;color:#8b70b0;font-size:22px;cursor:pointer;padding:0;line-height:1}
@@ -253,16 +243,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue'
 </style>
 </head>
 <body>
-<div class="lock-screen" id="lockScreen">
-  <div class="lock-icon">🔒</div>
-  <div class="lock-title">爱豆模拟器</div>
-  <div class="lock-sub" id="lockDate"></div>
-  <div class="lock-input-wrap">
-    <input class="lock-input" id="lockInput" type="password" maxlength="8" placeholder="●●●●" onkeypress="if(event.key==='Enter')checkLock()">
-    <button id="lockBtn" class="lock-btn" onclick="checkLock()">解锁</button>
-  </div>
-  <div class="lock-error" id="lockError"></div>
-</div>
 
 <div class="phone-frame">
   <div class="status-bar">
@@ -3776,49 +3756,10 @@ function formatNum(n) {
   return n.toString();
 }
 
-// ========== 密码锁 ==========
-function initLock() { 
-  window._lockPwd = GAME_PASSWORD; 
-  console.log('[Lock] 密码已设置为:', window._lockPwd);
-  
-  // 确保按钮在所有设备上都能点击
-  const btn = document.getElementById('lockBtn');
-  if (btn) {
-    btn.addEventListener('click', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      checkLock();
-    });
-    btn.addEventListener('touchend', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      checkLock();
-    });
-    // 额外：直接用onclick确保触发
-    btn.onclick = function() { checkLock(); };
-  } else {
-    console.log('[Lock] 警告: 找不到lockBtn元素');
-  }
-}
-function checkLock() {
-  const inputEl = document.getElementById('lockInput');
-  const val = inputEl ? inputEl.value : '';
-  const trimmed = val.trim();
-  console.log('[Lock] 输入值:', trimmed, '| 密码:', window._lockPwd, '| 匹配:', trimmed === window._lockPwd);
-  
-  if (trimmed === window._lockPwd) {
-    document.getElementById('lockScreen').style.display = 'none';
-    const saved = localStorage.getItem('idolCurrent');
-    console.log('[Lock] 解锁成功，saved:', saved ? '有存档' : '无存档');
-    if (saved) { init(); }
-    else { showInitialSetup(); }
-  } else {
-    document.getElementById('lockError').textContent = '密码错误，请重试';
-    if (inputEl) { inputEl.value = ''; inputEl.focus(); }
-  }
-}
-initLock();
-document.getElementById('lockInput').focus();
+// 自动启动游戏
+const savedGame = localStorage.getItem('idolCurrent');
+if (savedGame) { init(); }
+else { showInitialSetup(); }
 </script>
 </body>
 </html>
