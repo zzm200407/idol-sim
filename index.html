@@ -259,7 +259,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue'
   <div class="lock-sub" id="lockDate"></div>
   <div class="lock-input-wrap">
     <input class="lock-input" id="lockInput" type="password" maxlength="8" placeholder="●●●●" onkeypress="if(event.key==='Enter')checkLock()">
-    <button class="lock-btn" onclick="checkLock()">解锁</button>
+    <button id="lockBtn" class="lock-btn" onclick="checkLock()">解锁</button>
   </div>
   <div class="lock-error" id="lockError"></div>
 </div>
@@ -3777,7 +3777,23 @@ function formatNum(n) {
 }
 
 // ========== 密码锁 ==========
-function initLock() { window._lockPwd = GAME_PASSWORD; }
+function initLock() { 
+  window._lockPwd = GAME_PASSWORD; 
+  // 确保按钮在所有设备上都能点击
+  const btn = document.getElementById('lockBtn');
+  if (btn) {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      checkLock();
+    });
+    btn.addEventListener('touchend', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      checkLock();
+    });
+  }
+}
 function checkLock() {
   const val = document.getElementById('lockInput').value.trim();
   if (val === window._lockPwd) {
@@ -3792,6 +3808,7 @@ function checkLock() {
   }
 }
 initLock();
+document.getElementById('lockInput').focus();
 document.getElementById('lockInput').focus();
 </script>
 </body>
