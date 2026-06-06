@@ -3757,9 +3757,11 @@ function formatNum(n) {
 }
 
 // 自动启动游戏
-const savedGame = localStorage.getItem('idolCurrent');
-if (savedGame) { init(); }
-else { showInitialSetup(); }
+document.addEventListener('DOMContentLoaded', function() {
+  const saved = localStorage.getItem('idolCurrent');
+  if (saved) { init(); }
+  else { showInitialSetup(); }
+});
 </script>
 </body>
 </html>
