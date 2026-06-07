@@ -1416,10 +1416,12 @@ function doSleep() {
     });
   }
   
-  // 检查是否到了分红日（游戏天数的第15天和第30天）
+  // 检查是否到了提现日（游戏天数的第15天和第30天）
   const dayInMonth = game.day % 30 || 30;
   if (dayInMonth === 15 || dayInMonth === 30) {
-    calculateDividend();
+    if (game.pendingDividend > 0) {
+      addLog('💰 分红日到！请到首页提现 ¥' + formatNum(game.pendingDividend));
+    }
   }
   
   addLog('休息一晚，体力+100，疲惫-10，天数+1');
@@ -1494,7 +1496,7 @@ function showJobs() {
     </div>`;
   });
   html += '</div>';
-  html += '<div style="font-size:10px;opacity:0.4;text-align:center;margin-top:8px">通告收入公司8玩家2分红，将在月底发放</div>';
+  html += '<div style="font-size:10px;opacity:0.4;text-align:center;margin-top:8px">通告收入公司8玩家2，直接到待分红</div>';
   
   showModal('📋 接通告', html);
 }
@@ -1518,8 +1520,11 @@ function takeJob(jobId) {
   game.fatigue = Math.min(100, game.fatigue + job.fatigue);
   game.fans += job.fans;
   
-  // 记录收入用于分红（出道后生效）
-  if (game.debuted) game.jobEarnings.push({type:jobId, fee:job.fee, day:game.day});
+  // 通告收入：直接加到待分红（公司8玩家2，出道后生效）
+  if (game.debuted) {
+    const playerShare = Math.floor(job.fee * 0.2);
+    game.pendingDividend += playerShare;
+  }
   
   // 通告完成后有30%概率认识新朋友
   if (Math.random() < 0.3) {
@@ -1586,10 +1591,10 @@ function showBrandEndorsement() {
     if (daysPassed >= 30) {
       const b = BRANDS.find(x => x.id === e.brandId);
       addLog('✨ ' + (b ? b.name : '品牌') + '代言到期，已自动解除');
-      // 公司8玩家2，玩家得20%
+      // 代言到期：钱到待分红（公司8玩家2）
       const playerShare = Math.floor(e.fee * 0.2);
-      toast('✨ 代言到期，已自动解除！收到代言费 ¥' + formatNum(playerShare));
-      game.money += playerShare;
+      game.pendingDividend += playerShare;
+      toast('✨ 代言到期！代言费 ¥' + formatNum(e.fee) + ' 已到待分红(¥' + formatNum(playerShare) + ')');
       game.totalSales += e.fee;
       return false;
     }
@@ -1653,7 +1658,7 @@ function takeEndorsement(brandId) {
   game.brandEndorsements.push({brandId: brandId, startDay: game.day, fee: fee});
   
   // 记录代言收入（出道后生效）
-  if (game.debuted) game.jobEarnings.push({type:'endorsement', brandId:brandId, fee:fee, day:game.day});
+  // 签约时不发钱，30天到期时按公司8玩家2发到待分红
   
   addLog(`✨ 签约${brand.name}，代言费已记录，30天后自动解除`);
   toast(`✨ 签约${brand.name}成功！30天后自动解除`);
@@ -1862,21 +1867,35 @@ function checkConcert() {
 function holdConcert() {
   game.concertPlanned = false;
   game.concertCooldown = 30;
-  game.fans += 10000;
   
-  // 演唱会收入记录分红（出道后生效）
-  if (game.debuted) game.jobEarnings.push({type:'concert', fee:100000, day:game.day});
+  // 检查所有曲目是否≥80%
+  const sp = game.concertSongProgress || [0, 0, 0];
+  const dp = game.concertDanceProgress || [0, 0, 0];
+  const allReady = sp.every(p => p >= 80) && dp.every(p => p >= 80);
   
-  addLog('🎤 演唱会成功举办！粉丝+10000！');
-  eventBanner('🎤 演唱会大成功！');
-  toast('演唱会大成功！粉丝+10000！');
+  if (allReady) {
+    // 成功
+    game.fans += 10000;
+    game.pendingDividend += 20000; // 10万的20%
+    addLog('🎤 演唱会圆满成功！粉丝+10000！');
+    addLog('💰 演唱会收入 ¥100000 已到待分红(¥20000)');
+    eventBanner('🎤 演唱会大成功！上热搜了！');
+    toast('演唱会圆满成功！粉丝+10000！');
+  } else {
+    // 失败
+    game.fans = Math.max(0, game.fans - 5000);
+    addLog('💔 演唱会失误！部分曲目准备不足，粉丝-5000');
+    eventBanner('💔 演唱会失误...上黑热搜了');
+    toast('演唱会失误...部分曲目准备不足');
+  }
+  
   updateUI(); saveGame();
 }
 
 // ========== 分红提现 ==========
 function withdrawDividend() {
-  const today = new Date().getDate();
-  if (today !== 15 && today !== 30) { toast('分红只能在每月15号和30号提现'); return; }
+  const dayInMonth = game.day % 30 || 30;
+  if (dayInMonth !== 15 && dayInMonth !== 30) { toast('分红只能在每月15号和30号提现'); return; }
   if (game.pendingDividend <= 0) { toast('没有可提现的分红'); return; }
   
   const amount = game.pendingDividend;
@@ -1888,27 +1907,7 @@ function withdrawDividend() {
   updateUI(); saveGame();
 }
 
-// 月底分红计算（睡觉时触发）
-function calculateDividend() {
-  if (!game.debuted) return; // 出道后才能参与分红
-  if (!game.jobEarnings || game.jobEarnings.length === 0) return;
-  
-  let totalCompany = 0;
-  game.jobEarnings.forEach(j => {
-    totalCompany += j.fee;
-  });
-  
-  // 公司8玩家2分红
-  const playerShare = Math.floor(totalCompany * 0.2);
-  game.pendingDividend += playerShare;
-  game.totalEarnings += totalCompany;
-  
-  addLog('💰 本月分红 ¥' + formatNum(playerShare) + ' 已到账，请到首页提现');
-  toast('💰 本月分红 ¥' + formatNum(playerShare) + '！');
-  
-  // 清空记录
-  game.jobEarnings = [];
-}
+// 分红计算（已整合到各收入来源，每笔收入直接到待分红）
 
 // ========== 考核 ==========
 function showAssessment() {
