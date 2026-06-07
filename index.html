@@ -994,6 +994,12 @@ function updateUI() {
     document.getElementById('playerAvatar').innerHTML = `<img src="${game.avatarData}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
     document.getElementById('playerAvatar').style.background = 'none';
   }
+  const playerEl = document.getElementById('playerAvatar');
+  if (game.supportColor) {
+    playerEl.style.boxShadow = '0 0 0 3px ' + game.supportColor + ', 0 0 15px ' + game.supportColor + '80';
+  } else {
+    playerEl.style.boxShadow = 'none';
+  }
   document.getElementById('stat-vocal').textContent = game.vocal;
   document.getElementById('stat-dance').textContent = game.dance;
   document.getElementById('stat-acting').textContent = game.acting;
@@ -1049,6 +1055,12 @@ function updateUI() {
   if (game.avatarData) {
     document.getElementById('mineAvatar').innerHTML = `<img src="${game.avatarData}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
     document.getElementById('mineAvatar').style.background = 'none';
+  }
+  const mineEl = document.getElementById('mineAvatar');
+  if (game.supportColor) {
+    mineEl.style.boxShadow = '0 0 0 3px ' + game.supportColor + ', 0 0 15px ' + game.supportColor + '80';
+  } else {
+    mineEl.style.boxShadow = 'none';
   }
   document.getElementById('mineName').textContent = game.playerName;
   document.getElementById('mineId').textContent = game.playerId;
@@ -1138,8 +1150,8 @@ function renderWXList() {
   });
   
   const html = allContacts.map(c => {
-  const colorCircle = c.color ? '<div style="position:absolute;bottom:-2px;right:-2px;width:14px;height:14px;border-radius:50%;background:'+c.color+';border:2px solid #fff;z-index:2"></div>' : '';
-  const avatarHtml = '<div class="msg-avatar" style="position:relative;display:inline-block">' + (c.avatarData ? '<img src="'+c.avatarData+'">' : c.avatar) + colorCircle + '</div>';
+  const avatarWrap = c.color ? '<div style="display:inline-block;border-radius:50%;padding:3px;background:'+c.color+';box-shadow:0 0 10px '+c.color+'80">' : '<div style="display:inline-block">';
+  const avatarHtml = avatarWrap + '<div class="msg-avatar">' + (c.avatarData ? '<img src="'+c.avatarData+'">' : c.avatar) + '</div></div>';
   return `<div class="msg-item" onclick="openWXChat('${c.id}')">` + avatarHtml + `
       <div class="msg-info">
         <div class="msg-name">${c.name} ${c.msgCount > 0 ? '<span style="background:#e07070;border-radius:8px;padding:1px 5px;font-size:9px;color:#fff">'+c.msgCount+'</span>' : ''}</div>
@@ -1148,6 +1160,16 @@ function renderWXList() {
     </div>`;
 }).join('');
   list.innerHTML = html || '<div style="padding:20px;text-align:center;opacity:0.5">暂无联系人</div>';
+}
+
+function breakup(contactId) {
+  const contact = game.wxContacts.find(c => c.id === contactId) || game.newContacts.find(c => c.id === contactId);
+  if (!contact) return;
+  game.relationship = '单身';
+  game.currentPartner = null;
+  contact.relationship = null;
+  closeModal();
+  alert('💔 已与 ' + contact.name + ' 分手');
 }
 
 function breakup(contactId) {
