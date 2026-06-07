@@ -1416,6 +1416,12 @@ function doSleep() {
     });
   }
   
+  // 检查是否到了分红日（游戏天数的第15天和第30天）
+  const dayInMonth = game.day % 30 || 30;
+  if (dayInMonth === 15 || dayInMonth === 30) {
+    calculateDividend();
+  }
+  
   addLog('休息一晚，体力+100，疲惫-10，天数+1');
   toast('新的一天开始了！');
   updateUI(); saveGame(); closeModal();
