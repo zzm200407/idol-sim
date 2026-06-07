@@ -2331,8 +2331,9 @@ function showContactProfile(contactId) {
   const rel = game.relationships.find(r=>r.id===contactId);
   if (!contact) return;
   
-  const avatarOpts = AVATAR_EMOJIS.map(a => `<div class="avatar-opt ${contact.avatar===a?'selected':''}" onclick="setContactAvatar('${contactId}','${a}',this)">${a}</div>`).join('');
-  const genderSelect = rel && rel.canEdit ? `
+  const avatarOpts = AVATAR_EMOJIS.map(a => `<div class="avatar-opt ${contact.avatar===a&&!contact.avatarData?'selected':''}" onclick="setContactAvatar('${contactId}','${a}',this)">${a}</div>`).join('');
+  const avatarUploadBtn = contact.avatarData ? `<div class="avatar-opt selected" onclick="document.getElementById('contactAvatarUpload').click()"><img src="${contact.avatarData}" style="width:36px;height:36px;border-radius:50%;object-fit:cover"></div>` : `<div class="avatar-opt" onclick="document.getElementById('contactAvatarUpload').click()">📷</div>`;
+  const genderSelect = `
     <div class="form-group">
       <label class="form-label">性别</label>
       <select class="form-select" id="c-gender">
@@ -2340,11 +2341,7 @@ function showContactProfile(contactId) {
         <option value="女" ${contact.gender==='女'?'selected':''}>女</option>
       </select>
     </div>
-    <div class="form-group">
-      <label class="form-label">年龄</label>
-      <input class="form-input" id="c-age" type="number" value="${contact.age || 20}" min="15" max="60">
-    </div>
-  ` : '';
+  `;
   
   const dateBtn = rel&&rel.canDate&&rel.value>=100&&game.relationship==='单身'&&!contact.hidden?`
     <div style="background:#c490c4;border-radius:12px;padding:14px;margin-bottom:10px;text-align:center">
@@ -2355,6 +2352,7 @@ function showContactProfile(contactId) {
   ` : '';
   
   showModal(contact.name + ' — 编辑资料', `
+    <input type="file" id="contactAvatarUpload" accept="image/*" style="display:none" onchange="handleContactAvatarUpload(event,'${contactId}')">
     <div class="form-group"><label class="form-label">头像</label><div class="avatar-grid">${avatarOpts}${avatarUploadBtn}</div></div>
     <div class="form-group"><label class="form-label">姓名</label><input class="form-input" id="c-name" value="${contact.name}"></div>
     ${genderSelect}
@@ -2518,7 +2516,10 @@ function showTeam() {
 }
 function switchToTeam() { 
   game.solo=false; 
-  game.members=[{name:'队友A',role:'主舞',age:20,avatar:'💃'},{name:'队友B',role:'rapper',age:21,avatar:'🎧'}]; 
+  game.members=[
+    {name:'队友A',role:'主舞',age:20,avatar:'💃',gender:'女',color:'#FF6B6B'},
+    {name:'队友B',role:'rapper',age:21,avatar:'🎧',gender:'男',color:'#4ECDC4'}
+  ]; 
   // 添加团队成员到微信联系人
   addMemberToContacts();
   saveGame(); updateUI(); closeModal(); showTeam(); toast('团队已组建！'); 
@@ -2558,17 +2559,28 @@ function updateTeamContacts() {
 }
 function editMember(idx) {
   const m = game.members[idx];
-  showModal('编辑成员', `<div class="form-group"><label class="form-label">姓名</label><input class="form-input" id="m-name" value="${m.name}"></div>
+  const avatarOpts = AVATAR_EMOJIS.map(a => `<div class="avatar-opt ${m.avatar===a&&!m.avatarData?'selected':''}" onclick="setMemberAvatar(${idx},'${a}',this)">${a}</div>`).join('');
+  const avatarUploadBtn = m.avatarData ? `<div class="avatar-opt selected" onclick="document.getElementById('memberAvatarUpload').click()"><img src="${m.avatarData}" style="width:36px;height:36px;border-radius:50%;object-fit:cover"></div>` : `<div class="avatar-opt" onclick="document.getElementById('memberAvatarUpload').click()">📷</div>`;
+  const colorOpts = ['#FF6B6B','#4ECDC4','#45B7D1','#96CEB4','#FFEAA7','#DDA0DD','#98D8C8','#F7DC6F','#BB8FCE','#85C1E9'].map(c => `<div class="color-swatch ${m.color===c?'selected':''}" style="background:${c}" onclick="setMemberColor(${idx},'${c}',this)"></div>`).join('');
+  
+  showModal('编辑成员', `
+    <input type="file" id="memberAvatarUpload" accept="image/*" style="display:none" onchange="handleMemberAvatarUpload(event,${idx})">
+    <div class="form-group"><label class="form-label">头像</label><div class="avatar-grid">${avatarOpts}${avatarUploadBtn}</div></div>
+    <div class="form-group"><label class="form-label">姓名</label><input class="form-input" id="m-name" value="${m.name}"></div>
+    <div class="form-group"><label class="form-label">性别</label><select class="form-select" id="m-gender"><option value="男" ${m.gender==='男'?'selected':''}>男</option><option value="女" ${m.gender==='女'?'selected':''}>女</option></select></div>
     <div class="form-group"><label class="form-label">定位</label><input class="form-input" id="m-role" value="${m.role}"></div>
     <div class="form-group"><label class="form-label">年龄</label><input class="form-input" id="m-age" type="number" value="${m.age}" min="15" max="40"></div>
+    <div class="form-group"><label class="form-label">应援色</label><div class="color-swatches">${colorOpts}</div></div>
     <button class="action-btn btn-primary" onclick="saveMember(${idx})">保存</button>`);
 }
 function saveMember(idx) {
   game.members[idx].name=document.getElementById('m-name').value||'队友';
+  game.members[idx].gender=document.getElementById('m-gender').value||'男';
   game.members[idx].role=document.getElementById('m-role').value||'成员';
   game.members[idx].age=parseInt(document.getElementById('m-age').value)||20;
+  if (window._memberColor) game.members[idx].color=window._memberColor;
   updateTeamContacts();
-  saveGame(); closeModal(); showTeam();
+  saveGame(); updateUI(); closeModal(); showTeam(); toast('保存成功');
 }
 function showTeamName() { showModal('团队名称', `<div class="form-group"><label class="form-label">团队名</label><input class="form-input" id="team-name-input" value="${game.teamName}" placeholder="给你的团队起个名字"></div><button class="action-btn btn-primary" onclick="saveTeamName()">保存</button>`); }
 function saveTeamName() { game.teamName=document.getElementById('team-name-input').value.trim()||''; saveGame(); closeModal(); toast('团队名已保存'); }
@@ -2721,6 +2733,34 @@ function handleContactAvatarUpload(event, contactId) {
     toast('头像已更换');
   };
   reader.readAsDataURL(file);
+}
+
+function setMemberAvatar(idx, emoji, el) {
+  document.querySelectorAll('.avatar-opt').forEach(x=>x.classList.remove('selected'));
+  el.classList.add('selected');
+  window._memberAvatar = emoji;
+  window._memberAvatarData = null;
+}
+
+function handleMemberAvatarUpload(event, idx) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    game.members[idx].avatarData = e.target.result;
+    game.members[idx].avatar = '📷';
+    updateTeamContacts();
+    saveGame(); updateUI();
+    toast('头像已更换');
+    editMember(idx);
+  };
+  reader.readAsDataURL(file);
+}
+
+function setMemberColor(idx, color, el) {
+  document.querySelectorAll('.color-swatch').forEach(x=>x.classList.remove('selected'));
+  el.classList.add('selected');
+  window._memberColor = color;
 }
 
 // ========== 模态框 ==========
