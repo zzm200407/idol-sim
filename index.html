@@ -1172,16 +1172,6 @@ function breakup(contactId) {
   alert('💔 已与 ' + contact.name + ' 分手');
 }
 
-function breakup(contactId) {
-  const contact = game.wxContacts.find(c => c.id === contactId) || game.newContacts.find(c => c.id === contactId);
-  if (!contact) return;
-  game.relationship = '单身';
-  game.currentPartner = null;
-  contact.relationship = null;
-  closeModal();
-  alert('💔 已与 ' + contact.name + ' 分手');
-}
-
 function openWXChat(contactId) {
   const contact = game.wxContacts.find(c => c.id === contactId) || game.newContacts.find(c => c.id === contactId);
   if (!contact) return;
