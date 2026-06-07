@@ -312,6 +312,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue'
       <div class="countdown-card" id="dividendCard">
         <div class="countdown-title">💰 待领取分红</div>
         <div class="countdown-time" id="dividendAmount">¥0</div>
+        <div class="countdown-sub" id="dividendNextDate" style="font-size:10px;opacity:0.6"></div>
         <button class="action-btn btn-primary" style="margin-top:8px" onclick="withdrawDividend()">提现</button>
       </div>
       
@@ -1011,6 +1012,11 @@ function updateUI() {
     document.getElementById('dividendCard').style.display = 'block';
     document.getElementById('dividendCard').classList.add('show');
     document.getElementById('dividendAmount').textContent = '¥' + formatNum(game.pendingDividend);
+    // 显示下次可提现日期
+    const dayInM = game.day % 30 || 30;
+    const nextDate = dayInM < 15 ? 15 : (dayInM < 30 ? 30 : 15);
+    const daysLeft = nextDate - dayInM;
+    document.getElementById('dividendNextDate').textContent = '下次' + nextDate + '号可提现(' + daysLeft + '天)';
   } else {
     document.getElementById('dividendCard').style.display = 'none';
   }
@@ -1407,6 +1413,9 @@ function doSleep() {
   game.day++;
   game.month = Math.floor(game.day / 30) + 1;
   
+  // 演唱会冷却期递减
+  if (game.concertCooldown > 0) game.concertCooldown--;
+  
   // 出道后品牌好感度增加
   if (game.debuted) {
     BRANDS.forEach(b => {
@@ -1416,7 +1425,25 @@ function doSleep() {
     });
   }
   
-  // 检查是否到了提现日（游戏天数的第15天和第30天）
+  // 检查代言是否到期（30天后自动解除，钱到待分红）
+  const expiredEndorsements = [];
+  game.brandEndorsements = game.brandEndorsements.filter(e => {
+    const daysPassed = game.day - e.startDay;
+    if (daysPassed >= 30) {
+      expiredEndorsements.push(e);
+      return false;
+    }
+    return true;
+  });
+  // 处理到期的代言
+  expiredEndorsements.forEach(e => {
+    const b = BRANDS.find(x => x.id === e.brandId);
+    const playerShare = Math.floor(e.fee * 0.2);
+    game.pendingDividend += playerShare;
+    addLog('✨ ' + (b ? b.name : '品牌') + '代言到期！代言费 ¥' + formatNum(e.fee) + ' 已到待分红(¥' + formatNum(playerShare) + ')');
+  });
+  
+  // 检查是否到了提现日
   const dayInMonth = game.day % 30 || 30;
   if (dayInMonth === 15 || dayInMonth === 30) {
     if (game.pendingDividend > 0) {
