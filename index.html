@@ -1570,7 +1570,7 @@ function takeJob(jobId) {
 }
 
 function meetNewFriendFromJob() {
-  const names = ['小林', '小陈', '小雨', '小张', '小李', '小王', '小赵', '小孙'];
+  const entertainmentNames = ['林导', '陈制片', '张编剧', '李经纪人', '王造型师', '赵摄影师', '孙灯光师', '周主持人', '吴歌手', '郑演员', '黄导演', '钱编剧', '孙制片', '刘经纪人', '徐造型师', '马摄影师', '胡灯光师', '朱主持人', '魏歌手', '唐演员'];
   const avatars = ['👦', '👧', '🧑', '👱‍♀️', '👱', '🤵', '👰', '🧔'];
   const newId = 'new_' + Date.now();
   const name = names[rand(0, names.length - 1)];
@@ -1715,9 +1715,9 @@ function showConcert() {
   }
   
   if (game.concertPlanned) {
-    const songs = ['《星光》', '《追梦》', '《绽放》'];
+    const songs = ['《星光》', '《追梦》'];
     const dances = ['《舞动青春》', '《狂野节拍》'];
-    const sp = game.concertSongProgress || [0, 0, 0];
+    const sp = game.concertSongProgress || [0, 0];
     const dp = game.concertDanceProgress || [0, 0, 0];
     const allReady = sp.every(p => p >= 80) && dp.every(p => p >= 80);
     
@@ -1790,7 +1790,7 @@ function showConcert() {
 // ========== 演唱会练习 ==========
 function practiceSong(idx) {
   if (game.stamina < 20) { toast('体力不足！'); return; }
-  if (!game.concertSongProgress) game.concertSongProgress = [0, 0, 0];
+  if (!game.concertSongProgress) game.concertSongProgress = [0, 0];
   if (game.concertSongProgress[idx] >= 100) { toast('这首歌已经准备好了！'); return; }
   game.stamina -= 20;
   game.concertSongProgress[idx] = Math.min(100, game.concertSongProgress[idx] + 15);
@@ -1810,7 +1810,7 @@ function practiceDance(idx) {
 function planConcert() {
   game.concertPlanned = true;
   game.concertDaysLeft = 30;
-  game.concertSongProgress = [0, 0, 0];
+  game.concertSongProgress = [0, 0];
   game.concertDanceProgress = [0, 0, 0];
   addLog('开始筹备演唱会...');
   toast('演唱会筹备开始！30天后举办！');
@@ -1879,7 +1879,7 @@ function holdConcert() {
   game.concertCooldown = 30;
   
   // 检查所有曲目是否≥80%
-  const sp = game.concertSongProgress || [0, 0, 0];
+  const sp = game.concertSongProgress || [0, 0];
   const dp = game.concertDanceProgress || [0, 0, 0];
   const allReady = sp.every(p => p >= 80) && dp.every(p => p >= 80);
   
@@ -2348,13 +2348,18 @@ function showContactProfile(contactId) {
     </div>
   `;
   
-  const dateBtn = rel&&rel.canDate&&rel.value>=100&&game.relationship==='单身'&&!contact.hidden?`
+  const dateBtn = game.relationship==='恋爱中'&&game.currentPartner===contactId?`
+    <div style="background:#e07070;border-radius:12px;padding:14px;margin-bottom:10px;text-align:center">
+      <div style="font-size:13px;font-weight:700;margin-bottom:8px">❤️ 正在交往中</div>
+      <button class="btn-small" style="background:#fff;color:#e07070;margin:2px" onclick="breakup('${contactId}')">💔 分手</button>
+    </div>
+  ` : (rel&&rel.canDate&&rel.value>=100&&game.relationship==='单身'&&!contact.hidden?`
     <div style="background:#c490c4;border-radius:12px;padding:14px;margin-bottom:10px;text-align:center">
       <div style="font-size:13px;font-weight:700;margin-bottom:8px">好感度达到100！</div>
       <button class="btn-small" style="background:#fff;color:#c490c4;margin:2px" onclick="confessTo('${contactId}')">💕 告白</button>
       <button class="btn-small" style="background:rgba(255,255,255,0.2);color:#fff;margin:2px" onclick="befriend('${contactId}')">🤝 做朋友</button>
     </div>
-  ` : '';
+  ` : '');
   
   showModal(contact.name + ' — 编辑资料', `
     <input type="file" id="contactAvatarUpload" accept="image/*" style="display:none" onchange="handleContactAvatarUpload(event,'${contactId}')">
@@ -2415,6 +2420,7 @@ function confessTo(contactId) {
   
   if (Math.random() < 0.7) {
     game.relationship = '恋爱中';
+    game.currentPartner = contactId;
     addLog('💕 和' + contact.name + '在一起了！（秘密恋爱中）');
     toast('💕 告白成功！祝幸福！');
     rel.value = 100;
@@ -2513,7 +2519,10 @@ function showTeam() {
     </div>`); return;
   }
   const body = game.members.map((m,i)=>`<div class="member-item">
-    <div class="member-avatar-sm">${m.avatar}</div>
+    <div class="member-avatar-sm" style="position:relative;display:inline-block">
+      ${m.avatarData ? `<img src="${m.avatarData}" style="width:40px;height:40px;border-radius:50%;object-fit:cover">` : `<span style="font-size:20px">${m.avatar}</span>`}
+      ${m.color ? `<div style="position:absolute;bottom:-2px;right:-2px;width:14px;height:14px;border-radius:50%;background:${m.color};border:2px solid #fff"></div>` : ''}
+    </div>
     <div class="member-info"><div class="member-name-sm">${m.name}</div><div class="member-role">${m.role} · ${m.age}岁</div></div>
     <button class="btn-small" style="background:#e8e0f0;color:#6b5b7a" onclick="editMember(${i})">编辑</button>
   </div>`).join('');
@@ -2522,8 +2531,8 @@ function showTeam() {
 function switchToTeam() { 
   game.solo=false; 
   game.members=[
-    {name:'队友A',role:'主舞',age:20,avatar:'💃',gender:'女',color:'#FF6B6B'},
-    {name:'队友B',role:'rapper',age:21,avatar:'🎧',gender:'男',color:'#4ECDC4'}
+    {name:'队友A',role:'主舞',age:20,avatar:'💃',gender:'女',color:'#FF6B6B',avatarData:null},
+    {name:'队友B',role:'rapper',age:21,avatar:'🎧',gender:'男',color:'#4ECDC4',avatarData:null}
   ]; 
   // 添加团队成员到微信联系人
   addMemberToContacts();
@@ -2566,7 +2575,7 @@ function editMember(idx) {
   const m = game.members[idx];
   const avatarOpts = AVATAR_EMOJIS.map(a => `<div class="avatar-opt ${m.avatar===a&&!m.avatarData?'selected':''}" onclick="setMemberAvatar(${idx},'${a}',this)">${a}</div>`).join('');
   const avatarUploadBtn = m.avatarData ? `<div class="avatar-opt selected" onclick="document.getElementById('memberAvatarUpload').click()"><img src="${m.avatarData}" style="width:36px;height:36px;border-radius:50%;object-fit:cover"></div>` : `<div class="avatar-opt" onclick="document.getElementById('memberAvatarUpload').click()">📷</div>`;
-  const colorOpts = ['#FF6B6B','#4ECDC4','#45B7D1','#96CEB4','#FFEAA7','#DDA0DD','#98D8C8','#F7DC6F','#BB8FCE','#85C1E9'].map(c => `<div class="color-swatch ${m.color===c?'selected':''}" style="background:${c}" onclick="setMemberColor(${idx},'${c}',this)"></div>`).join('');
+  const colorPicker = `<div class="color-picker-wrap"><input type="color" id="memberColorPicker" value="${m.color || '#FF6B6B'}" onchange="setMemberColor(${idx},this.value)"><span style="margin-left:8px;font-size:12px">当前: <span id="memberColorPreview" style="display:inline-block;width:20px;height:20px;border-radius:50%;background:${m.color || '#FF6B6B'};vertical-align:middle"></span></span></div>`;
   
   showModal('编辑成员', `
     <input type="file" id="memberAvatarUpload" accept="image/*" style="display:none" onchange="handleMemberAvatarUpload(event,${idx})">
@@ -2575,7 +2584,7 @@ function editMember(idx) {
     <div class="form-group"><label class="form-label">性别</label><select class="form-select" id="m-gender"><option value="男" ${m.gender==='男'?'selected':''}>男</option><option value="女" ${m.gender==='女'?'selected':''}>女</option></select></div>
     <div class="form-group"><label class="form-label">定位</label><input class="form-input" id="m-role" value="${m.role}"></div>
     <div class="form-group"><label class="form-label">年龄</label><input class="form-input" id="m-age" type="number" value="${m.age}" min="15" max="40"></div>
-    <div class="form-group"><label class="form-label">应援色</label><div class="color-swatches">${colorOpts}</div></div>
+    <div class="form-group"><label class="form-label">应援色</label>${colorPicker}</div>
     <button class="action-btn btn-primary" onclick="saveMember(${idx})">保存</button>`);
 }
 function saveMember(idx) {
@@ -2756,16 +2765,16 @@ function handleMemberAvatarUpload(event, idx) {
     game.members[idx].avatar = '📷';
     updateTeamContacts();
     saveGame(); updateUI();
-    toast('头像已更换');
+    closeModal();
     editMember(idx);
+    toast('头像已更换');
   };
   reader.readAsDataURL(file);
 }
 
-function setMemberColor(idx, color, el) {
-  document.querySelectorAll('.color-swatch').forEach(x=>x.classList.remove('selected'));
-  el.classList.add('selected');
+function setMemberColor(idx, color) {
   window._memberColor = color;
+  document.getElementById('memberColorPreview').style.background = color;
 }
 
 // ========== 模态框 ==========
