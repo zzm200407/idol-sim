@@ -1857,8 +1857,8 @@ function checkConcert() {
     time.textContent = game.concertDaysLeft + '天';
     progress.style.width = ((30 - game.concertDaysLeft) / 30 * 100) + '%';
     sub.textContent = '准备中...';
-    btn.textContent = '筹备中';
-    btn.parentElement.style.display = 'none';
+    btn.textContent = '点击练习';
+    btn.parentElement.style.display = 'block';
     
     // 每天减少
     if (game.concertDaysLeft > 0) {
