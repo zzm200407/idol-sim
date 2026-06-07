@@ -1570,7 +1570,7 @@ function takeJob(jobId) {
 }
 
 function meetNewFriendFromJob() {
-  const entertainmentNames = ['林导', '陈制片', '张编剧', '李经纪人', '王造型师', '赵摄影师', '孙灯光师', '周主持人', '吴歌手', '郑演员', '黄导演', '钱编剧', '孙制片', '刘经纪人', '徐造型师', '马摄影师', '胡灯光师', '朱主持人', '魏歌手', '唐演员'];
+  const entertainmentNames = ['小鹿', '小雅', '小涵', '小婷', '小雪', '小晴', '小琳', '小薇', '小萌', '小瑶', '小怡', '小颖', '小萱', '小琪', '小璐', '小诗', '小艺', '小朵', '小月', '小星'];
   const avatars = ['👦', '👧', '🧑', '👱‍♀️', '👱', '🤵', '👰', '🧔'];
   const newId = 'new_' + Date.now();
   const name = names[rand(0, names.length - 1)];
@@ -2333,11 +2333,14 @@ function addNewFriend(name, avatar) {
 // ========== 联系人资料编辑 ==========
 function showContactProfile(contactId) {
   const contact = game.wxContacts.find(c=>c.id===contactId) || game.newContacts.find(c=>c.id===contactId);
+  const member = game.members.find(m=>m.id===contactId);
+  const contactColor = member ? member.color : (contact ? contact.color : null);
   const rel = game.relationships.find(r=>r.id===contactId);
   if (!contact) return;
   
   const avatarOpts = AVATAR_EMOJIS.map(a => `<div class="avatar-opt ${contact.avatar===a&&!contact.avatarData?'selected':''}" onclick="setContactAvatar('${contactId}','${a}',this)">${a}</div>`).join('');
-  const avatarUploadBtn = contact.avatarData ? `<div class="avatar-opt selected" onclick="document.getElementById('contactAvatarUpload').click()"><img src="${contact.avatarData}" style="width:36px;height:36px;border-radius:50%;object-fit:cover"></div>` : `<div class="avatar-opt" onclick="document.getElementById('contactAvatarUpload').click()">📷</div>`;
+  const contactAvatar = contact.avatarData ? `<div class="avatar-opt selected"><img src="${contact.avatarData}" style="width:36px;height:36px;border-radius:50%;object-fit:cover"></div>` : '';
+  const avatarUploadBtn = `<div class="avatar-opt" onclick="document.getElementById('contactAvatarUpload').click()">📷</div>`;
   const genderSelect = `
     <div class="form-group">
       <label class="form-label">性别</label>
@@ -2348,18 +2351,12 @@ function showContactProfile(contactId) {
     </div>
   `;
   
-  const dateBtn = game.relationship==='恋爱中'&&game.currentPartner===contactId?`
-    <div style="background:#e07070;border-radius:12px;padding:14px;margin-bottom:10px;text-align:center">
-      <div style="font-size:13px;font-weight:700;margin-bottom:8px">❤️ 正在交往中</div>
-      <button class="btn-small" style="background:#fff;color:#e07070;margin:2px" onclick="breakup('${contactId}')">💔 分手</button>
-    </div>
-  ` : (rel&&rel.canDate&&rel.value>=100&&game.relationship==='单身'&&!contact.hidden?`
-    <div style="background:#c490c4;border-radius:12px;padding:14px;margin-bottom:10px;text-align:center">
-      <div style="font-size:13px;font-weight:700;margin-bottom:8px">好感度达到100！</div>
-      <button class="btn-small" style="background:#fff;color:#c490c4;margin:2px" onclick="confessTo('${contactId}')">💕 告白</button>
-      <button class="btn-small" style="background:rgba(255,255,255,0.2);color:#fff;margin:2px" onclick="befriend('${contactId}')">🤝 做朋友</button>
-    </div>
-  ` : '');
+  var dateBtn = '';
+if (game.relationship==='恋爱中'&&game.currentPartner===contactId) {
+  dateBtn = '<div style="background:#e07070;border-radius:12px;padding:14px;margin-bottom:10px;text-align:center"><div style="font-size:13px;font-weight:700;margin-bottom:8px">❤️ 正在交往中</div><button class="btn-small" style="background:#fff;color:#e07070;margin:2px" onclick="breakup(\''+contactId+'\')">💔 分手</button></div>';
+} else if (rel&&rel.canDate&&rel.value>=100&&game.relationship==='单身'&&!contact.hidden) {
+  dateBtn = '<div style="background:#c490c4;border-radius:12px;padding:14px;margin-bottom:10px;text-align:center"><div style="font-size:13px;font-weight:700;margin-bottom:8px">好感度达到100！</div><button class="btn-small" style="background:#fff;color:#c490c4;margin:2px" onclick="confessTo(\''+contactId+'\')">💕 告白</button><button class="btn-small" style="background:rgba(255,255,255,0.2);color:#fff;margin:2px" onclick="befriend(\''+contactId+'\')">🤝 做朋友</button></div>';
+}
   
   showModal(contact.name + ' — 编辑资料', `
     <input type="file" id="contactAvatarUpload" accept="image/*" style="display:none" onchange="handleContactAvatarUpload(event,'${contactId}')">
@@ -2386,6 +2383,8 @@ function setContactAvatar(contactId, emoji, el) {
 
 function saveContactProfile(contactId) {
   const contact = game.wxContacts.find(c=>c.id===contactId) || game.newContacts.find(c=>c.id===contactId);
+  const member = game.members.find(m=>m.id===contactId);
+  const contactColor = member ? member.color : (contact ? contact.color : null);
   if (!contact) return;
   
   if (window._contactAvatar) { contact.avatar = window._contactAvatar; contact.avatarData = null; }
@@ -2411,6 +2410,8 @@ function saveContactProfile(contactId) {
 
 function confessTo(contactId) {
   const contact = game.wxContacts.find(c=>c.id===contactId) || game.newContacts.find(c=>c.id===contactId);
+  const member = game.members.find(m=>m.id===contactId);
+  const contactColor = member ? member.color : (contact ? contact.color : null);
   const rel = game.relationships.find(r=>r.id===contactId);
   if (!contact||!rel) return;
   
@@ -2548,13 +2549,26 @@ function addMemberToContacts() {
         id: memberId,
         name: m.name,
         avatar: m.avatar,
-        avatarData: null,
+        avatarData: m.avatarData || null,
+        color: m.color || null,
         lastMsg: '团队成员',
         lastMsgTime: 0,
         msgCount: 0,
         replyWait: false,
         lastSentTime: 0
       });
+      // 添加队友好感度，不允许表白
+      if (!game.relationships.find(r => r.id === memberId)) {
+        game.relationships.push({
+          id: memberId,
+          name: m.name,
+          avatar: m.avatar,
+          avatarData: m.avatarData || null,
+          value: 50,
+          canDate: false, // 队友不能表白
+          canEdit: true
+        });
+      }
       game.wxMessages[m.name] = [{from:'other', text:'一起加油！'}];
     }
   });
@@ -2568,6 +2582,8 @@ function updateTeamContacts() {
     if (contact) {
       contact.name = m.name;
       contact.avatar = m.avatar;
+      contact.avatarData = m.avatarData || null;
+      contact.color = m.color || null;
     }
   });
 }
@@ -2735,6 +2751,8 @@ function handleContactAvatarUpload(event, contactId) {
   const file = event.target.files[0];
   if (!file) return;
   const contact = game.wxContacts.find(c=>c.id===contactId) || game.newContacts.find(c=>c.id===contactId);
+  const member = game.members.find(m=>m.id===contactId);
+  const contactColor = member ? member.color : (contact ? contact.color : null);
   if (!contact) return;
   const reader = new FileReader();
   reader.onload = function(e) {
