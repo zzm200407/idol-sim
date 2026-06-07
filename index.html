@@ -1693,29 +1693,7 @@ function takeEndorsement(brandId) {
 }
 
 
-// ========== 演唱会筹备练习 ==========
-function practiceConcertSong(idx) {
-  if (game.stamina < 20) { toast('体力不足！'); return; }
-  if (concertSongProgress[idx] >= 100) { toast('这首歌已经准备好了！'); return; }
-  game.stamina -= 20;
-  concertSongProgress[idx] = Math.min(100, concertSongProgress[idx] + 15);
-  addLog('🎵 练习了《' + ['星光', '追梦', '绽放'][idx] + '》(' + concertSongProgress[idx] + '%)');
-  saveGame(); updateUI(); showConcert();
-}
-
-function practiceConcertDance(idx) {
-  if (game.stamina < 20) { toast('体力不足！'); return; }
-  if (concertDanceProgress[idx] >= 100) { toast('这支舞已经准备好了！'); return; }
-  game.stamina -= 20;
-  concertDanceProgress[idx] = Math.min(100, concertDanceProgress[idx] + 15);
-  addLog('💃 练习了《' + ['舞动青春', '狂野节拍'][idx] + '》(' + concertDanceProgress[idx] + '%)');
-  saveGame(); updateUI(); showConcert();
-}
-
 // ========== 演唱会 ==========
-// 演唱会筹备状态
-const concertSongProgress = [0, 0, 0]; // 3首歌的进度
-const concertDanceProgress = [0, 0]; // 2支舞的进度
 
 function showConcert() {
   if (!game.debuted) {
