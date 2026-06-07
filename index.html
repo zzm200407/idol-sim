@@ -1512,8 +1512,8 @@ function takeJob(jobId) {
   game.fatigue = Math.min(100, game.fatigue + job.fatigue);
   game.fans += job.fans;
   
-  // 记录收入用于分红
-  game.jobEarnings.push({type:jobId, fee:job.fee, day:game.day});
+  // 记录收入用于分红（出道后生效）
+  if (game.debuted) game.jobEarnings.push({type:jobId, fee:job.fee, day:game.day});
   
   // 通告完成后有30%概率认识新朋友
   if (Math.random() < 0.3) {
@@ -1580,9 +1580,10 @@ function showBrandEndorsement() {
     if (daysPassed >= 30) {
       const b = BRANDS.find(x => x.id === e.brandId);
       addLog('✨ ' + (b ? b.name : '品牌') + '代言到期，已自动解除');
-      toast('✨ 代言到期，已自动解除！收到代言费 ¥' + formatNum(e.fee));
-      // 代言费直接给玩家，但也要记录用于分红统计
-      game.money += e.fee;
+      // 公司8玩家2，玩家得20%
+      const playerShare = Math.floor(e.fee * 0.2);
+      toast('✨ 代言到期，已自动解除！收到代言费 ¥' + formatNum(playerShare));
+      game.money += playerShare;
       game.totalSales += e.fee;
       return false;
     }
@@ -1645,8 +1646,8 @@ function takeEndorsement(brandId) {
   const fee = Math.floor(brand.fee * (1 + game.fans / 100000));
   game.brandEndorsements.push({brandId: brandId, startDay: game.day, fee: fee});
   
-  // 记录代言收入
-  game.jobEarnings.push({type:'endorsement', brandId:brandId, fee:fee, day:game.day});
+  // 记录代言收入（出道后生效）
+  if (game.debuted) game.jobEarnings.push({type:'endorsement', brandId:brandId, fee:fee, day:game.day});
   
   addLog(`✨ 签约${brand.name}，代言费已记录，30天后自动解除`);
   toast(`✨ 签约${brand.name}成功！30天后自动解除`);
@@ -1857,8 +1858,8 @@ function holdConcert() {
   game.concertCooldown = 30;
   game.fans += 10000;
   
-  // 演唱会收入记录分红
-  game.jobEarnings.push({type:'concert', fee:100000, day:game.day});
+  // 演唱会收入记录分红（出道后生效）
+  if (game.debuted) game.jobEarnings.push({type:'concert', fee:100000, day:game.day});
   
   addLog('🎤 演唱会成功举办！粉丝+10000！');
   eventBanner('🎤 演唱会大成功！');
@@ -1883,6 +1884,7 @@ function withdrawDividend() {
 
 // 月底分红计算（睡觉时触发）
 function calculateDividend() {
+  if (!game.debuted) return; // 出道后才能参与分红
   if (!game.jobEarnings || game.jobEarnings.length === 0) return;
   
   let totalCompany = 0;
