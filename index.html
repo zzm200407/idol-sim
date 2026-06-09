@@ -176,6 +176,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue'
 .weibo-like{color:#e07070}
 .weibo-editor{background:#fff;border-radius:12px;padding:12px;margin-bottom:10px}
 .weibo-textarea{width:100%;background:transparent;border:none;color:#6b5b7a;font-size:13px;resize:none;outline:none;min-height:70px;line-height:1.5}
+.photo-btn{padding:4px 8px;border:1px solid #e0d8f0;border-radius:16px;background:#fff;font-size:11px;color:#8b7aa8;cursor:pointer;transition:all 0.2s}
+.photo-btn.active{background:#d4c8e8;color:#6b5b7a;border-color:#b8a8d8}
+.weibo-photo{font-size:60px;text-align:center;padding:10px;background:#f0e8f8;border-radius:8px;margin:6px 0}
 .char-count{text-align:right;font-size:10px;opacity:0.4;margin-top:4px}
 .rel-item{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(107,91,122,0.1)}
 .rel-item:last-child{border:none}
@@ -1611,6 +1614,7 @@ function takeJob(jobId) {
   
   game.stamina -= 20;
   game.fatigue = Math.min(100, game.fatigue + job.fatigue);
+  game.hunger = Math.max(0, game.hunger - 5);
   game.fans += job.fans;
   
   // 通告收入：直接加到待分红（公司8玩家2，出道后生效）
@@ -2137,6 +2141,7 @@ function renderMyWeibos() {
   container.innerHTML = game.weibos.slice(0, 5).map(w => `
     <div class="weibo-card">
       <div class="weibo-text">${w.text}</div>
+      ${w.photo ? `<div class="weibo-photo">${ {'selfie':'🤳','food':'🍜','scenery':'🌄','work':'💼','pet':'🐱'}[w.photo] || '🖼️' }</div>` : ''}
       <div style="font-size:10px;opacity:0.4;margin-bottom:6px">${w.time}</div>
       <div class="weibo-meta">
         <span class="weibo-like">❤️ ${formatNum(w.likes)}</span>
@@ -2361,6 +2366,7 @@ function triggerBrandBanquet() {
     {success:false, text:'不小心喝多了，有点失态...幸好没造成大影响', charisma:-5, fee:Math.floor(brand.fee*0.8)},
     {success:true, text:'你在晚宴上结识了很多名流，气质更上一层楼', charisma:+8, fee:brand.fee},
     {success:false, text:'被灌酒了，第二天头疼不已，疲惫值上升', charisma:-3, fee:Math.floor(brand.fee*0.5), fatigue:20},
+    {success:false, text:'糟糕！喝醉酒的样子被狗仔拍到了，不雅照上了热搜...', charisma:-10, fee:Math.floor(brand.fee*0.3), fans:-10000, fatigue:30},
   ];
   
   const result = outcomes[Math.floor(Math.random() * outcomes.length)];
@@ -2368,6 +2374,7 @@ function triggerBrandBanquet() {
   game.charisma = Math.max(0, game.charisma + (result.charisma || 0));
   game.money += result.fee;
   if (result.fatigue) game.fatigue = Math.min(100, game.fatigue + result.fatigue);
+  if (result.fans) game.fans = Math.max(0, game.fans + result.fans);
   
   game.brandBanquetCountdown = 30; // 重置倒计时
   
@@ -2380,6 +2387,7 @@ function triggerBrandBanquet() {
         <div style="color:${result.success?'#70a060':'#e07070'}">气质 ${result.charisma > 0 ? '+' : ''}${result.charisma}</div>
         <div style="color:#d0a030">代言费 +${formatNum(result.fee)}</div>
         ${result.fatigue ? '<div style="color:#e07070">疲惫 +' + result.fatigue + '</div>' : ''}
+        ${result.fans ? '<div style="color:#e07070">粉丝 ' + (result.fans > 0 ? '+' : '') + formatNum(result.fans) + '</div>' : ''}
       </div>
     </div>
   `);
