@@ -306,6 +306,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue'
           <div class="stat-item"><div class="stat-label" id="fans-label">粉丝</div><div class="stat-value" id="stat-fans">—</div></div>
           <div class="stat-item"><div class="stat-label">心情</div><div class="stat-value" id="stat-mood">80</div></div>
           <div class="stat-item"><div class="stat-label">疲惫值</div><div class="stat-value" id="stat-fatigue">0</div></div>
+          <div class="stat-item"><div class="stat-label">气质</div><div class="stat-value" id="stat-charisma">10</div></div>
+          <div class="stat-item"><div class="stat-label">饱食度</div><div class="stat-value" id="stat-hunger">100</div></div>
         </div>
         <div class="stats-row">
           <div class="money-display">💰 <span id="stat-money">3000</span></div>
@@ -336,6 +338,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue'
         </button>
         <button class="quick-btn" onclick="showJobs()" id="btn-jobs">
           <span class="btn-icon">📋</span><span class="btn-label">接通告</span><span class="btn-desc" id="btn-jobs-desc">出道后解锁</span>
+        </button>
+        <button class="quick-btn" onclick="showShop()">
+          <span class="btn-icon">🛍️</span><span class="btn-label">购物</span><span class="btn-desc">买东西</span>
         </button>
         <button class="quick-btn" onclick="showEntertainment()">
           <span class="btn-icon">🎮</span><span class="btn-label">娱乐</span><span class="btn-desc">放松心情</span>
@@ -419,11 +424,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue'
           <div class="mine-stat"><div class="mine-stat-value" id="mine-vocal">10</div><div class="mine-stat-label">声乐</div></div>
           <div class="mine-stat"><div class="mine-stat-value" id="mine-dance">10</div><div class="mine-stat-label">舞蹈</div></div>
           <div class="mine-stat"><div class="mine-stat-value" id="mine-money">3000</div><div class="mine-stat-label">金钱</div></div>
+          <div class="mine-stat"><div class="mine-stat-value" id="mine-charisma">10</div><div class="mine-stat-label">气质</div></div>
         </div>
       </div>
       <div class="menu-card">
         <div class="menu-item" onclick="showEditProfile()"><span class="menu-icon">👤</span><span>编辑资料</span><span class="menu-arrow">›</span></div>
         <div class="menu-item" onclick="showRelationships()"><span class="menu-icon">💕</span><span>好感关系</span><span class="menu-arrow">›</span></div>
+        <div class="menu-item" onclick="showLuxuryBrands()"><span class="menu-icon">💎</span><span>高奢代言</span><span class="menu-arrow">›</span></div>
         <div class="menu-item" onclick="showAPISettings()"><span class="menu-icon">🔌</span><span>API设置</span><span class="menu-arrow">›</span></div>
         <div class="menu-item" onclick="showTeam()" id="menu-team"><span class="menu-icon">👥</span><span>团队成员</span><span class="menu-arrow">›</span></div>
         <div class="menu-item" onclick="showTeamName()" id="menu-teamname"><span class="menu-icon">🏷️</span><span>团队名称</span><span class="menu-arrow">›</span></div>
@@ -783,6 +790,15 @@ function makeDefaultState(initialMoney) {
     apiEndpoint:'', // 自定义API地址
     apiKey:'', // API密钥
     totalEarnings:0, // 累计收益
+    // 新数值
+    charisma: 10, // 气质值
+    hunger: 100, // 饥饿值
+    consecutiveFastFood: 0, // 连续吃速食次数
+    // 购物系统
+    ownedItems: [], // 已购买物品
+    // 高奢代言
+    luxuryEndorsement: null, // 当前高奢/顶奢代言
+    brandBanquetCountdown: 0, // 品牌晚宴倒计时
     // 通告收入记录
     jobEarnings:[],
   };
@@ -845,6 +861,13 @@ function showSaveLoad() {
 function loadGame() {
   const saved = localStorage.getItem('idolCurrent');
   if (saved) { try { game = JSON.parse(saved); } catch(e){} }
+  // 补全新增字段的默认值
+  if (game.charisma === undefined) game.charisma = 10;
+  if (game.hunger === undefined) game.hunger = 100;
+  if (game.consecutiveFastFood === undefined) game.consecutiveFastFood = 0;
+  if (game.ownedItems === undefined) game.ownedItems = [];
+  if (game.luxuryEndorsement === undefined) game.luxuryEndorsement = null;
+  if (game.brandBanquetCountdown === undefined) game.brandBanquetCountdown = 0;
 }
 function saveGame() { localStorage.setItem('idolCurrent', JSON.stringify(game)); }
 function init() {
@@ -1008,6 +1031,8 @@ function updateUI() {
   document.getElementById('stat-fans').textContent = game.debuted ? formatNum(game.fans) : '—';
   document.getElementById('stat-mood').textContent = game.mood;
   document.getElementById('stat-fatigue').textContent = game.fatigue;
+  document.getElementById('stat-charisma').textContent = game.charisma;
+  document.getElementById('stat-hunger').textContent = Math.floor(game.hunger);
   document.getElementById('stat-money').textContent = formatNum(game.money);
   
   // 练习生显示工资
@@ -1068,6 +1093,7 @@ function updateUI() {
   document.getElementById('mine-vocal').textContent = game.vocal;
   document.getElementById('mine-dance').textContent = game.dance;
   document.getElementById('mine-money').textContent = formatNum(game.money);
+  document.getElementById('mine-charisma').textContent = game.charisma;
   
   // 恋爱状态
   const statusLabel = document.getElementById('mineStatusLabel');
@@ -1479,6 +1505,18 @@ function doSleep() {
     }
   }
   
+  game.hunger = Math.max(0, game.hunger - 15);
+  if (game.hunger <= 0) {
+    game.fatigue = Math.min(100, game.fatigue + 20);
+    toast('太饿了！疲惫值增加');
+  }
+  // 品牌晚宴倒计时
+  if (game.luxuryEndorsement) {
+    game.brandBanquetCountdown -= 1;
+    if (game.brandBanquetCountdown <= 0) {
+      setTimeout(() => triggerBrandBanquet(), 500);
+    }
+  }
   addLog('休息一晚，体力+100，疲惫-10，天数+1');
   toast('新的一天开始了！');
   updateUI(); saveGame(); closeModal();
@@ -1523,12 +1561,12 @@ function showJobs() {
   if (!game.debuted) { toast('出道后解锁！'); return; }
   
   const jobs = [
-    {id:'variety',name:'综艺节目',icon:'🎬',desc:'录制综艺节目',fans:2000,fee:3000,fatigue:25,req:{variety:ACTING_VARIETY_REQUIREMENT},reqText:'综艺感100+'},
-    {id:'drama',name:'电视剧拍摄',icon:'🎥',desc:'参与电视剧角色',fans:5000,fee:8000,fatigue:30,req:{acting:ACTING_VARIETY_REQUIREMENT},reqText:'演技100+'},
-    {id:'movie',name:'电影拍摄',icon:'🎞️',desc:'参与电影角色',fans:10000,fee:15000,fatigue:35,req:{acting:ACTING_VARIETY_REQUIREMENT},reqText:'演技100+'},
-    {id:'commercial',name:'广告代言',icon:'📺',desc:'拍摄商业广告',fans:2000,fee:2000,fatigue:15,req:{},reqText:'无限制'},
-    {id:'event',name:'线下活动',icon:'🎪',desc:'出席品牌活动',fans:2500,fee:2500,fatigue:18,req:{},reqText:'无限制'},
-    {id:'music',name:'音乐节目',icon:'🎵',desc:'录制歌曲/舞台',fans:3000,fee:4000,fatigue:20,req:{},reqText:'无限制'},
+    {id:'variety',name:'综艺节目',icon:'🎬',desc:'录制综艺节目',fans:2000,fee:30000,fatigue:25,req:{variety:ACTING_VARIETY_REQUIREMENT},reqText:'综艺感100+'},
+    {id:'drama',name:'电视剧拍摄',icon:'🎥',desc:'参与电视剧角色',fans:5000,fee:25000,fatigue:30,req:{acting:ACTING_VARIETY_REQUIREMENT},reqText:'演技100+'},
+    {id:'movie',name:'电影拍摄',icon:'🎞️',desc:'参与电影角色',fans:10000,fee:35000,fatigue:35,req:{acting:ACTING_VARIETY_REQUIREMENT},reqText:'演技100+'},
+    {id:'commercial',name:'广告代言',icon:'📺',desc:'拍摄商业广告',fans:2000,fee:15000,fatigue:15,req:{},reqText:'无限制'},
+    {id:'event',name:'线下活动',icon:'🎪',desc:'出席品牌活动',fans:2500,fee:10000,fatigue:18,req:{},reqText:'无限制'},
+    {id:'music',name:'音乐节目',icon:'🎵',desc:'录制歌曲/舞台',fans:3000,fee:7000,fatigue:20,req:{},reqText:'无限制'},
   ];
   
   let html = '<div class="option-list">';
@@ -1558,12 +1596,12 @@ function showJobs() {
 
 function takeJob(jobId) {
   const jobs = {
-    variety:{name:'综艺节目',icon:'🎬',fans:2000,fee:3000,fatigue:25},
-    drama:{name:'电视剧拍摄',icon:'🎥',fans:5000,fee:8000,fatigue:30},
-    movie:{name:'电影拍摄',icon:'🎞️',fans:10000,fee:15000,fatigue:35},
-    commercial:{name:'广告代言',icon:'📺',fans:2000,fee:2000,fatigue:15},
-    event:{name:'线下活动',icon:'🎪',fans:2500,fee:2500,fatigue:18},
-    music:{name:'音乐节目',icon:'🎵',fans:3000,fee:4000,fatigue:20},
+    variety:{name:'综艺节目',icon:'🎬',fans:2000,fee:30000,fatigue:25},
+    drama:{name:'电视剧拍摄',icon:'🎥',fans:5000,fee:25000,fatigue:30},
+    movie:{name:'电影拍摄',icon:'🎞️',fans:10000,fee:35000,fatigue:35},
+    commercial:{name:'广告代言',icon:'📺',fans:2000,fee:15000,fatigue:15},
+    event:{name:'线下活动',icon:'🎪',fans:2500,fee:10000,fatigue:18},
+    music:{name:'音乐节目',icon:'🎵',fans:3000,fee:7000,fatigue:20},
   };
   
   const job = jobs[jobId];
@@ -2134,6 +2172,241 @@ function renderHotList() {
   `).join('');
 }
 
+// ========== 购物系统 ==========
+function showShop() {
+  const categories = [
+    {
+      name: '🍔 美食餐饮',
+      items: [
+        {id:'fastfood',name:'速食套餐',price:50,charisma:0,hunger:30,desc:'汉堡薯条，方便快捷',fastFood:true},
+        {id:'noodles',name:'面馆',price:80,charisma:0,hunger:40,desc:'一碗热腾腾的面',fastFood:true},
+        {id:'cafe',name:'咖啡店',price:120,charisma:1,hunger:20,desc:'惬意下午茶',fastFood:false},
+        {id:'restaurant',name:'精致餐厅',price:200,charisma:2,hunger:50,desc:'高端餐厅用餐',fastFood:false},
+        {id:'finedining',name:'米其林',price:300,charisma:3,hunger:60,desc:'顶级美食体验',fastFood:false},
+      ]
+    },
+    {
+      name: '👗 服饰穿搭',
+      items: [
+        {id:'tshirt',name:'休闲T恤',price:200,charisma:2,desc:'日常休闲穿搭'},
+        {id:'dress',name:'时尚连衣裙',price:800,charisma:5,desc:'精致小裙子'},
+        {id:'suit',name:'高级套装',price:2000,charisma:10,desc:'正式场合必备'},
+        {id:'designer',name:'设计师款',price:5000,charisma:15,desc:'小众设计师品牌'},
+        {id:'luxurycloth',name:'高定礼服',price:20000,charisma:25,desc:'顶级高定礼服'},
+      ]
+    },
+    {
+      name: '💎 奢侈品',
+      items: [
+        {id:'bag',name:'名牌包包',price:8000,charisma:12,desc:'经典款包包'},
+        {id:'watch',name:'名表',price:30000,charisma:20,desc:'奢华腕表'},
+        {id:'jewelry',name:'珠宝首饰',price:50000,charisma:30,desc:'璀璨珠宝'},
+        {id:'perfume',name:'高定香水',price:5000,charisma:8,desc:'专属香氛'},
+      ]
+    },
+    {
+      name: '🚗 交通出行',
+      items: [
+        {id:'bike',name:'电动车',price:3000,charisma:3,desc:'代步小电驴'},
+        {id:'car1',name:'代步轿车',price:100000,charisma:15,desc:'经济型轿车'},
+        {id:'car2',name:'豪华轿车',price:500000,charisma:35,desc:'BBA豪华轿车'},
+        {id:'car3',name:'超跑',price:3000000,charisma:80,desc:'限量版超跑'},
+      ]
+    },
+    {
+      name: '🏠 房产置业',
+      items: [
+        {id:'apt1',name:'一居室公寓',price:200000,charisma:20,desc:'温馨小家'},
+        {id:'apt2',name:'三室两厅',price:500000,charisma:40,desc:'宽敞舒适'},
+        {id:'villa',name:'豪华别墅',price:2000000,charisma:100,desc:'独栋别墅'},
+        {id:'penthouse',name:'顶层豪宅',price:5000000,charisma:150,desc:'城市之巅'},
+      ]
+    },
+  ];
+  
+  let html = '<div style="padding:10px 0">';
+  html += '<div style="font-size:12px;text-align:center;margin-bottom:10px">💰 余额: <b>' + formatNum(game.money) + '</b> | ✨ 气质: <b>' + game.charisma + '</b> | 🍽️ 饱食度: <b>' + Math.floor(game.hunger) + '</b></div>';
+  
+  categories.forEach(cat => {
+    html += '<div style="font-size:13px;font-weight:600;margin:12px 4px 6px;color:#8b70b0">' + cat.name + '</div>';
+    html += '<div class="option-list">';
+    cat.items.forEach(item => {
+      const owned = game.ownedItems && game.ownedItems.includes(item.id);
+      const disabled = owned ? 'opacity:0.5' : '';
+      html += '<div class="option-item" style="' + disabled + '" onclick="' + (owned ? '' : `buyItem('${item.id}',${item.price},${item.charisma},${item.hunger || 0},${item.fastFood ? 'true' : 'false'},'${item.name}')`) + '">';
+      html += '<div>';
+      html += '<div style="font-size:13px">' + item.name + (owned ? ' (已拥有)' : '') + '</div>';
+      html += '<div style="font-size:10px;opacity:0.5">' + item.desc + '</div>';
+      html += '</div>';
+      html += '<div style="text-align:right">';
+      html += '<div style="color:#d0a030">💰' + formatNum(item.price) + '</div>';
+      if (item.charisma > 0) html += '<div style="font-size:10px;color:#d4a0e8">✨+' + item.charisma + '气质</div>';
+      if (item.hunger > 0) html += '<div style="font-size:10px;color:#e8a060">🍽️+' + item.hunger + '饱食</div>';
+      html += '</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+  });
+  
+  html += '</div>';
+  showModal('🛍️ 购物商城', html);
+}
+
+function buyItem(itemId, price, charismaGain, hungerGain, isFastFood, itemName) {
+  if (game.money < price) { toast('钱不够哦~'); return; }
+  
+  game.money -= price;
+  game.charisma += charismaGain;
+  
+  if (hungerGain > 0) {
+    game.hunger = Math.min(100, game.hunger + hungerGain);
+    
+    // 速食计数
+    if (isFastFood) {
+      game.consecutiveFastFood = (game.consecutiveFastFood || 0) + 1;
+      if (game.consecutiveFastFood >= 5) {
+        game.fatigue = Math.min(100, game.fatigue + 10);
+        game.consecutiveFastFood = 0;
+        toast('连续吃了5次速食，疲惫值+10！');
+      }
+    } else {
+      game.consecutiveFastFood = 0;
+    }
+  }
+  
+  // 可重复购买的不加入已拥有列表（食物等）
+  if (hungerGain === 0) {
+    if (!game.ownedItems) game.ownedItems = [];
+    if (!game.ownedItems.includes(itemId)) {
+      game.ownedItems.push(itemId);
+    }
+  }
+  
+  addLog('🛍️ 购买了' + itemName + '，花费' + formatNum(price) + '元' + (charismaGain > 0 ? '，气质+' + charismaGain : ''));
+  toast('购买成功！' + (charismaGain > 0 ? '气质+' + charismaGain : '') + (hungerGain > 0 ? '饱食度+' + hungerGain : ''));
+  updateUI(); saveGame();
+  showShop(); // 刷新页面
+}
+
+// ========== 高奢代言系统 ==========
+function showLuxuryBrands() {
+  const brands = [
+    {id:'chanel',name:'香奈儿',tier:'高奢',charismaReq:50,fee:50000,icon:'🌸'},
+    {id:'lv',name:'路易威登',tier:'高奢',charismaReq:60,fee:60000,icon:'👜'},
+    {id:'dior',name:'迪奥',tier:'高奢',charismaReq:55,fee:55000,icon:'💄'},
+    {id:'gucci',name:'古驰',tier:'高奢',charismaReq:65,fee:65000,icon:'👗'},
+    {id:'hermes',name:'爱马仕',tier:'顶奢',charismaReq:120,fee:150000,icon:'🐴'},
+    {id:'ferrari',name:'法拉利',tier:'顶奢',charismaReq:150,fee:200000,icon:'🏎️'},
+  ];
+  
+  let html = '<div style="padding:10px 0">';
+  html += '<div style="font-size:12px;text-align:center;margin-bottom:10px">你的气质值: <b>' + game.charisma + '</b>';
+  if (game.luxuryEndorsement) {
+    html += '<br>当前代言: <span style="color:#d0a030">' + game.luxuryEndorsement.name + '</span>';
+  }
+  html += '</div>';
+  
+  if (game.luxuryEndorsement) {
+    html += '<div style="background:#f0e8f8;padding:10px;border-radius:8px;margin-bottom:10px">';
+    html += '<div style="font-size:12px;font-weight:600">💎 ' + game.luxuryEndorsement.name + '全球代言人</div>';
+    html += '<div style="font-size:11px;opacity:0.7;margin-top:4px">每月品牌晚宴，注意保持形象</div>';
+    html += '<div style="font-size:11px;color:#d0a030">代言费: ' + formatNum(game.luxuryEndorsement.fee) + '元/月</div>';
+    if (game.brandBanquetCountdown > 0) {
+      html += '<div style="font-size:11px;margin-top:4px">下次晚宴还有 ' + game.brandBanquetCountdown + ' 天</div>';
+    }
+    html += '</div>';
+  }
+  
+  brands.forEach(b => {
+    const canEndorse = game.charisma >= b.charismaReq && !game.luxuryEndorsement;
+    const isCurrent = game.luxuryEndorsement && game.luxuryEndorsement.id === b.id;
+    const disabled = !canEndorse ? 'opacity:0.5' : '';
+    html += '<div class="option-item" style="' + disabled + '" onclick="' + (canEndorse ? `acceptLuxuryEndorsement('${b.id}','${b.name}',${b.fee},'${b.tier}')` : '') + '">';
+    html += '<div>';
+    html += '<div style="font-size:13px">' + b.icon + ' ' + b.name + ' <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:' + (b.tier==='顶奢'?'#d0a030':'#a0a0d0') + ';color:#fff">' + b.tier + '</span></div>';
+    html += '<div style="font-size:10px;opacity:0.5">气质要求: ' + b.charismaReq + '+ | 代言费: ' + formatNum(b.fee) + '/月</div>';
+    if (isCurrent) html += '<div style="font-size:10px;color:#70a060">✓ 当前代言</div>';
+    html += '</div>';
+    html += '<div style="text-align:right;font-size:11px">';
+    if (isCurrent) html += '已签约';
+    else if (game.charisma < b.charismaReq) html += '气质不足';
+    else if (game.luxuryEndorsement) html += '已有代言';
+    else html += '点击签约';
+    html += '</div>';
+    html += '</div>';
+  });
+  
+  html += '</div>';
+  showModal('💎 高奢代言', html);
+}
+
+function acceptLuxuryEndorsement(id, name, fee, tier) {
+  if (game.luxuryEndorsement) { toast('你已经有代言了！'); return; }
+  game.luxuryEndorsement = {id:id, name:name, fee:fee, tier:tier};
+  game.brandBanquetCountdown = 30; // 30天后第一次晚宴
+  game.charisma += 10; // 代言加持
+  addLog('💎 成为了' + name + '全球品牌代言人！气质+10');
+  toast('恭喜成为' + name + '全球代言人！');
+  updateUI(); saveGame();
+  showLuxuryBrands();
+}
+
+function triggerBrandBanquet() {
+  if (!game.luxuryEndorsement) return;
+  
+  const brand = game.luxuryEndorsement;
+  const outcomes = [
+    {success:true, text:'你在晚宴上表现优雅大方，品牌方非常满意！', charisma:+5, fee:brand.fee},
+    {success:true, text:'你和品牌高层相谈甚欢，续约有望！', charisma:+3, fee:brand.fee},
+    {success:false, text:'不小心喝多了，有点失态...幸好没造成大影响', charisma:-5, fee:Math.floor(brand.fee*0.8)},
+    {success:true, text:'你在晚宴上结识了很多名流，气质更上一层楼', charisma:+8, fee:brand.fee},
+    {success:false, text:'被灌酒了，第二天头疼不已，疲惫值上升', charisma:-3, fee:Math.floor(brand.fee*0.5), fatigue:20},
+  ];
+  
+  const result = outcomes[Math.floor(Math.random() * outcomes.length)];
+  
+  game.charisma = Math.max(0, game.charisma + (result.charisma || 0));
+  game.money += result.fee;
+  if (result.fatigue) game.fatigue = Math.min(100, game.fatigue + result.fatigue);
+  
+  game.brandBanquetCountdown = 30; // 重置倒计时
+  
+  showModal('🍷 品牌晚宴', `
+    <div style="padding:15px 0;text-align:center">
+      <div style="font-size:40px;margin-bottom:10px">${result.success ? '🎉' : '😅'}</div>
+      <div style="font-size:14px;font-weight:600;margin-bottom:8px">${brand.name}品牌晚宴</div>
+      <div style="font-size:12px;line-height:1.6;margin-bottom:12px">${result.text}</div>
+      <div style="font-size:12px">
+        <div style="color:${result.success?'#70a060':'#e07070'}">气质 ${result.charisma > 0 ? '+' : ''}${result.charisma}</div>
+        <div style="color:#d0a030">代言费 +${formatNum(result.fee)}</div>
+        ${result.fatigue ? '<div style="color:#e07070">疲惫 +' + result.fatigue + '</div>' : ''}
+      </div>
+    </div>
+  `);
+  
+  addLog('🍷 参加' + brand.name + '品牌晚宴：' + result.text);
+  updateUI(); saveGame();
+}
+
+// ========== 私信人名合理化 ==========
+// 黑粉、私生饭、路人、真爱粉的名字库
+const HATER_NAMES = ['喷子王', '键盘侠', '柠檬精', '杠精本精', '酸鸡', '黑子一号', '职业黑粉', '网络暴民', '恶臭网友', '节奏大师'];
+const SASAENG_NAMES = ['私生饭小美', '跟踪狂小李', '私生_某某', '酒店蹲守者', '航班私生', '私生饭阿花', '私生饭小明', '私生_追车'];
+const CASUAL_NAMES = ['路人甲', '吃瓜群众', '路过的网友', '普通网民', '路人观众', '刷到的网友', '偶然看到', '路人粉'];
+const FAN_NAMES = ['小甜心', '追星少女', '星星糖', '永远爱你', '你的小迷妹', '守护最好的你', '唯爱一人', '死忠粉', '妈妈粉', '姐姐粉'];
+
+// 生成私信时根据类型分配名字
+function generatePMName(type) {
+  const names = {
+    hater: HATER_NAMES,
+    sasaeng: SASAENG_NAMES,
+    casual: CASUAL_NAMES,
+    fan: FAN_NAMES,
+  };
+  const pool = names[type] || names.casual;
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
 // ========== 私信 ==========
 function renderPMList() {
   if (game.pmList.length === 0) {
@@ -2219,8 +2492,11 @@ function blockPM(name) {
 }
 
 function generateRandomPM() {
-  const pmNames = ['小甜心', '追星少女', '星星糖', '爱豆小迷弟', '路人甲', '娱乐博主', '资深粉丝', '黑粉小明'];
-  const pmTexts = [
+  // 根据类型生成合理的私信
+  const types = ['fan', 'fan', 'fan', 'casual', 'casual', 'hater'];
+  const type = types[rand(0, types.length - 1)];
+  
+  const fanTexts = [
     '姐姐/哥哥好棒！',
     '永远支持你！',
     '今天的舞台太帅了！',
@@ -2228,17 +2504,48 @@ function generateRandomPM() {
     '加油！我们一直在！',
     '好喜欢你啊！',
     '可以要签名吗？',
-    '你就是个垃圾！', // 黑粉
-    '滚出娱乐圈！', // 黑粉
+    '你就是我的光！',
+    '今天也为你心动了',
+    '唱歌太好听了',
   ];
   
-  const name = pmNames[rand(0, pmNames.length - 1)];
-  const isHater = name === '黑粉小明' || pmTexts[pmTexts.length - 1].includes('垃圾') || pmTexts[pmTexts.length - 1].includes('滚');
+  const casualTexts = [
+    '路人觉得还不错',
+    '刷到了，感觉还行',
+    '最近挺火的嘛',
+    '歌挺好听的',
+    '偶然看到，关注了',
+    '长得挺好看的',
+  ];
+  
+  const haterTexts = [
+    '你就是个垃圾！',
+    '滚出娱乐圈！',
+    '这也太一般了吧',
+    '没实力还占资源',
+    '长得好丑',
+    '唱的什么玩意儿',
+    '粉丝都是买的吧',
+  ];
+  
+  const name = generatePMName(type);
+  let text = '';
+  let isHater = false;
+  
+  if (type === 'fan') {
+    text = fanTexts[rand(0, fanTexts.length - 1)];
+  } else if (type === 'casual') {
+    text = casualTexts[rand(0, casualTexts.length - 1)];
+  } else if (type === 'hater') {
+    text = haterTexts[rand(0, haterTexts.length - 1)];
+    isHater = true;
+  }
   
   game.pmList.unshift({
     from: name,
-    text: pmTexts[rand(0, pmTexts.length - 1)],
+    text: text,
     isHater: isHater,
+    type: type,
     time: 0
   });
   
