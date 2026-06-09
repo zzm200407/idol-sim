@@ -388,6 +388,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue'
         <textarea class="weibo-textarea" id="weiboText" placeholder="分享你的日常..." maxlength="280" oninput="updateCharCount()"></textarea>
         <div class="char-count"><span id="charCount">0</span>/280</div>
       </div>
+      <div style="margin:8px 0;display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+        <span style="font-size:12px;opacity:0.6">配图：</span>
+        <button class="photo-btn" data-photo="selfie" onclick="selectWeiboPhoto('selfie',this)">🤳 自拍</button>
+        <button class="photo-btn" data-photo="food" onclick="selectWeiboPhoto('food',this)">🍜 美食</button>
+        <button class="photo-btn" data-photo="scenery" onclick="selectWeiboPhoto('scenery',this)">🌄 风景</button>
+        <button class="photo-btn" data-photo="work" onclick="selectWeiboPhoto('work',this)">💼 工作</button>
+        <button class="photo-btn" data-photo="pet" onclick="selectWeiboPhoto('pet',this)">🐱 宠物</button>
+        <button class="photo-btn" data-photo="" onclick="selectWeiboPhoto('',this)">❌ 无</button>
+      </div>
       <button class="action-btn btn-primary" onclick="postWeibo()">发布微博</button>
       <div class="detail-card" style="margin-top:10px">
         <div class="section-title">📋 已发微博</div>
@@ -2082,6 +2091,14 @@ function showWeibo() {
   switchTab('plus', document.querySelector('.center-tab').parentElement);
 }
 
+let selectedWeiboPhoto = '';
+
+function selectWeiboPhoto(photoType, btn) {
+  selectedWeiboPhoto = photoType;
+  document.querySelectorAll('.photo-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+}
+
 function updateCharCount() {
   const text = document.getElementById('weiboText').value;
   document.getElementById('charCount').textContent = text.length;
@@ -2095,20 +2112,29 @@ function postWeibo() {
   const forwards = rand(100, 500); // 增加转发量
   const comments = rand(50, 150);
   
+  const hasPhoto = selectedWeiboPhoto !== '';
+  const photoBonus = hasPhoto ? 1.5 : 1;
+  
   game.weibos.unshift({
     text,
+    photo: selectedWeiboPhoto,
     time: new Date().toLocaleString('zh-CN'),
-    likes,
-    forwards,
-    comments,
+    likes: Math.floor(likes * photoBonus),
+    forwards: Math.floor(forwards * photoBonus),
+    comments: Math.floor(comments * photoBonus),
     commentList: generateComments()
   });
   
-  if (Math.random() < 0.3) {
-    game.fans += rand(100, 500);
+  const hotChance = hasPhoto ? 0.45 : 0.3;
+  if (Math.random() < hotChance) {
+    const fanGain = hasPhoto ? rand(200, 800) : rand(100, 500);
+    game.fans += fanGain;
     game.hotWeibo = true;
     game.hotWeiboDays = 2;
   }
+  
+  selectedWeiboPhoto = '';
+  document.querySelectorAll('.photo-btn').forEach(b => b.classList.remove('active'));
   
   document.getElementById('weiboText').value = '';
   updateCharCount();
