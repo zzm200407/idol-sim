@@ -3355,11 +3355,9 @@ function formatNum(n) {
 }
 
 // ========== 自动初始化 ==========
-(function() {
-  const saved = localStorage.getItem('idolCurrent');
-  if (saved) { init(); }
-  else { showInitialSetup(); }
-})();
+var saved = localStorage.getItem('idolCurrent');
+if (saved) { init(); }
+else { showInitialSetup(); }
 </script>
 </body>
 </html>
