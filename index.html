@@ -2103,22 +2103,23 @@ let selectedWeiboPhotoId = ''; // 选中的相册照片ID
 // 从相册选择照片发微博
 function showAlbumPicker() {
   if (!game.album || game.album.length === 0) {
-    toast("相册是空的，先去拍点照片吧！");
+    toast('相册是空的，先去拍点照片吧！');
     return;
   }
-  let html = "<div style="padding:10px 0">";
-  html += "<div style="font-size:13px;font-weight:600;margin-bottom:10px;color:#8b70b0">选择照片</div>";
-  html += "<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">";
-  game.album.forEach(function(photo) {
-    html += "<div class="album-photo" onclick="selectAlbumPhoto('" + photo.id + "','" + photo.emoji + "','" + photo.name + "')" style="background:#f0e8f8;border-radius:8px;padding:15px;text-align:center;cursor:pointer">";
-    html += "<div style="font-size:32px;margin-bottom:4px">" + photo.emoji + "</div>";
-    html += "<div style="font-size:10px;opacity:0.7">" + photo.name + "</div>";
-    html += "</div>";
-  });
-  html += "</div>";
-  html += "<div style="margin-top:12px;text-align:center"><button class="photo-btn" onclick="selectAlbumPhoto('', '', '')">取消选择</button></div>";
-  html += "</div>";
-  showModal("📷 选择照片", html);
+  var html = '<div style="padding:10px 0">';
+  html += '<div style="font-size:13px;font-weight:600;margin-bottom:10px;color:#8b70b0">选择照片</div>';
+  html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">';
+  for (var i = 0; i < game.album.length; i++) {
+    var photo = game.album[i];
+    html += '<div class="album-photo" onclick="selectAlbumPhoto(\'' + photo.id + '\',\'' + photo.emoji + '\',\'' + photo.name + '\')" style="background:#f0e8f8;border-radius:8px;padding:15px;text-align:center;cursor:pointer">';
+    html += '<div style="font-size:32px;margin-bottom:4px">' + photo.emoji + '</div>';
+    html += '<div style="font-size:10px;opacity:0.7">' + photo.name + '</div>';
+    html += '</div>';
+  }
+  html += '</div>';
+  html += '<div style="margin-top:12px;text-align:center"><button class="photo-btn" onclick="selectAlbumPhoto(\'\', \'\', \'\')">取消选择</button></div>';
+  html += '</div>';
+  showModal('📷 选择照片', html);
 }
 
 function selectAlbumPhoto(photoId, emoji, name) {
