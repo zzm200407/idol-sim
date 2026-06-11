@@ -430,6 +430,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue'
           <div class="mine-avatar" id="mineAvatar" style="background:linear-gradient(135deg,#c490c4,#d4b0d4)">🎤</div>
           <input type="file" id="avatarUpload" accept="image/*" style="display:none" onchange="handleAvatarUpload(event)">
           <div class="mine-avatar-edit" onclick="document.getElementById('avatarUpload').click()">✏️</div>
+          <input type="file" id="albumUpload" accept="image/*" style="display:none" onchange="handleAlbumUpload(event)">
         </div>
         <div class="mine-name" id="mineName">未设置</div>
         <div class="mine-id">ID: <span id="mineId">10000</span></div>
@@ -2171,6 +2172,7 @@ function postWeibo() {
   }
   
   game.weibos.unshift({
+    id: 'weibo_' + Date.now(),
     text: text,
     photoId: selectedWeiboPhotoId,
     photoData: photoData ? photoData.data : null,
@@ -2223,7 +2225,8 @@ function renderMyWeibos() {
   }
   
   container.innerHTML = game.weibos.slice(0, 5).map(w => `
-    <div class="weibo-card">
+    <div class="weibo-card" style="position:relative">
+      <div onclick="deleteWeibo(${w.id})" style="position:absolute;top:8px;right:10px;width:20px;height:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0.4;font-size:16px">×</div>
       <div class="weibo-text">${w.text}</div>
       ${w.photoData ? `<div style="margin:8px 0;border-radius:8px;overflow:hidden"><img src="${w.photoData}" style="width:100%;display:block"></div>` : (w.photoEmoji ? `<div class="weibo-photo">${w.photoEmoji}</div>` : '')}
       <div style="font-size:10px;opacity:0.4;margin-bottom:6px">${w.time}</div>
@@ -2239,6 +2242,16 @@ function renderMyWeibos() {
       ` : ''}
     </div>
   `).join('');
+}
+
+
+// 删除微博
+function deleteWeibo(id) {
+  if (!confirm('确定要删除这条微博吗？')) return;
+  game.weibos = game.weibos.filter(function(w) { return w.id !== id; });
+  saveGame();
+  renderMyWeibos();
+  toast('已删除微博');
 }
 
 // ========== 微博热搜 ==========
@@ -2264,29 +2277,37 @@ function renderHotList() {
 
 // ========== 相册系统 ==========
 function showAlbum() {
-  let html = '<div style="padding:10px 0">';
-  html += '<div style="font-size:12px;text-align:center;margin-bottom:10px">📷 我的相册 (' + (game.album ? game.album.length : 0) + '张照片)</div>';
+  var html = '<div style="padding:10px 0">';
+  html += '<div style="font-size:12px;text-align:center;margin-bottom:10px">📷 我的相册 (' + (game.album ? game.album.length : 0) + '/9张)</div>';
   
   if (!game.album || game.album.length === 0) {
     html += '<div style="text-align:center;padding:30px;opacity:0.5;font-size:12px">相册是空的~</div>';
   } else {
-    html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">';
+    html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">';
     for (var i = 0; i < game.album.length; i++) {
       var photo = game.album[i];
-      html += '<div style="background:#f0e8f8;border-radius:8px;padding:12px;text-align:center">';
-      html += '<div style="font-size:36px;margin-bottom:4px">' + photo.emoji + '</div>';
-      html += '<div style="font-size:10px;opacity:0.7">' + photo.name + '</div>';
-      html += '<div style="font-size:9px;color:#d0a030;margin-top:2px">互动+' + Math.round(((photo.bonus || 1.3) - 1) * 100) + '%</div>';
+      var photoContent = '';
+      if (photo.data) {
+        photoContent = '<img src="' + photo.data + '" style="width:100%;height:80px;object-fit:cover;border-radius:6px">';
+      } else {
+        photoContent = '<div style="width:100%;height:80px;display:flex;align-items:center;justify-content:center;font-size:32px;background:#f0e8f8;border-radius:6px">' + (photo.emoji || '🖼️') + '</div>';
+      }
+      html += '<div style="position:relative;border-radius:6px;overflow:hidden">';
+      html += photoContent;
+      html += '<div onclick="deletePhoto(' + i + ')" style="position:absolute;top:2px;right:2px;width:20px;height:20px;background:rgba(0,0,0,0.5);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer">×</div>';
+      html += '<div style="font-size:9px;text-align:center;margin-top:2px;opacity:0.7">' + photo.name + '</div>';
       html += '</div>';
     }
     html += '</div>';
   }
   
-  html += '<div style="margin-top:15px;text-align:center">';
-  html += '<button class="action-btn btn-primary" onclick="takePhoto()" style="padding:8px 20px;font-size:12px">📸 拍一张新照片</button>';
+  html += '<div style="margin-top:15px;display:flex;gap:8px;justify-content:center">';
+  html += '<button class="action-btn btn-primary" onclick="document.getElementById(\'albumUpload\').click()" style="padding:8px 16px;font-size:12px">📤 上传照片</button>';
+  html += '<button class="action-btn" onclick="takePhoto()" style="padding:8px 16px;font-size:12px">📸 拍一张</button>';
   html += '</div>';
   html += '</div>';
   showModal('📷 我的相册', html);
+}
 }
 
 function takePhoto() {
