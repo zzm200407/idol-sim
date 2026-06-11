@@ -139,8 +139,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue'
 .event-banner{position:absolute;top:44px;left:0;right:0;background:linear-gradient(135deg,#c490c4,#d4b0d4);padding:9px 14px;font-size:13px;font-weight:600;z-index:50;display:none;animation:slideDown 0.3s ease;color:#fff}
 .event-banner.show{display:block}
 @keyframes slideDown{from{transform:translateY(-100%)}to{transform:translateY(0)}}
-.lock-screen{position:absolute;top:0;left:0;right:0;bottom:0;background:#f5f0fa;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:#6b5b7a}
-.lock-screen.hide{display:none}
 .lock-icon{font-size:46px;margin-bottom:4px}
 .lock-title{font-size:18px;font-weight:700}
 .lock-sub{font-size:11px;opacity:0.4}
@@ -261,17 +259,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue'
 </style>
 </head>
 <body>
-<div class="lock-screen" id="lockScreen">
-  <div class="lock-icon">🔒</div>
-  <div class="lock-title">爱豆模拟器</div>
-  <div class="lock-sub" id="lockDate"></div>
-  <div class="lock-input-wrap">
-    <input class="lock-input" id="lockInput" type="password" maxlength="8" placeholder="●●●●" onkeypress="if(event.key==='Enter')checkLock()">
-    <button class="lock-btn" onclick="checkLock()">解锁</button>
-  </div>
-  <div class="lock-error" id="lockError"></div>
-</div>
-
 <div class="phone-frame">
   <div class="status-bar">
     <div class="status-left"><span id="status-time">00:00</span></div>
@@ -3367,23 +3354,12 @@ function formatNum(n) {
   return n.toString();
 }
 
-// ========== 密码锁 ==========
-function initLock() { window._lockPwd = GAME_PASSWORD; }
-function checkLock() {
-  const val = document.getElementById('lockInput').value.trim();
-  if (val === window._lockPwd) {
-    document.getElementById('lockScreen').classList.add('hide');
-    const saved = localStorage.getItem('idolCurrent');
-    if (saved) { init(); }
-    else { showInitialSetup(); }
-  } else {
-    document.getElementById('lockError').textContent = '密码错误，请重试';
-    document.getElementById('lockInput').value = '';
-    document.getElementById('lockInput').focus();
-  }
-}
-initLock();
-document.getElementById('lockInput').focus();
+// ========== 自动初始化 ==========
+(function() {
+  const saved = localStorage.getItem('idolCurrent');
+  if (saved) { init(); }
+  else { showInitialSetup(); }
+})();
 </script>
 </body>
 </html>
