@@ -947,6 +947,12 @@ function gameTick() {
   if (game.mood < 80) game.mood = Math.min(80, game.mood + 1);
   if (game.hotWeibo && game.hotWeiboDays > 0) { game.hotWeiboDays--; if (game.hotWeiboDays <= 0) game.hotWeibo = false; }
   if (game.concertCooldown > 0) game.concertCooldown--;
+  if (game.concertPlanned && game.concertDaysLeft > 0) {
+    game.concertDaysLeft--;
+    if (game.concertDaysLeft === 0) {
+      holdConcert();
+    }
+  }
   
   // 微信未读时间追踪
   game.wxContacts.forEach(c => { 
@@ -1334,7 +1340,7 @@ function renderSMSList() {
       <div class="sms-from">
         <span>📱 ${s.from}</span>
         <div class="sms-from-right">
-          <span style="font-size:10px;opacity:0.4">${game.day - s.day}天前</span>
+          <span style="font-size:10px;opacity:0.4">${game.day - (s.day !== undefined ? s.day : (s.time || 0))}天前</span>
           ${!game.smsBlocked.includes(s.from) ? `<button class="sms-block-btn" onclick="event.stopPropagation();blockSMS('${s.from}')">拉黑</button>` : ''}
         </div>
       </div>
@@ -1366,7 +1372,7 @@ function openSMS(idx) {
   
   showModal('📱 ' + sms.from, `
     <div style="padding:10px 0">
-      <div style="font-size:12px;opacity:0.5;margin-bottom:10px">${game.day - sms.day}天前</div>
+      <div style="font-size:12px;opacity:0.5;margin-bottom:10px">${game.day - (sms.day !== undefined ? sms.day : (sms.time || 0))}天前</div>
       <div style="font-size:14px;line-height:1.6">${sms.text}</div>
       ${sms.reply ? `<div style="margin-top:10px;padding:8px 10px;background:#f0e8f8;border-radius:8px;font-size:12px;text-align:right">我：${sms.reply}</div>` : ''}
       ${replyHtml}
@@ -1544,6 +1550,12 @@ function doSleep() {
   
   // 演唱会冷却期递减
   if (game.concertCooldown > 0) game.concertCooldown--;
+  if (game.concertPlanned && game.concertDaysLeft > 0) {
+    game.concertDaysLeft--;
+    if (game.concertDaysLeft === 0) {
+      holdConcert();
+    }
+  }
   
   // 出道后品牌好感度增加
   if (game.debuted) {
@@ -1858,7 +1870,7 @@ function showConcert() {
     const songs = ['《星光》', '《追梦》'];
     const dances = ['《舞动青春》', '《狂野节拍》'];
     const sp = game.concertSongProgress || [0, 0];
-    const dp = game.concertDanceProgress || [0, 0, 0];
+    const dp = game.concertDanceProgress || [0, 0];
     const allReady = sp.every(p => p >= 80) && dp.every(p => p >= 80);
     
     let songItems = songs.map((s, i) => `
@@ -1940,7 +1952,7 @@ function practiceSong(idx) {
 
 function practiceDance(idx) {
   if (game.stamina < 20) { toast('体力不足！'); return; }
-  if (!game.concertDanceProgress) game.concertDanceProgress = [0, 0, 0];
+  if (!game.concertDanceProgress) game.concertDanceProgress = [0, 0];
   if (game.concertDanceProgress[idx] >= 100) { toast('这支舞已经准备好了！'); return; }
   game.stamina -= 20;
   game.concertDanceProgress[idx] = Math.min(100, game.concertDanceProgress[idx] + 15);
@@ -1951,7 +1963,7 @@ function planConcert() {
   game.concertPlanned = true;
   game.concertDaysLeft = 30;
   game.concertSongProgress = [0, 0];
-  game.concertDanceProgress = [0, 0, 0];
+  game.concertDanceProgress = [0, 0];
   addLog('开始筹备演唱会...');
   toast('演唱会筹备开始！30天后举办！');
   updateUI(); saveGame(); closeModal();
@@ -2000,18 +2012,25 @@ function checkConcert() {
     btn.textContent = '点击练习';
     btn.parentElement.style.display = 'block';
     
-    // 每天减少
-    if (game.concertDaysLeft > 0) {
-      game.concertDaysLeft--;
-      if (game.concertDaysLeft === 0) {
-        holdConcert();
-      }
-    }
+    // 每天减少（在 nextDay 中处理）
   } else {
     card.style.display = 'none';
     btn.textContent = '举办演唱会';
     btn.parentElement.style.display = 'block';
   }
+}
+
+function startConcert() {
+  if (!game.concertPlanned) return;
+  // 检查所有曲目是否≥80%
+  const sp = game.concertSongProgress || [0, 0];
+  const dp = game.concertDanceProgress || [0, 0];
+  const allReady = sp.every(p => p >= 80) && dp.every(p => p >= 80);
+  if (!allReady) {
+    toast('还有曲目没准备好，全部达到80%才能举办哦');
+    return;
+  }
+  holdConcert();
 }
 
 function holdConcert() {
@@ -2020,7 +2039,7 @@ function holdConcert() {
   
   // 检查所有曲目是否≥80%
   const sp = game.concertSongProgress || [0, 0];
-  const dp = game.concertDanceProgress || [0, 0, 0];
+  const dp = game.concertDanceProgress || [0, 0];
   const allReady = sp.every(p => p >= 80) && dp.every(p => p >= 80);
   
   if (allReady) {
