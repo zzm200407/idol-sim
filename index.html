@@ -248,6 +248,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue'
 .bubble-text{font-size:12px;line-height:1.4;background:#f5f0fa;padding:6px 10px;border-radius:10px;display:inline-block;max-width:90%}
 .bubble-msg.self{flex-direction:row-reverse}
 .bubble-msg.self .bubble-name{text-align:right}
+.bubble-msg.self .bubble-content{text-align:right}
 .bubble-msg.self .bubble-text{background:#b8a9d4;color:#fff}
 .bubble-input-bar{display:flex;gap:6px;padding:8px 12px;background:#f5f0fa;border-radius:12px;margin-top:8px}
 .bubble-input{flex:1;background:#fff;border:none;border-radius:18px;padding:7px 12px;color:#6b5b7a;font-size:12px;outline:none}
@@ -1333,7 +1334,7 @@ function renderSMSList() {
       <div class="sms-from">
         <span>📱 ${s.from}</span>
         <div class="sms-from-right">
-          <span style="font-size:10px;opacity:0.4">${s.time}天前</span>
+          <span style="font-size:10px;opacity:0.4">${game.day - s.day}天前</span>
           ${!game.smsBlocked.includes(s.from) ? `<button class="sms-block-btn" onclick="event.stopPropagation();blockSMS('${s.from}')">拉黑</button>` : ''}
         </div>
       </div>
@@ -1346,12 +1347,67 @@ function renderSMSList() {
 function openSMS(idx) {
   const sms = game.smsList[idx];
   if (!sms) return;
+  
+  // 如果是被拉黑的，不显示回复框
+  const isBlocked = game.smsBlocked.includes(sms.from);
+  
+  let replyHtml = '';
+  if (!isBlocked) {
+    replyHtml = `
+      <div style="margin-top:15px;border-top:1px solid #eee;padding-top:10px">
+        <div style="font-size:12px;margin-bottom:6px">回复短信：</div>
+        <textarea id="smsReplyInput" style="width:100%;border:1px solid #ddd;border-radius:8px;padding:8px;font-size:12px;resize:none;outline:none" rows="2" placeholder="输入回复内容..."></textarea>
+        <div style="text-align:right;margin-top:6px">
+          <button class="action-btn btn-primary" style="padding:6px 14px;font-size:11px" onclick="replySMS(${idx})">发送</button>
+        </div>
+      </div>
+    `;
+  }
+  
   showModal('📱 ' + sms.from, `
     <div style="padding:10px 0">
-      <div style="font-size:12px;opacity:0.5;margin-bottom:10px">${sms.time}天前</div>
+      <div style="font-size:12px;opacity:0.5;margin-bottom:10px">${game.day - sms.day}天前</div>
       <div style="font-size:14px;line-height:1.6">${sms.text}</div>
+      ${sms.reply ? `<div style="margin-top:10px;padding:8px 10px;background:#f0e8f8;border-radius:8px;font-size:12px;text-align:right">我：${sms.reply}</div>` : ''}
+      ${replyHtml}
     </div>
   `);
+}
+
+// 回复短信
+function replySMS(idx) {
+  const sms = game.smsList[idx];
+  if (!sms) return;
+  const input = document.getElementById('smsReplyInput');
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text) { toast('内容不能为空'); return; }
+  
+  sms.reply = text;
+  saveGame();
+  toast('短信已发送');
+  closeModal();
+  
+  // 私生饭回复后可能会发更多
+  if (['私生饭','疯狂粉丝','未知来电','陌生号码'].includes(sms.from)) {
+    setTimeout(() => {
+      const creepyReplies = [
+        '你终于理我了！我就知道你是喜欢我的！',
+        '你是在关心我吗？我好幸福！',
+        '我就知道你心里有我，我会一直等你的',
+        '为什么要这样对我...我对你那么好...',
+      ];
+      game.smsList.unshift({
+        from: sms.from,
+        text: creepyReplies[rand(0, creepyReplies.length - 1)],
+        day: game.day
+      });
+      game.smsUnread++;
+      renderSMSList();
+      updateBadges();
+      saveGame();
+    }, 2000);
+  }
 }
 
 function blockSMS(name) {
@@ -2844,12 +2900,16 @@ function generateRandomSMS() {
     {from:'银行',text: '您的账户于' + day + '日入账...元，余额...元'},
     {from:'外卖',text: '您的订单已送达，祝您用餐愉快~'},
     {from:'朋友小李',text: '周末聚一下？好久没见了'},
+    {from:'陌生号码',text: '姐姐/哥哥我好喜欢你，我知道你家地址嘿嘿'},
+    {from:'未知来电',text: '为什么不回复我？我为你花了那么多钱！'},
+    {from:'私生饭',text: '今天在你楼下等你了，什么时候下来见我？'},
+    {from:'疯狂粉丝',text: '我知道你所有行程，你是我的，只能是我的！'},
   ];
   const smsList = smsTemplates;
   
   const sms = smsList[rand(0, smsList.length - 1)];
   if (!game.smsBlocked.includes(sms.from)) {
-    game.smsList.unshift({...sms, time: 0});
+    game.smsList.unshift({...sms, day: game.day});
     game.smsUnread++;
     renderSMSList();
   }
