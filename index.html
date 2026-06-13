@@ -816,7 +816,7 @@ function makeDefaultState(initialMoney) {
     hunger: 100, // 饥饿值
     consecutiveFastFood: 0, // 连续吃速食次数
     // 购物系统
-    ownedItems: [], // 已购买物品
+    ownedItems: {}, // 已购买物品
     // 高奢代言
     luxuryEndorsement: null, // 当前高奢/顶奢代言
     brandBanquetCountdown: 0, // 品牌晚宴倒计时
@@ -887,7 +887,13 @@ function loadGame() {
   if (game.charisma === undefined) game.charisma = 10;
   if (game.hunger === undefined) game.hunger = 100;
   if (game.consecutiveFastFood === undefined) game.consecutiveFastFood = 0;
-  if (game.ownedItems === undefined) game.ownedItems = [];
+  if (game.ownedItems === undefined) game.ownedItems = {};
+  // 兼容旧版数组格式
+  if (Array.isArray(game.ownedItems)) {
+    var temp = {};
+    game.ownedItems.forEach(function(id) { temp[id] = 1; });
+    game.ownedItems = temp;
+  }
   if (game.luxuryEndorsement === undefined) game.luxuryEndorsement = null;
   if (game.brandBanquetCountdown === undefined) game.brandBanquetCountdown = 0;
   if (game.album === undefined) game.album = [];
@@ -1343,7 +1349,7 @@ function renderSMSList() {
       <div class="sms-from">
         <span>📱 ${s.from}</span>
         <div class="sms-from-right">
-          <span style="font-size:10px;opacity:0.4">${s.day !== undefined || s.time !== undefined ? (game.day - (s.day !== undefined ? s.day : (s.time || 0)) + '天前') : ''}</span>
+          <span style="font-size:10px;opacity:0.4"></span>
           <button class="sms-block-btn" onclick="event.stopPropagation();deleteSMS(${i})" style="color:#e07070">删除</button>
           ${!game.smsBlocked.includes(s.from) ? `<button class="sms-block-btn" onclick="event.stopPropagation();blockSMS('${s.from}')">拉黑</button>` : ''}
         </div>
@@ -1376,7 +1382,7 @@ function openSMS(idx) {
   
   showModal('📱 ' + sms.from, `
     <div style="padding:10px 0">
-      <div style="font-size:12px;opacity:0.5;margin-bottom:10px">${game.day - (sms.day !== undefined ? sms.day : (sms.time || 0))}天前</div>
+      <div style="font-size:12px;opacity:0.5;margin-bottom:10px"></div>
       <div style="font-size:14px;line-height:1.6">${sms.text}</div>
       ${sms.reply ? `<div style="margin-top:10px;padding:8px 10px;background:#f0e8f8;border-radius:8px;font-size:12px;text-align:right">我：${sms.reply}</div>` : ''}
       ${replyHtml}
@@ -2540,11 +2546,10 @@ function showShop() {
     html += '<div style="font-size:13px;font-weight:600;margin:12px 4px 6px;color:#8b70b0">' + cat.name + '</div>';
     html += '<div class="option-list">';
     cat.items.forEach(item => {
-      const owned = game.ownedItems && game.ownedItems.includes(item.id);
-      const disabled = owned ? 'opacity:0.5' : '';
-      html += '<div class="option-item" style="' + disabled + '" onclick="' + (owned ? '' : `buyItem('${item.id}',${item.price},${item.charisma},${item.hunger || 0},${item.fastFood ? 'true' : 'false'},'${item.name}')`) + '">';
+      const count = game.ownedItems && game.ownedItems[item.id] ? game.ownedItems[item.id] : 0;
+      html += '<div class="option-item" onclick="buyItem(\'' + item.id + '\',' + item.price + ',' + item.charisma + ',' + (item.hunger || 0) + ',' + (item.fastFood ? 'true' : 'false') + ',\'' + item.name + '\')">';
       html += '<div>';
-      html += '<div style="font-size:13px">' + item.name + (owned ? ' (已拥有)' : '') + '</div>';
+      html += '<div style="font-size:13px">' + item.name + (count > 0 ? ' (拥有' + count + '件)' : '') + '</div>';
       html += '<div style="font-size:10px;opacity:0.5">' + item.desc + '</div>';
       html += '</div>';
       html += '<div style="text-align:right">';
@@ -2583,13 +2588,10 @@ function buyItem(itemId, price, charismaGain, hungerGain, isFastFood, itemName) 
     }
   }
   
-  // 可重复购买的不加入已拥有列表（食物等）
-  if (hungerGain === 0) {
-    if (!game.ownedItems) game.ownedItems = [];
-    if (!game.ownedItems.includes(itemId)) {
-      game.ownedItems.push(itemId);
-    }
-  }
+  // 记录拥有数量
+  if (!game.ownedItems) game.ownedItems = {};
+  if (!game.ownedItems[itemId]) game.ownedItems[itemId] = 0;
+  game.ownedItems[itemId]++;
   
   addLog('🛍️ 购买了' + itemName + '，花费' + formatNum(price) + '元' + (charismaGain > 0 ? '，气质+' + charismaGain : ''));
   toast('购买成功！' + (charismaGain > 0 ? '气质+' + charismaGain : '') + (hungerGain > 0 ? '饱食度+' + hungerGain : ''));
