@@ -418,7 +418,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue'
         <button class="msg-tab" onclick="switchMsgTab('bubble',this)">泡泡 <span id="bubbleBadge" style="font-size:9px;background:#e07070;border-radius:8px;padding:1px 5px;color:#fff;display:none">0</span></button>
       </div>
       <div id="wxList"></div>
-      <div id="smsList" style="display:none"></div>
+      <div id="smsList" style="display:none">
+      <div style="text-align:right;padding:4px 8px">
+        <button class="sms-block-btn" onclick="clearAllSMS()" style="color:#e07070">一键清空</button>
+      </div></div>
       <div id="bubbleList" style="display:none"></div>
     </div>
   </div>
@@ -1340,7 +1343,8 @@ function renderSMSList() {
       <div class="sms-from">
         <span>📱 ${s.from}</span>
         <div class="sms-from-right">
-          <span style="font-size:10px;opacity:0.4">${game.day - (s.day !== undefined ? s.day : (s.time || 0))}天前</span>
+          <span style="font-size:10px;opacity:0.4">${s.day !== undefined || s.time !== undefined ? (game.day - (s.day !== undefined ? s.day : (s.time || 0)) + '天前') : ''}</span>
+          <button class="sms-block-btn" onclick="event.stopPropagation();deleteSMS(${i})" style="color:#e07070">删除</button>
           ${!game.smsBlocked.includes(s.from) ? `<button class="sms-block-btn" onclick="event.stopPropagation();blockSMS('${s.from}')">拉黑</button>` : ''}
         </div>
       </div>
@@ -1423,6 +1427,21 @@ function blockSMS(name) {
     saveGame();
     renderSMSList();
   }
+}
+
+function deleteSMS(idx) {
+  game.smsList.splice(idx, 1);
+  saveGame();
+  renderSMSList();
+  toast('已删除');
+}
+
+function clearAllSMS() {
+  if (!confirm('确定要清空所有短信吗？')) return;
+  game.smsList = [];
+  saveGame();
+  renderSMSList();
+  toast('已清空所有短信');
 }
 
 // ========== 泡泡群聊 ==========
