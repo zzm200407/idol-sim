@@ -3881,13 +3881,17 @@ function showAPISettings() {
       </div>
       
       <div style="font-size:11px;color:#a090b0;margin-bottom:12px;line-height:1.5">
-        💡 支持OpenAI兼容格式的API（如硅基流动、DeepSeek等）<br>
-        格式：模型名 + messages数组（system + user）
+        💡 支持OpenAI兼容格式的API（如硅基流动、DeepSeek、OpenRouter等）<br>
+        👉 OpenRouter用户：API地址填 https://openrouter.ai/api/v1/chat/completions<br>
+        &nbsp;&nbsp;&nbsp;模型名填页面上的模型路径（如 google/gemma-4-26b-a4b-it:free）
       </div>
       
-      <button class="action-btn btn-primary" onclick="saveAPISettings()" style="width:100%">保存设置</button>
+      <div style="display:flex;gap:8px;margin-bottom:8px">
+        <button class="action-btn btn-primary" onclick="saveAndTestAPI()" style="flex:1">保存并测试</button>
+        <button class="action-btn" onclick="testAPIConnection()" style="flex:1">测试连接</button>
+      </div>
       
-      <div id="api-test-result" style="margin-top:10px;text-align:center;font-size:12px;min-height:18px"></div>
+      <div id="api-test-result" style="margin-top:10px;text-align:center;font-size:12px;min-height:40px;line-height:1.5"></div>
       
       <div style="margin-top:12px;padding-top:12px;border-top:1px solid #eee">
         <div style="font-size:12px;font-weight:600;margin-bottom:6px">已接入功能：</div>
@@ -3904,20 +3908,75 @@ function showAPISettings() {
   `);
 }
 
+function fixApiEndpoint(url) {
+  if (!url) return '';
+  url = url.trim();
+  
+  // OpenRouter模型页面自动转API地址
+  if (url.indexOf('openrouter.ai/') > -1 && url.indexOf('/api/v1') === -1) {
+    // 提取模型名
+    var modelMatch = url.match(/openrouter\.ai\/(.+)/);
+    if (modelMatch && modelMatch[1]) {
+      var modelName = modelMatch[1].replace(/\/$/, '');
+      // 如果模型输入框是空的，自动填充
+      var modelInput = document.getElementById('api-model');
+      if (modelInput && !modelInput.value.trim()) {
+        modelInput.value = modelName;
+      }
+    }
+    return 'https://openrouter.ai/api/v1/chat/completions';
+  }
+  
+  // 硅基流动页面自动转
+  if (url.indexOf('siliconflow.cn/') > -1 && url.indexOf('/v1') === -1) {
+    return 'https://api.siliconflow.cn/v1/chat/completions';
+  }
+  
+  return url;
+}
+
 function saveAPISettings() {
-  game.apiEndpoint = document.getElementById('api-endpoint').value.trim();
+  var endpointInput = document.getElementById('api-endpoint');
+  game.apiEndpoint = fixApiEndpoint(endpointInput.value.trim());
+  // 把修正后的地址显示回去
+  if (endpointInput.value.trim() !== game.apiEndpoint) {
+    endpointInput.value = game.apiEndpoint;
+  }
+  
   game.apiKey = document.getElementById('api-key').value.trim();
   game.apiModel = document.getElementById('api-model').value.trim() || 'deepseek-ai/DeepSeek-V2.5';
   saveGame();
   
-  const resultEl = document.getElementById('api-test-result');
-  if (game.apiEndpoint && game.apiKey) {
-    resultEl.innerHTML = '<span style="color:#70a060">✓ 设置已保存，AI功能已启用</span>';
-  } else {
-    resultEl.innerHTML = '<span style="color:#e07070">⚠ 未填写完整，使用本地回复</span>';
+  return game.apiEndpoint && game.apiKey;
+}
+
+function saveAndTestAPI() {
+  var isValid = saveAPISettings();
+  var resultEl = document.getElementById('api-test-result');
+  
+  if (!isValid) {
+    resultEl.innerHTML = '<span style="color:#e07070">⚠ 请填写完整的API地址和密钥</span>';
+    return;
   }
   
-  setTimeout(() => { closeModal(); }, 1000);
+  testAPIConnection();
+}
+
+function testAPIConnection() {
+  var resultEl = document.getElementById('api-test-result');
+  resultEl.innerHTML = '<span style="color:#888">⏳ 正在测试连接...</span>';
+  
+  callAI('你是一个测试助手', '说一句你好')
+    .then(function(result) {
+      if (result) {
+        resultEl.innerHTML = '<span style="color:#70a060">✓ 连接成功！AI回复：' + result.substring(0, 50) + '</span>';
+      } else {
+        resultEl.innerHTML = '<span style="color:#e07070">✗ 连接失败，请检查地址、密钥和模型名称是否正确</span>';
+      }
+    })
+    .catch(function(err) {
+      resultEl.innerHTML = '<span style="color:#e07070">✗ 连接出错：' + err.message + '</span>';
+    });
 }
 
 // ========== 通用AI调用 ==========
