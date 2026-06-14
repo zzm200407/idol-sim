@@ -460,6 +460,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue'
       <div class="menu-card">
         <div class="menu-item" onclick="showSaveLoad()"><span class="menu-icon">💾</span><span>存档/读档</span><span class="menu-arrow">›</span></div>
         <div class="menu-item" onclick="showGameLog()"><span class="menu-icon">📜</span><span>游戏日志</span><span class="menu-arrow">›</span></div>
+        <div class="menu-item" onclick="showAPISettings()"><span class="menu-icon">🔌</span><span>API设置</span><span class="menu-arrow">›</span></div>
         <div class="menu-item" onclick="resetGame()"><span class="menu-icon">🔄</span><span style="color:#c490c4">重新开始</span></div>
       </div>
     </div>
@@ -579,7 +580,46 @@ const NPC_PERSONALITIES = {
 
 // 智能回复函数
 function getSmartReply(sender, playerName, context, type) {
+  // 同步版本直接返回本地回复（保持向后兼容）
   return getLocalReply(sender, playerName, context, type);
+}
+
+// 异步AI回复（带本地兜底）
+async function getSmartReplyAI(sender, playerName, context, type) {
+  if (!isAIEnabled()) {
+    return getLocalReply(sender, playerName, context, type);
+  }
+  
+  const personality = NPC_PERSONALITIES[sender];
+  
+  let systemPrompt = '';
+  let userPrompt = context;
+  
+  if (type === 'weibo_comment') {
+    systemPrompt = `你是一个网友，看到了${playerName}的微博，请写一条简短的评论。
+要求：15字以内，口语化，像真实网友的语气，可以是夸赞、鼓励、吐槽或路人感。`;
+    userPrompt = `微博内容：${context}`;
+  } else if (type === 'private_message') {
+    systemPrompt = `你是给偶像${playerName}的粉丝，给偶像回复你的私信。
+请用粉丝的语气，简短、热情、自然，不要太官方。20字以内。`;
+    userPrompt = `粉丝给你发了私信：${context}`;
+  } else if (type === 'sms') {
+    systemPrompt = `你是给${playerName}发短信的人，请回复短信。
+语气自然，像真实的短信，简短，带点生活化。`;
+    userPrompt = context;
+  } else if (personality) {
+    systemPrompt = `你是${sender}，性格是${personality.style}，和${playerName}是熟人关系。
+请用自然的口语回复，符合你的身份和性格。回复要简短，1-2句话。`;
+  } else {
+    systemPrompt = `你是一个普通人，和${playerName}聊天。请自然回复。`;
+  }
+  
+  try {
+    const aiReply = await callAI(systemPrompt, userPrompt);
+    return aiReply || getLocalReply(sender, playerName, context, type);
+  } catch(e) {
+    return getLocalReply(sender, playerName, context, type);
+  }
 }
 
 // 本地智能回复
@@ -639,6 +679,44 @@ function generateDynamicHotList() {
   return hotTopics;
 }
 
+// AI生成热搜（异步，有延迟更新）
+async function generateAIHotList() {
+  if (!isAIEnabled()) return null;
+  
+  const systemPrompt = `你是一个娱乐小编，请根据以下信息生成5条微博热搜词条。
+要求：
+1. 要符合娱乐圈热搜风格，有话题感
+2. 要有不同类型：正面、负面、中性都可以有
+3. 每条热搜不超过20字
+4. 返回格式：每行一条，共5条
+5. 要符合当前偶像的发展阶段`;
+
+  const userPrompt = `偶像名字：${game.playerName}
+粉丝数：${game.fans}
+出道状态：${game.debuted ? '已出道' : '练习生'}
+当前天数：第${game.day}天
+声乐：${game.vocal || 10}
+舞蹈：${game.dance || 10}
+气质：${game.charisma || 10}`;
+
+  try {
+    const result = await callAI(systemPrompt, userPrompt);
+    if (result) {
+      const lines = result.split('\n').filter(l => l.trim().length > 0).slice(0, 5);
+      if (lines.length >= 3) {
+        const hotList = lines.map((line, i) => {
+          const hotVal = 95 - i * 8;
+          const tags = ['hot', 'hot', 'new', 'hot', 'new'];
+          return { title: line.replace(/^[#\d+\.\s]*/, ''), hot: hotVal, tag: tags[i] || 'hot' };
+        });
+        return hotList;
+      }
+    }
+  } catch(e) {}
+  
+  return null;
+}
+
 
 // 生成动态微博评论
 function generateDynamicWeiboComments(weiboContent) {
@@ -695,6 +773,40 @@ function generateDynamicWeiboComments(weiboContent) {
       text: '就这水平？',
       likes: Math.floor(Math.random() * 20)
     });
+  }
+  
+  // 如果启用了AI，异步生成更多样化的评论
+  if (isAIEnabled()) {
+    // 延迟一下，避免阻塞
+    setTimeout(async () => {
+      const systemPrompt = `你是一个微博用户，看到了${playerName}发的这条微博，请写一条真实的评论。
+要求：
+1. 简短，15字以内
+2. 语气自然，像真实网友
+3. 可以是夸赞、鼓励、吐槽、路人感等
+4. 不要太官方、太粉丝腔
+5. 各种类型都可以有`;
+      
+      try {
+        const aiComment = await callAI(systemPrompt, `微博内容：${weiboContent}`);
+        if (aiComment) {
+          // 添加一条AI生成的评论
+          const aiNames = [
+            {name: '路过的网友', avatar: '👀'},
+            {name: '吃瓜群众', avatar: '🍉'},
+            {name: '普通市民', avatar: '🧑'},
+            {name: '追星小能手', avatar: '✨'},
+          ];
+          const fan = aiNames[Math.floor(Math.random() * aiNames.length)];
+          comments.push({
+            name: fan.name,
+            avatar: fan.avatar,
+            text: aiComment,
+            likes: Math.floor(Math.random() * 150) + 20
+          });
+        }
+      } catch(e) {}
+    }, 500);
   }
   
   return comments;
@@ -772,6 +884,10 @@ function makeDefaultState(initialMoney) {
     luxuryEndorsement: null, // 当前高奢/顶奢代言
     brandBanquetCountdown: 0, // 品牌晚宴倒计时
     album: [], // 我的相册（通过拍照积累）
+    // API设置
+    apiEndpoint: "",
+    apiKey: "",
+    apiModel: "deepseek-ai/DeepSeek-V2.5",
     // 通告收入记录
     jobEarnings:[],
   };
@@ -849,6 +965,9 @@ function loadGame() {
   if (game.brandBanquetCountdown === undefined) game.brandBanquetCountdown = 0;
   if (game.album === undefined) game.album = [];
   if (game.bubbleUnread === undefined) game.bubbleUnread = 0;
+  if (game.apiEndpoint === undefined) game.apiEndpoint = "";
+  if (game.apiKey === undefined) game.apiKey = "";
+  if (game.apiModel === undefined) game.apiModel = "deepseek-ai/DeepSeek-V2.5";
 }
 function saveGame() { localStorage.setItem('idolCurrent', JSON.stringify(game)); }
 function init() {
@@ -1278,8 +1397,14 @@ function sendWXMsg() {
   }, 3000 + Math.random() * 1000);
 }
 
-function generateWXReply(contact) {
-  const replies = [
+async function generateWXReply(contact) {
+  // 获取玩家最后说的话
+  const msgs = game.wxMessages[contact.name] || [];
+  const lastPlayerMsg = msgs.filter(m => m.from === 'self').slice(-1)[0];
+  const context = lastPlayerMsg ? lastPlayerMsg.text : '';
+  
+  // 本地回复兜底
+  const localReplies = [
     '好的收到！',
     '没问题！',
     '期待你更好的表现~',
@@ -1289,7 +1414,25 @@ function generateWXReply(contact) {
     '有通告我会第一时间通知你',
     '好好练习，期待出道！',
   ];
-  const text = replies[rand(0, replies.length - 1)];
+  
+  let text = localReplies[rand(0, localReplies.length - 1)];
+  
+  // 如果启用了AI，尝试AI回复
+  if (isAIEnabled() && context) {
+    const personality = NPC_PERSONALITIES[contact.id];
+    const roleDesc = personality ? personality.style : '普通朋友';
+    
+    const systemPrompt = `你是${contact.name}，是偶像${game.playerName}的${roleDesc}。
+请用微信聊天的语气回复对方，回复要自然、口语化，符合你的身份。
+回复要简短，1-2句话，不要太正式。
+当前游戏状态：第${game.day}天，${game.debuted ? '已出道' : '练习生'}，粉丝${game.fans}人。`;
+    
+    try {
+      const aiReply = await callAI(systemPrompt, context);
+      if (aiReply) text = aiReply;
+    } catch(e) {}
+  }
+  
   game.wxMessages[contact.name].push({from:'other', text});
   contact.lastMsg = text;
   contact.lastMsgTime = 0;
@@ -1357,7 +1500,7 @@ function openSMS(idx) {
 }
 
 // 回复短信
-function replySMS(idx) {
+async function replySMS(idx) {
   const sms = game.smsList[idx];
   if (!sms) return;
   const input = document.getElementById('smsReplyInput');
@@ -1372,16 +1515,31 @@ function replySMS(idx) {
   
   // 私生饭回复后可能会发更多
   if (['私生饭','疯狂粉丝','未知来电','陌生号码'].includes(sms.from)) {
-    setTimeout(() => {
-      const creepyReplies = [
-        '你终于理我了！我就知道你是喜欢我的！',
-        '你是在关心我吗？我好幸福！',
-        '我就知道你心里有我，我会一直等你的',
-        '为什么要这样对我...我对你那么好...',
-      ];
+    setTimeout(async () => {
+      let replyText = '';
+      
+      if (isAIEnabled()) {
+        const systemPrompt = `你是一个疯狂的私生饭，痴迷于偶像${game.playerName}。
+你的性格偏执、极端、有点可怕，说话方式很疯狂，让人感到不适。
+请用短信的语气回复对方，简短但充满执念。`;
+        try {
+          replyText = await callAI(systemPrompt, `偶像回复了你：${text}`) || '';
+        } catch(e) {}
+      }
+      
+      if (!replyText) {
+        const creepyReplies = [
+          '你终于理我了！我就知道你是喜欢我的！',
+          '你是在关心我吗？我好幸福！',
+          '我就知道你心里有我，我会一直等你的',
+          '为什么要这样对我...我对你那么好...',
+        ];
+        replyText = creepyReplies[rand(0, creepyReplies.length - 1)];
+      }
+      
       game.smsList.unshift({
         from: sms.from,
-        text: creepyReplies[rand(0, creepyReplies.length - 1)],
+        text: replyText,
         day: game.day
       });
       game.smsUnread++;
@@ -1470,7 +1628,7 @@ var FAN_BUBBLE_MESSAGES = [
 ];
 
 // 生成粉丝主动发的泡泡消息
-function generateFanBubbleMessages() {
+async function generateFanBubbleMessages() {
   if (!game.debuted) return; // 出道前没有粉丝
   
   // 根据粉丝数决定每天新消息数量，最少1条，最多8条
@@ -1478,16 +1636,69 @@ function generateFanBubbleMessages() {
   var msgCount = Math.min(8, Math.max(1, Math.floor(fanCount / 5000) + 1));
   
   var newMsgs = [];
-  for (var i = 0; i < msgCount; i++) {
-    var fan = FAN_POOL[Math.floor(Math.random() * FAN_POOL.length)];
-    var text = FAN_BUBBLE_MESSAGES[Math.floor(Math.random() * FAN_BUBBLE_MESSAGES.length)];
-    newMsgs.push({
-      fanId: fan.name,
-      fanName: fan.name,
-      fanAvatar: fan.avatar,
-      text: text,
-      time: game.day
-    });
+  
+  if (isAIEnabled()) {
+    // AI生成多样化的粉丝消息
+    for (var i = 0; i < msgCount; i++) {
+      var fan = FAN_POOL[Math.floor(Math.random() * FAN_POOL.length)];
+      
+      const systemPrompt = `你是偶像${game.playerName}的粉丝，正在泡泡群里发言。
+请用真实粉丝的语气说话，自然、日常，像在粉丝群里聊天一样。
+可以是日常问候、表达想念、分享生活、打call鼓励等内容。
+回复要简短，1-2句话，口语化。
+你的名字叫${fan.name}。
+当前游戏状态：第${game.day}天，粉丝${fanCount}人，${game.debuted ? '已出道' : '练习生'}。`;
+
+      // 使用同步方式获取（函数本身是async，但调用方可能不是，所以我们用then方式）
+      // 为了简单，先用本地模板，然后异步更新
+      var text = FAN_BUBBLE_MESSAGES[Math.floor(Math.random() * FAN_BUBBLE_MESSAGES.length)];
+      
+      newMsgs.push({
+        fanId: fan.name,
+        fanName: fan.name,
+        fanAvatar: fan.avatar,
+        text: text,
+        time: game.day,
+        pendingAI: true // 标记待AI更新
+      });
+    }
+    
+    // 异步更新消息内容
+    (async function() {
+      for (var j = 0; j < newMsgs.length; j++) {
+        if (!newMsgs[j].pendingAI) continue;
+        const fan = FAN_POOL.find(f => f.name === newMsgs[j].fanName) || {name: '粉丝'};
+        const systemPrompt = `你是偶像${game.playerName}的粉丝，正在泡泡群里发言。
+请用真实粉丝的语气说话，自然、日常，像在粉丝群里聊天一样。
+可以是日常问候、表达想念、分享生活、打call鼓励等内容。
+回复要简短，1-2句话，口语化。
+你的名字叫${fan.name}。
+当前游戏状态：第${game.day}天，粉丝${fanCount}人，${game.debuted ? '已出道' : '练习生'}。`;
+        try {
+          const aiReply = await callAI(systemPrompt, '说点什么好呢...随便说点');
+          if (aiReply) {
+            newMsgs[j].text = aiReply;
+          }
+        } catch(e) {}
+        newMsgs[j].pendingAI = false;
+      }
+      saveGame();
+      renderBubbleList();
+    })();
+    
+  } else {
+    // 本地产出
+    for (var i = 0; i < msgCount; i++) {
+      var fan = FAN_POOL[Math.floor(Math.random() * FAN_POOL.length)];
+      var text = FAN_BUBBLE_MESSAGES[Math.floor(Math.random() * FAN_BUBBLE_MESSAGES.length)];
+      newMsgs.push({
+        fanId: fan.name,
+        fanName: fan.name,
+        fanAvatar: fan.avatar,
+        text: text,
+        time: game.day
+      });
+    }
   }
   
   game.bubbleMessages = game.bubbleMessages.concat(newMsgs);
@@ -1535,7 +1746,7 @@ function renderBubbleList() {
   }, 100);
 }
 
-function sendBubbleMsg() {
+async function sendBubbleMsg() {
   const input = document.getElementById('bubbleInput');
   if (!input) return;
   const text = input.value.trim();
@@ -1554,7 +1765,7 @@ function sendBubbleMsg() {
   renderBubbleList();
   
   // 粉丝随机回复
-  setTimeout(() => {
+  setTimeout(async () => {
     const fanReplies = [
       {name:'小甜心', avatar:'💕', text:'姐姐/哥哥说得对！'},
       {name:'追星少女', avatar:'🌸', text:'好喜欢这个！'},
@@ -1563,11 +1774,26 @@ function sendBubbleMsg() {
       {name:'小迷弟', avatar:'😎', text:'太帅了！'},
     ];
     const r = fanReplies[rand(0, fanReplies.length - 1)];
+    
+    let replyText = r.text;
+    
+    // AI生成回复
+    if (isAIEnabled()) {
+      const systemPrompt = `你是偶像${game.playerName}的粉丝，正在泡泡群里聊天。
+请用真实粉丝的语气回复偶像的发言，要热情、激动、像真的在追星一样。
+回复要简短，1-2句话，带点emoji也可以。
+你的名字叫${r.name}，头像${r.avatar}。`;
+      try {
+        const aiReply = await callAI(systemPrompt, `偶像说：${text}`);
+        if (aiReply) replyText = aiReply;
+      } catch(e) {}
+    }
+    
     game.bubbleMessages.push({
       fanId:r.name,
       fanName:r.name,
       fanAvatar:r.avatar,
-      text:r.text,
+      text:replyText,
       time:0
     });
     saveGame();
@@ -2413,21 +2639,42 @@ function deleteWeibo(id) {
 // ========== 微博热搜 ==========
 function renderHotList() {
   const list = document.getElementById('hotList');
-  const hotTopics = [
-    {rank:1,title:'某爱豆官宣恋情',tag:'hot'},
-    {rank:2,title:'练习生淘汰赛今晚开启',tag:'new'},
-    {rank:3,title:'粉丝自发应援活动',tag:'friend'},
-    {rank:4,title:'音乐平台新歌榜',tag:'hot'},
-    {rank:5,title:'偶像运动会即将开幕',tag:''},
-  ];
+  let hotTopics = generateDynamicHotList();
   
-  list.innerHTML = hotTopics.map(h => `
-    <div class="hot-item">
-      <span class="hot-rank ${h.rank<=3?'top'+h.rank:''}">${h.rank}</span>
-      <span class="hot-title">${h.title}</span>
-      ${h.tag ? `<span class="hot-tag tag-${h.tag}">${h.tag==='hot'?'热':h.tag==='new'?'新':'友'}</span>` : ''}
-    </div>
-  `).join('');
+  // 如果启用了AI，异步获取AI生成的热搜并更新
+  if (isAIEnabled()) {
+    generateAIHotList().then(aiHotList => {
+      if (aiHotList && aiHotList.length >= 3) {
+        // 混合本地和AI热搜，前3条用AI的
+        for (let i = 0; i < Math.min(3, aiHotList.length); i++) {
+          if (hotTopics[i]) {
+            hotTopics[i].title = aiHotList[i].title;
+            hotTopics[i].tag = aiHotList[i].tag || hotTopics[i].tag;
+          }
+        }
+        updateHotListUI(hotTopics);
+      }
+    });
+  }
+  
+  updateHotListUI(hotTopics);
+  
+  function updateHotListUI(topics) {
+    const rankedTopics = topics.map((h, i) => ({
+      rank: i + 1,
+      title: h.title,
+      tag: h.tag || '',
+      hot: h.hot || 90 - i * 5
+    }));
+    
+    list.innerHTML = rankedTopics.map(h => `
+      <div class="hot-item">
+        <span class="hot-rank ${h.rank<=3?'top'+h.rank:''}">${h.rank}</span>
+        <span class="hot-title">${h.title}</span>
+        ${h.tag ? `<span class="hot-tag tag-${h.tag}">${h.tag==='hot'?'热':h.tag==='new'?'新':'友'}</span>` : ''}
+      </div>
+    `).join('');
+  }
 }
 
 
@@ -2881,7 +3128,7 @@ function openPMReply(idx) {
   setTimeout(() => document.getElementById('pm-reply-input')?.focus(), 100);
 }
 
-function sendPMReply(idx) {
+async function sendPMReply(idx) {
   const pm = game.pmList[idx];
   if (!pm) return;
   const text = document.getElementById('pm-reply-input').value.trim();
@@ -2891,10 +3138,26 @@ function sendPMReply(idx) {
   if (!game.wxMessages[pm.from]) game.wxMessages[pm.from] = [];
   game.wxMessages[pm.from].push({from:'self', text:'我: ' + text});
   addLog('💬 回复了' + pm.from + '的私信');
+  closeModal();
   
   // AI生成真实回复（异步）
-  setTimeout(() => {
-    const reply = getSmartReply(pm.from, game.playerName, text, 'private_message');
+  setTimeout(async () => {
+    let reply = '';
+    
+    if (isAIEnabled()) {
+      const systemPrompt = `你是偶像${game.playerName}的粉丝，收到了偶像的私信回复。
+请用粉丝的语气回复，要激动、开心、不敢相信的感觉。
+回复要简短，1-2句话，口语化，带点emoji。
+你的名字叫${pm.from}。`;
+      try {
+        reply = await callAI(systemPrompt, `偶像回复了你：${text}`) || '';
+      } catch(e) {}
+    }
+    
+    if (!reply) {
+      reply = getSmartReply(pm.from, game.playerName, text, 'private_message');
+    }
+    
     game.wxMessages[pm.from].push({from:'other', text: reply});
     pm.text = reply; // 更新私信显示
     pm.time = 0;
@@ -2902,8 +3165,6 @@ function sendPMReply(idx) {
     toast('💬 ' + pm.from + '回复了你');
     saveGame();
   }, 1500);
-  
-  closeModal();
 }
 
 function blockPM(name) {
@@ -2967,13 +3228,15 @@ function generateRandomPM() {
     isHater = true;
   }
   
-  game.pmList.unshift({
+  const pmObj = {
     from: name,
     text: text,
     isHater: isHater,
     type: type,
     time: 0
-  });
+  };
+  
+  game.pmList.unshift(pmObj);
   
   if (isHater) {
     game.fans = Math.max(0, game.fans - 10);
@@ -2981,6 +3244,33 @@ function generateRandomPM() {
   
   game.pmUnread++;
   renderPMList();
+  
+  // 如果启用了AI，异步更新为更真实的内容
+  if (isAIEnabled()) {
+    (async function() {
+      let systemPrompt = '';
+      if (type === 'fan') {
+        systemPrompt = `你是偶像${game.playerName}的粉丝，给偶像发一条私信。
+请用粉丝的语气，简短、真诚、热情，1-2句话。
+不要太官方，要像真实的普通人发的。`;
+      } else if (type === 'casual') {
+        systemPrompt = `你是一个路人，偶然看到${game.playerName}，给ta发一条私信。
+语气平淡、随意，像路人的真实感受，不要太热情也不要太刻薄。1句话。`;
+      } else if (type === 'hater') {
+        systemPrompt = `你是一个黑子，讨厌${game.playerName}，给ta发一条黑私信。
+语气刻薄、酸，但不要太过分，像真实的网络黑子。1句话。`;
+      }
+      
+      try {
+        const aiText = await callAI(systemPrompt, '随便发点什么');
+        if (aiText) {
+          pmObj.text = aiText;
+          renderPMList();
+          saveGame();
+        }
+      } catch(e) {}
+    })();
+  }
 }
 
 // ========== 短信生成 ==========
@@ -3565,6 +3855,115 @@ function checkLock() {
 }
 initLock();
 document.getElementById('lockInput').focus();
+
+// ========== API设置 ==========
+function showAPISettings() {
+  const isEnabled = game.apiEndpoint && game.apiKey;
+  showModal('🔌 API设置', `
+    <div style="padding:4px 0">
+      <div style="font-size:12px;color:#888;margin-bottom:12px;text-align:center">
+        接入AI后，聊天、短信、泡泡、评论都会更真实生动
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">API地址</label>
+        <input class="form-input" id="api-endpoint" value="${game.apiEndpoint || ''}" placeholder="https://api.example.com/v1/chat/completions">
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">API密钥</label>
+        <input class="form-input" id="api-key" value="${game.apiKey || ''}" placeholder="sk-xxxxxxxx" type="password">
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">模型名称</label>
+        <input class="form-input" id="api-model" value="${game.apiModel || 'deepseek-ai/DeepSeek-V2.5'}" placeholder="deepseek-ai/DeepSeek-V2.5">
+      </div>
+      
+      <div style="font-size:11px;color:#a090b0;margin-bottom:12px;line-height:1.5">
+        💡 支持OpenAI兼容格式的API（如硅基流动、DeepSeek等）<br>
+        格式：模型名 + messages数组（system + user）
+      </div>
+      
+      <button class="action-btn btn-primary" onclick="saveAPISettings()" style="width:100%">保存设置</button>
+      
+      <div id="api-test-result" style="margin-top:10px;text-align:center;font-size:12px;min-height:18px"></div>
+      
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid #eee">
+        <div style="font-size:12px;font-weight:600;margin-bottom:6px">已接入功能：</div>
+        <div style="font-size:11px;color:#666;line-height:1.8">
+          ✅ 微信聊天 - NPC更有性格<br>
+          ✅ 短信回复 - 更真实的短信内容<br>
+          ✅ 泡泡群聊 - 像真人粉丝一样聊天<br>
+          ✅ 微博热搜 - 根据游戏状态实时生成<br>
+          ✅ 私信 - 内容不重复更真实<br>
+          ✅ 微博评论 - 根据微博内容生成评论
+        </div>
+      </div>
+    </div>
+  `);
+}
+
+function saveAPISettings() {
+  game.apiEndpoint = document.getElementById('api-endpoint').value.trim();
+  game.apiKey = document.getElementById('api-key').value.trim();
+  game.apiModel = document.getElementById('api-model').value.trim() || 'deepseek-ai/DeepSeek-V2.5';
+  saveGame();
+  
+  const resultEl = document.getElementById('api-test-result');
+  if (game.apiEndpoint && game.apiKey) {
+    resultEl.innerHTML = '<span style="color:#70a060">✓ 设置已保存，AI功能已启用</span>';
+  } else {
+    resultEl.innerHTML = '<span style="color:#e07070">⚠ 未填写完整，使用本地回复</span>';
+  }
+  
+  setTimeout(() => { closeModal(); }, 1000);
+}
+
+// ========== 通用AI调用 ==========
+function callAI(systemPrompt, userMessage) {
+  // 没有配置API时返回null，让调用方使用本地兜底
+  if (!game.apiEndpoint || !game.apiKey) {
+    return Promise.resolve(null);
+  }
+  
+  return new Promise((resolve, reject) => {
+    fetch(game.apiEndpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + game.apiKey
+      },
+      body: JSON.stringify({
+        model: game.apiModel || 'deepseek-ai/DeepSeek-V2.5',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userMessage }
+        ],
+        temperature: 0.8,
+        max_tokens: 200
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.choices && data.choices[0] && data.choices[0].message) {
+        resolve(data.choices[0].message.content.trim());
+      } else {
+        resolve(null);
+      }
+    })
+    .catch(err => {
+      console.log('AI调用失败:', err);
+      resolve(null);
+    });
+  });
+}
+
+// 检查是否启用了AI
+function isAIEnabled() {
+  return game.apiEndpoint && game.apiKey;
+}
+
 </script>
 </body>
 </html>
