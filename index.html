@@ -897,6 +897,7 @@ function loadGame() {
   if (game.luxuryEndorsement === undefined) game.luxuryEndorsement = null;
   if (game.brandBanquetCountdown === undefined) game.brandBanquetCountdown = 0;
   if (game.album === undefined) game.album = [];
+  if (game.bubbleUnread === undefined) game.bubbleUnread = 0;
 }
 function saveGame() { localStorage.setItem('idolCurrent', JSON.stringify(game)); }
 function init() {
@@ -1144,6 +1145,15 @@ function updateUI() {
   // 更新品牌好感度显示
   updateBrandDisplay();
   
+  // 更新泡泡未读标记
+  var badge = document.getElementById("bubbleBadge");
+  if (badge && game.bubbleUnread && game.bubbleUnread > 0) {
+    badge.style.display = "inline-block";
+    badge.textContent = game.bubbleUnread > 99 ? "99+" : game.bubbleUnread;
+  } else if (badge) {
+    badge.style.display = "none";
+  }
+  
   // 更新未读标记
   updateBadges();
 }
@@ -1192,6 +1202,10 @@ function switchTab(tab, btn) {
 
 // ========== 消息页Tab ==========
 function switchMsgTab(type, btn) {
+  if (type === "bubble") {
+    game.bubbleUnread = 0;
+    updateBubbleBadge();
+  }
   document.querySelectorAll('.msg-tab').forEach(t => t.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById('wxList').style.display = type === 'wx' ? 'block' : 'none';
@@ -1450,6 +1464,93 @@ function clearAllSMS() {
   toast('已清空所有短信');
 }
 
+// 粉丝池
+var FAN_POOL = [
+  {name:"小甜心", avatar:"💕"},
+  {name:"追星少女", avatar:"🌸"},
+  {name:"星星糖", avatar:"⭐"},
+  {name:"爱笑的我", avatar:"😊"},
+  {name:"小迷弟", avatar:"😎"},
+  {name:"奶茶女孩", avatar:"🧋"},
+  {name:"草莓味", avatar:"🍓"},
+  {name:"月亮不睡", avatar:"🌙"},
+  {name:"可乐要加冰", avatar:"🥤"},
+  {name:"棉花糖", avatar:"🍬"},
+  {name:"小熊软糖", avatar:"🐻"},
+  {name:"元气少女", avatar:"💫"},
+  {name:"小太阳", avatar:"☀️"},
+  {name:"独角兽", avatar:"🦄"},
+  {name:"彩虹糖", avatar:"🌈"},
+];
+
+// 粉丝主动发的消息模板
+var FAN_BUBBLE_MESSAGES = [
+  "在吗在吗？今天过得怎么样？",
+  "好想你啊🥺 什么时候发微博？",
+  "今天也要加油哦！我永远支持你！",
+  "姐姐/哥哥今天有什么安排呀？",
+  "刚刷到你的旧视频，又心动了一遍",
+  "吃饭了吗？要照顾好自己哦",
+  "今天的造型好好看！",
+  "睡不着，来泡泡蹲蹲",
+  "新的一天！来给你打call~",
+  "工作辛苦了，记得休息",
+  "啊啊啊你终于来了！",
+  "今天有没有发生什么有趣的事？",
+  "我把你的歌循环了一百遍",
+  "记得多喝水！",
+  "天气变凉了，注意保暖",
+  "你是最棒的！不许不自信！",
+  "今天也要开心呀~",
+  "想看看你今天吃了什么",
+  "工作顺利吗？累不累？",
+  "晚安啦，做个好梦😴",
+  "早安！新的一天也要闪闪发光✨",
+  "刚看完你的舞台，太绝了！",
+  "你就是我的快乐源泉~",
+  "今天也是为你心动的一天💓",
+  "记得好好吃饭，不要饿肚子",
+  "你累不累啊？要注意休息",
+  "我今天考试/面试，求好运！",
+  "今天路上看到一只猫，想起你",
+  "你喜欢什么颜色呀？",
+  "最近在听什么歌？",
+];
+
+// 生成粉丝主动发的泡泡消息
+function generateFanBubbleMessages() {
+  if (!game.debuted) return; // 出道前没有粉丝
+  
+  // 根据粉丝数决定每天新消息数量，最少1条，最多8条
+  var fanCount = game.fans || 0;
+  var msgCount = Math.min(8, Math.max(1, Math.floor(fanCount / 5000) + 1));
+  
+  var newMsgs = [];
+  for (var i = 0; i < msgCount; i++) {
+    var fan = FAN_POOL[Math.floor(Math.random() * FAN_POOL.length)];
+    var text = FAN_BUBBLE_MESSAGES[Math.floor(Math.random() * FAN_BUBBLE_MESSAGES.length)];
+    newMsgs.push({
+      fanId: fan.name,
+      fanName: fan.name,
+      fanAvatar: fan.avatar,
+      text: text,
+      time: game.day
+    });
+  }
+  
+  game.bubbleMessages = game.bubbleMessages.concat(newMsgs);
+  
+  // 最多保留100条消息
+  if (game.bubbleMessages.length > 100) {
+    game.bubbleMessages = game.bubbleMessages.slice(-100);
+  }
+  
+  // 未读消息计数
+  if (game.bubbleUnread === undefined) game.bubbleUnread = 0;
+  game.bubbleUnread += msgCount;
+}
+
+
 // ========== 泡泡群聊 ==========
 function renderBubbleList() {
   const list = document.getElementById('bubbleList');
@@ -1632,6 +1733,9 @@ function doSleep() {
       setTimeout(() => triggerBrandBanquet(), 500);
     }
   }
+  // 粉丝发泡泡消息
+  generateFanBubbleMessages();
+
   addLog('休息一晚，体力+100，疲惫恢复' + fatigueRecover + '点，天数+1');
   toast('新的一天开始了！');
   updateUI(); saveGame(); closeModal();
