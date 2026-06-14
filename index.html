@@ -452,7 +452,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue'
         <div class="menu-item" onclick="showRelationships()"><span class="menu-icon">💕</span><span>好感关系</span><span class="menu-arrow">›</span></div>
         <div class="menu-item" onclick="showLuxuryBrands()"><span class="menu-icon">💎</span><span>高奢代言</span><span class="menu-arrow">›</span></div>
         <div class="menu-item" onclick="showAlbum()"><span class="menu-icon">📷</span><span>我的相册</span><span class="menu-arrow">›</span></div>
-        <div class="menu-item" onclick="showAPISettings()"><span class="menu-icon">🔌</span><span>API设置</span><span class="menu-arrow">›</span></div>
         <div class="menu-item" onclick="showTeam()" id="menu-team"><span class="menu-icon">👥</span><span>团队成员</span><span class="menu-arrow">›</span></div>
         <div class="menu-item" onclick="showTeamName()" id="menu-teamname"><span class="menu-icon">🏷️</span><span>团队名称</span><span class="menu-arrow">›</span></div>
         <div class="menu-item" onclick="showLive()" id="menu-live"><span class="menu-icon">📺</span><span>直播</span><span class="menu-arrow">›</span></div>
@@ -580,12 +579,6 @@ const NPC_PERSONALITIES = {
 
 // 智能回复函数
 function getSmartReply(sender, playerName, context, type) {
-  // 如果配置了API，调用API
-  if (game.apiEndpoint && game.apiKey) {
-    return callAIAPI(sender, playerName, context, type);
-  }
-  
-  // 否则使用预设智能回复
   return getLocalReply(sender, playerName, context, type);
 }
 
@@ -619,45 +612,10 @@ function getLocalReply(sender, playerName, context, type) {
   return reply;
 }
 
-// 调用AI API
-async function callAIAPI(sender, playerName, context, type) {
-  try {
-    const response = await fetch(game.apiEndpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + game.apiKey
-      },
-      body: JSON.stringify({
-        sender: sender,
-        playerName: playerName,
-        context: context,
-        type: type,
-        gameState: {
-          day: game.day,
-          fans: game.fans,
-          debut: game.debuted
-        }
-      })
-    });
-    
-    if (response.ok) {
-      const data = await response.json();
-      return data.reply || getLocalReply(sender, playerName, context, type);
-    }
-  } catch (e) {
-    console.log('API调用失败，使用本地回复');
-  }
-  return getLocalReply(sender, playerName, context, type);
-}
+
 
 // 生成动态微博热搜
 function generateDynamicHotList() {
-  if (game.apiEndpoint && game.apiKey) {
-    // 有API时调用API生成
-    return generateAPIHotList();
-  }
-  
   // 本地生成
   const hotTopics = [
     { title: playerName + '新歌发布！', hot: 95, tag: 'hot' },
@@ -681,11 +639,6 @@ function generateDynamicHotList() {
   return hotTopics;
 }
 
-function generateAPIHotList() {
-  // 使用API生成热搜
-  const baseHot = generateDynamicHotList();
-  return baseHot;
-}
 
 // 生成动态微博评论
 function generateDynamicWeiboComments(weiboContent) {
@@ -808,8 +761,6 @@ function makeDefaultState(initialMoney) {
     // 分红系统
     pendingDividend:0, // 待领取分红
     totalSales:0, // 累计销售额（用于分红计算）
-    apiEndpoint:'', // 自定义API地址
-    apiKey:'', // API密钥
     totalEarnings:0, // 累计收益
     // 新数值
     charisma: 10, // 气质值
@@ -1204,7 +1155,8 @@ function switchTab(tab, btn) {
 function switchMsgTab(type, btn) {
   if (type === "bubble") {
     game.bubbleUnread = 0;
-    updateBubbleBadge();
+    var badge = document.getElementById("bubbleBadge");
+    if (badge) badge.style.display = "none";
   }
   document.querySelectorAll('.msg-tab').forEach(t => t.classList.remove('active'));
   btn.classList.add('active');
@@ -3269,54 +3221,6 @@ function showRelationships() {
   `);
 }
 
-
-// ========== API设置 ==========
-function showAPISettings() {
-  showModal('🔌 API设置', `
-    <div class="form-group">
-      <label class="form-label">API地址</label>
-      <input class="form-input" id="api-endpoint" value="${game.apiEndpoint || ''}" placeholder="输入你的API地址">
-    </div>
-    <div class="form-group">
-      <label class="form-label">API密钥</label>
-      <input class="form-input" id="api-key" value="${game.apiKey || ''}" placeholder="输入你的API密钥" type="password">
-    </div>
-    <div style="font-size:11px;color:#888;margin-bottom:12px">
-      接入API后可实现自动练习、自动接通告等功能<br>
-      API格式要求请参考说明文档
-    </div>
-    <button class="action-btn btn-primary" onclick="saveAPISettings()">保存设置</button>
-    <button class="action-btn btn-secondary" onclick="testAPI()">测试连接</button>
-    <div id="api-test-result" style="margin-top:10px;text-align:center;font-size:12px"></div>
-  `);
-}
-
-function saveAPISettings() {
-  game.apiEndpoint = document.getElementById('api-endpoint').value.trim();
-  game.apiKey = document.getElementById('api-key').value.trim();
-  saveGame();
-  toast('API设置已保存');
-  closeModal();
-}
-
-function testAPI() {
-  const endpoint = document.getElementById('api-endpoint').value.trim();
-  const key = document.getElementById('api-key').value.trim();
-  if (!endpoint) {
-    document.getElementById('api-test-result').innerHTML = '<span style="color:#e07070">请输入API地址</span>';
-    return;
-  }
-  document.getElementById('api-test-result').innerHTML = '<span style="color:#70a060">正在测试...</span>';
-  
-  // 简单的连接测试（实际项目中应该调用真实API）
-  setTimeout(() => {
-    if (endpoint.startsWith('http')) {
-      document.getElementById('api-test-result').innerHTML = '<span style="color:#70a060">✓ 连接成功！</span>';
-    } else {
-      document.getElementById('api-test-result').innerHTML = '<span style="color:#e07070">✗ 连接失败，请检查地址格式</span>';
-    }
-  }, 1000);
-}
 
 // ========== 团队 ==========
 function showTeam() {
