@@ -658,22 +658,22 @@ function getLocalReply(sender, playerName, context, type) {
 function generateDynamicHotList() {
   // 本地生成
   const hotTopics = [
-    { title: playerName + '新歌发布！', hot: 95, tag: 'hot' },
-    { title: playerName + '演唱会门票秒空', hot: 92, tag: 'hot' },
-    { title: '粉丝偶遇' + playerName, hot: 88, tag: 'new' },
-    { title: playerName + '演技获赞', hot: 85, tag: 'hot' },
-    { title: '如何评价' + playerName + '的舞台', hot: 80, tag: 'hot' },
-    { title: playerName + '代言翻车？', hot: 75, tag: 'hot' },
-    { title: '恭喜' + playerName + '出道', hot: 70, tag: 'new' },
-    { title: playerName + '最新路透照', hot: 65, tag: 'new' },
-    { title: '为什么' + playerName + '这么火', hot: 60, tag: 'hot' },
-    { title: '粉丝应援' + playerName, hot: 55, tag: 'friend' },
+    { title: game.playerName + '新歌发布！', hot: 95, tag: 'hot' },
+    { title: game.playerName + '演唱会门票秒空', hot: 92, tag: 'hot' },
+    { title: '粉丝偶遇' + game.playerName, hot: 88, tag: 'new' },
+    { title: game.playerName + '演技获赞', hot: 85, tag: 'hot' },
+    { title: '如何评价' + game.playerName + '的舞台', hot: 80, tag: 'hot' },
+    { title: game.playerName + '代言翻车？', hot: 75, tag: 'hot' },
+    { title: '恭喜' + game.playerName + '出道', hot: 70, tag: 'new' },
+    { title: game.playerName + '最新路透照', hot: 65, tag: 'new' },
+    { title: '为什么' + game.playerName + '这么火', hot: 60, tag: 'hot' },
+    { title: '粉丝应援' + game.playerName, hot: 55, tag: 'friend' },
   ];
   
   // 根据游戏状态调整热搜
   if (game.debuted) {
-    hotTopics[0].title = playerName + '新歌发布！';
-    hotTopics[1].title = playerName + '演唱会门票秒空';
+    hotTopics[0].title = game.playerName + '新歌发布！';
+    hotTopics[1].title = game.playerName + '演唱会门票秒空';
   }
   
   return hotTopics;
@@ -1155,8 +1155,8 @@ function updateUI() {
     document.getElementById('dividendCard').classList.add('show');
     document.getElementById('dividendAmount').textContent = '¥' + formatNum(game.pendingDividend);
     // 显示下次可提现日期
-    const dayInM = game.day % 30 || 30;
-    const nextDate = dayInM < 15 ? 15 : (dayInM < 30 ? 30 : 15);
+    const dayInM = (game.day % 30) + 1;
+    const nextDate = dayInM <= 15 ? 15 : (dayInM <= 30 ? 30 : 15);
     const daysLeft = nextDate - dayInM;
     document.getElementById('dividendNextDate').textContent = '下次' + nextDate + '号可提现(' + daysLeft + '天)';
   } else {
@@ -1889,7 +1889,7 @@ function doSleep() {
   });
   
   // 检查是否到了提现日
-  const dayInMonth = game.day % 30 || 30;
+  const dayInMonth = (game.day % 30) + 1;
   if (dayInMonth === 15 || dayInMonth === 30) {
     if (game.pendingDividend > 0) {
       addLog('💰 分红日到！请到首页提现 ¥' + formatNum(game.pendingDividend));
@@ -1991,7 +1991,10 @@ function showJobs() {
   showModal('📋 接通告', html);
 }
 
+var _takingJob = false;
 function takeJob(jobId) {
+  if (_takingJob) return; // 防止重复点击
+  _takingJob = true;
   const jobs = {
     variety:{name:'综艺节目',icon:'🎬',fans:2000,fee:30000,fatigue:25},
     drama:{name:'电视剧拍摄',icon:'🎥',fans:5000,fee:25000,fatigue:30},
@@ -2002,9 +2005,9 @@ function takeJob(jobId) {
   };
   
   const job = jobs[jobId];
-  if (!job) return;
+  if (!job) { _takingJob = false; return; }
   
-  if (game.stamina < 20) { toast('体力不足！'); return; }
+  if (game.stamina < 20) { toast('体力不足！'); _takingJob = false; return; }
   
   game.stamina -= 20;
   game.fatigue = Math.min(100, game.fatigue + job.fatigue);
@@ -2026,6 +2029,7 @@ function takeJob(jobId) {
   toast(`${job.name}完成！粉丝+${job.fans}！`);
   checkFatigue();
   updateUI(); saveGame(); closeModal();
+  _takingJob = false;
 }
 
 function meetNewFriendFromJob() {
@@ -2252,6 +2256,7 @@ function practiceSong(idx) {
   if (!game.concertSongProgress) game.concertSongProgress = [0, 0];
   if (game.concertSongProgress[idx] >= 100) { toast('这首歌已经准备好了！'); return; }
   game.stamina -= 20;
+  game.fatigue = Math.min(100, game.fatigue + 8);
   game.concertSongProgress[idx] = Math.min(100, game.concertSongProgress[idx] + 15);
   saveGame(); updateUI();
   showConcert();
@@ -2262,6 +2267,7 @@ function practiceDance(idx) {
   if (!game.concertDanceProgress) game.concertDanceProgress = [0, 0];
   if (game.concertDanceProgress[idx] >= 100) { toast('这支舞已经准备好了！'); return; }
   game.stamina -= 20;
+  game.fatigue = Math.min(100, game.fatigue + 8);
   game.concertDanceProgress[idx] = Math.min(100, game.concertDanceProgress[idx] + 15);
   saveGame(); updateUI();
   showConcert();
@@ -2370,7 +2376,7 @@ function holdConcert() {
 
 // ========== 分红提现 ==========
 function withdrawDividend() {
-  const dayInMonth = game.day % 30 || 30;
+  const dayInMonth = (game.day % 30) + 1;
   if (dayInMonth !== 15 && dayInMonth !== 30) { toast('分红只能在每月15号和30号提现'); return; }
   if (game.pendingDividend <= 0) { toast('没有可提现的分红'); return; }
   
@@ -2429,13 +2435,13 @@ function applyDebut() {
 function showEntertainment() {
   let html = '<div class="option-list">';
   const items = [
-    {key:'outdoor',name:'户外运动',icon:'🏃',cost:0,stamina:20,desc:'放松心情'},
+    {key:'outdoor',name:'户外运动',icon:'🏃',cost:0,stamina:20,desc:'疲惫-15，心情+5'},
     {key:'movie',name:'看电影',icon:'🎬',cost:50,stamina:25,desc:'疲惫-20，心情+8'},
     {key:'gym',name:'健身房',icon:'💪',cost:100,stamina:20,desc:'疲惫-10，舞蹈+3'},
     {key:'karaoke',name:'KTV唱歌',icon:'🎤',cost:60,stamina:30,desc:'疲惫-10，心情+6'},
     {key:'massage',name:'按摩放松',icon:'💆',cost:100,stamina:15,desc:'疲惫-30，心情+10'},
-    {key:'club',name:'夜店派对',icon:'🪩',cost:200,stamina:30,desc:'高风险！可能塌房！'},
-    {key:'scandal_party',name:'私人派对',icon:'🍷',cost:500,stamina:40,desc:'极度危险！35%塌房率！'},
+    {key:'club',name:'夜店派对',icon:'🪩',cost:200,stamina:30,desc:'疲惫-10，心情+12 · 高风险！'},
+    {key:'scandal_party',name:'私人派对',icon:'🍷',cost:500,stamina:40,desc:'疲惫-5，心情+15 · 极度危险！'},
   ];
   
   items.forEach(item => {
@@ -2852,7 +2858,7 @@ function showShop() {
       const count = game.ownedItems && game.ownedItems[item.id] ? game.ownedItems[item.id] : 0;
       html += '<div class="option-item" onclick="buyItem(\'' + item.id + '\',' + item.price + ',' + item.charisma + ',' + (item.hunger || 0) + ',' + (item.fastFood ? 'true' : 'false') + ',\'' + item.name + '\')">';
       html += '<div>';
-      html += '<div style="font-size:13px">' + item.name + (count > 0 ? ' (拥有' + count + '件)' : '') + '</div>';
+      html += '<div style="font-size:13px">' + item.name + (count > 0 && cat.type !== 'food' ? ' (拥有' + count + '件)' : '') + '</div>';
       html += '<div style="font-size:10px;opacity:0.5">' + item.desc + '</div>';
       html += '</div>';
       html += '<div style="text-align:right">';
